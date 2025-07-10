@@ -3,7 +3,6 @@
 import { Card, CardContent, TextField, Button, Slide, Link } from '@mui/material';
 import { useState } from 'react';
 import Image from "next/image";
-import Threads from '../Threads';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
