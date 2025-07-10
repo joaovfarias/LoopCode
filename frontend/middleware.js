@@ -1,15 +1,16 @@
 import { NextResponse } from 'next/server';
 
 export function middleware(request) {
-// Aqui verifica se o usuário está autenticado
-  if (false) {
-    return NextResponse.redirect(new URL('/', request.url));
+  const isLoggedIn = request.cookies.get('isLoggedIn');
+
+  if (isLoggedIn?.value !== 'true') {
+    return NextResponse.redirect(new URL('/login', request.url));
   }
 
   return NextResponse.next();
 }
 
-// Aplica apenas nas rotas /exercicios/**
+// Aplica o middleware apenas às rotas especificadas
 export const config = {
-  matcher: ['/exercicios/:path*'],
+  matcher: ['/exercicios/:path*', "/"],
 };
