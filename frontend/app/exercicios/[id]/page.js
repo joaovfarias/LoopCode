@@ -1,3 +1,8 @@
-export default function ExPage({ params }) {
-  return <h1>Exercício ID: {params.id}</h1>;
+export default async function ExerciciosPage({params}) {
+  const { id } = await params;
+  return (
+    <div>
+      <h1>Exercício {id}</h1>
+    </div>
+  );
 }
