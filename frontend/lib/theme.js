@@ -5,14 +5,14 @@ const theme = createTheme({
   palette: {
     mode: 'dark',
     primary: {
-      main: '#544AC4', // destaque 1
+      main: '#673AB7', // destaque 1
     },
     secondary: {
-      main: '#FFFFFF', // destaque 2
+      main: '#673AB7', // destaque 2
     },
     background: {
-      default: '#101018', // layer 1
-      paper: '#101018', // layer 2
+      default: '#121212', // layer 1
+      paper: '#161616', // layer 2
     },
   },
   typography: {

@@ -13,8 +13,8 @@ import {
 } from '@mui/material';
 import { useState } from 'react';
 import Image from "next/image";
-import Visibility from '@mui/icons-material/Visibility';
-import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -69,7 +69,7 @@ export default function LoginPage() {
                         edge="end"
                         aria-label="toggle password visibility"
                       >
-                        {mostrarSenha ? <VisibilityOff /> : <Visibility />}
+                        {mostrarSenha ? <VisibilityOffIcon/> : <VisibilityIcon />}
                       </IconButton>
                     </InputAdornment>
                   }

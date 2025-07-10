@@ -49,8 +49,8 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      <div className="w-full max-w-md p-3 relative min-h-[300px]">
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="w-full max-w-md p-3 relative min-h-[450px]">
         <div className="absolute inset-0">
           <CardContent>
             <Image

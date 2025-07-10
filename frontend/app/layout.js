@@ -1,15 +1,13 @@
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
 import MuiThemeProvider from './theme-provider';
 import NavWrapper from '../components/NavWrapper';
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
+import { Container } from '@mui/material';
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const inter = Inter({
   subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
 });
 
 export const metadata = {
@@ -19,13 +17,14 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="pt-BR">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <body className={`${inter.variable} antialiased`}>
         <MuiThemeProvider>
           <NavWrapper />
-          {children}
+          <Container maxWidth="xl">
+            {children}
+          </Container>
         </MuiThemeProvider>
       </body>
     </html>
   );
 }
-
