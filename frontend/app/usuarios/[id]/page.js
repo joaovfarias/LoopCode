@@ -1,96 +1,127 @@
 'use client';
 
-import { Avatar, Box, Typography, Card, CardContent, IconButton, Stack } from '@mui/material';
+import { Avatar, Box, Typography, Card, CardContent, Stack } from '@mui/material';
 import CodeIcon from '@mui/icons-material/Code';
 import ListIcon from '@mui/icons-material/List';
-import NotificationsIcon from '@mui/icons-material/Notifications';
 import { use } from 'react';
 import ExercicioItem from '@/components/ExercicioItem';
 import ListaItem from '@/components/ListaItem';
 import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment';
 
 export default function PerfilUsuario({ params }) {
-  const { id } = use(params);
+    const { id } = use(params);
 
-  return (
-    <Box className="p-8">
+    return (
+        <Box className="p-8">
+            <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2, mb: 6 }}>
+                {/* Avatar apenas com largura do conteúdo */}
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <Avatar sx={{ width: 120, height: 120, bgcolor: 'primary.main' }}>
+                        <Typography variant="h4" color="white">U</Typography>
+                    </Avatar>
+                </Box>
 
-      <Box className="flex gap-2">
-        {/* Perfil lateral */}
-        <Box className="w-3xs flex flex-col items-center p-6">
-          <Avatar className='mb-2' sx={{ width: 80, height: 80, bgcolor: 'primary.main' }}> 
-            <Typography variant="h4">U</Typography>
-          </Avatar>
-          <Typography variant="h6" className="mt-4">
-            Usuário {id}
-          </Typography>
-          <Typography variant="body2" color="gray">
-            user@gmail.com
-          </Typography>
+                {/* Informações do usuário coladas no avatar */}
+                <Box className="ml-3 mt-1">
+                    <Typography variant="h6">
+                        Usuário {id}
+                    </Typography>
+                    <Typography variant="body2" color="gray">
+                        user@gmail.com
+                    </Typography>
 
-          <Stack direction="row" spacing={2} className="mt-6">
-            <Box className="text-center rounded-4xl px-5 py-2" 
-                 sx={{ backgroundColor: 'primary.main'}}>
-              <IconButton sx={{ padding:0}}>
-                <CodeIcon />
-              </IconButton>
-              <Typography variant="body2" sx={{ padding:0}}>8</Typography>
-            </Box>
-            <Box className="text-center rounded-4xl px-5 pt-2" 
-                 sx={{ backgroundColor: 'primary.main'}}> 
-              <IconButton sx={{ padding:0}}>
-                <ListIcon />
-              </IconButton>
-              <Typography variant="body2">25</Typography>
-            </Box>
-            <Box className="text-center rounded-4xl px-5 pt-2" 
-                 sx={{ backgroundColor: 'primary.main'}}>
-              <IconButton sx={{ padding:0}}>
-                <LocalFireDepartmentIcon />
-              </IconButton>
-              <Typography variant="body2">5</Typography>
-            </Box>
-          </Stack>
-        </Box>
+                    <Stack direction="row" spacing={2} className="mt-5">
+                        {/* Exercícios */}
+                        <Card
+                            sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 1.5,
+                                px: 2,
+                                py: 1,
+                                borderRadius: 4,
+                                color: 'white',
+                                boxShadow:0,
+                            }}
+                        >
+                            <CodeIcon />
+                            <Typography variant="body2">8</Typography>
+                        </Card>
 
-        <Box className="w-3/4 grid grid-cols-2 gap-3">
-            {/* Exercícios */}
-            <Box>
-                <Typography variant="h6" className="pb-2 text-white font-extrabold">
-                Exercícios
-                </Typography>
-                <Card className="rounded-2xl px-1 py-1">
-                <CardContent>
-                    <Stack spacing={2}>
-                    {[1, 2, 3, 4, 5].map((item, i) => (
-                        <Box key={i}>
-                        <ExercicioItem exercicio={{ id: i, linguagem: 'JavaScript', votes: i * 2 }} />
-                        </Box>
-                    ))}
+                        {/* Listas */}
+                        <Card
+                            sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 1.5,
+                                px: 2,
+                                py: 1,
+                                borderRadius: 4,
+                                color: 'white',
+                                boxShadow:0,
+                            }}
+                        >
+                            <ListIcon />
+                            <Typography variant="body2">25</Typography>
+                        </Card>
+
+                        {/* Daily */}
+                        <Card
+                            sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 1.5,
+                                px: 2,
+                                py: 1,
+                                borderRadius: 4,
+                                color: 'white',
+                                boxShadow:0,
+                            }}
+                        >
+                            <LocalFireDepartmentIcon />
+                            <Typography variant="body2">5</Typography>
+                        </Card>
                     </Stack>
-                </CardContent>
-                </Card>
-            </Box>
 
-          {/* Listas */}
-            <Box>
-                <Typography variant="h6" className="pb-2 text-white">
-                Listas
-                </Typography>
-                <Card className="rounded-2xl px-1 py-1">
-                <CardContent>
-                    <Stack spacing={2}>
-                    {[1, 2, 3, 4, 5].map((item, i) => (
-                        <Box key={i}>
-                        <ListaItem lista={{ id: i, exercicios: i * 3 }} />
+                </Box>
+
+            </Box>
+            <Box className="flex gap-2">
+
+                <Box className="w-full grid grid-cols-2 gap-10">
+                    {/* Exercícios */}
+                    <Box className="border-1 border-neutral-700 p-5">
+                        <Typography variant="h6" className="pb-2">
+                            Exercícios
+                        </Typography>
+                        <Box className="rounded-2xl">
+                                <Stack spacing={2}>
+                                    {[1, 2, 3, 4, 5, 6, 7].map((item, i) => (
+                                        <Box key={i}>
+                                            <ExercicioItem exercicio={{ id: i, linguagem: 'JavaScript', votes: i * 2 }} />
+                                        </Box>
+                                    ))}
+                                </Stack>
                         </Box>
-                    ))}
-                    </Stack>
-                </CardContent>
-                </Card>
+                    </Box>
+
+                    {/* Listas */}
+                    <Box  className="border-1 border-neutral-700 p-5">
+                        <Typography variant="h6" className="pb-2 text-white">
+                            Listas
+                        </Typography>
+                        <Box className="rounded-2xl">
+                                <Stack spacing={2}>
+                                    {[1, 2, 3, 4, 5].map((item, i) => (
+                                        <Box key={i}>
+                                            <ListaItem lista={{ id: i, exercicios: i * 3 }} />
+                                        </Box>
+                                    ))}
+                                </Stack>
+                        </Box>
+                    </Box>
+                </Box>
             </Box>
         </Box>
-      </Box>
-    </Box>
-  );
+    );
 }

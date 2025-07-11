@@ -9,11 +9,12 @@ import {
   MenuItem
 } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
+import ExcluirListaDialog from './ExcluirListaDialog'; 
 
 export default function ListaItem({ lista }) {
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
-
+  const [openDialog, setDialogOpen] = useState(false); // controle do dialog
   const handleMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -27,12 +28,17 @@ export default function ListaItem({ lista }) {
   };
 
   const handleExcluir = () => {
-    alert(`Excluir lista ${lista.id}`);
+    setDialogOpen(true);
     handleMenuClose();
   };
 
+  const handleDialogClose = () => {
+    setDialogOpen(false);
+  }
+
   return (
-    <Box className="flex justify-between items-center py-2">
+    <>
+    <Box className="flex justify-between items-center py-2 border-b-1 border-neutral-700">
       <Box>
         <Typography variant="body1">Título {lista.id}</Typography>
         <Typography variant="caption" color="gray">
@@ -57,5 +63,12 @@ export default function ListaItem({ lista }) {
         <MenuItem onClick={handleExcluir}>Excluir</MenuItem>
       </Menu>
     </Box>
+
+    <ExcluirListaDialog 
+            open={openDialog}
+            onClose={handleDialogClose}
+            lista={lista}
+          />
+    </>
   );
 }

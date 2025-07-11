@@ -12,5 +12,5 @@ export function middleware(request) {
 
 // Aplica o middleware apenas às rotas especificadas
 export const config = {
-  matcher: ['/exercicios/:path*', "/"],
+  matcher: ['/usuarios/:path*', "/"],
 };

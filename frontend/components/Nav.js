@@ -1,51 +1,58 @@
 'use client';
 
 import * as React from 'react';
-import { styled, alpha } from '@mui/material/styles';
+import { styled } from '@mui/material/styles';
 import {
   AppBar,
   Box,
   Toolbar,
   IconButton,
-  Typography,
   InputBase,
   MenuItem,
-  Menu
+  Menu,
+  Avatar,
+  Typography
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
-import AccountCircle from '@mui/icons-material/AccountCircle';
 import Image from "next/image";
+import Link from "next/link";
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
+  display: 'flex',           // Adicionado
+  alignItems: 'center',      // Alinhamento vertical
   borderRadius: theme.shape.borderRadius,
-  backgroundColor: alpha(theme.palette.common.white, 0.15),
+  backgroundColor: theme.palette.background,
   '&:hover': {
-    backgroundColor: alpha(theme.palette.common.white, 0.25),
+    backgroundColor: theme.palette.background,
   },
-  marginRight: theme.spacing(2),
-  width: '30ch',
+  border: `1px solid ${theme.palette.divider}`,
+  width: '100%',             // Ocupa o espaço que for dado
+  maxWidth: '50ch',          // Limite visual
 }));
 
 const SearchIconWrapper = styled('div')(({ theme }) => ({
-  padding: theme.spacing(0, 2),
-  height: '100%',
   position: 'absolute',
-  pointerEvents: 'none',
+  left: 0,
+  height: '100%',
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
+  padding: theme.spacing(0, 2),
+  pointerEvents: 'none',
 }));
+
 
 const StyledInputBase = styled(InputBase)(({ theme }) => ({
   color: 'inherit',
+  width: '100%', // cobre 100% da Search
   '& .MuiInputBase-input': {
-    padding: theme.spacing(1, 1, 1, 0),
-    paddingLeft: `calc(1em + ${theme.spacing(4)})`,
+    width: '100%', // cobre 100% do InputBase
+    padding: theme.spacing(1, 1, 1, `calc(1em + ${theme.spacing(4)})`), // considera espaço do ícone
     transition: theme.transitions.create('width'),
-    width: '100%',
   },
 }));
+
 
 export default function Nav() {
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -67,8 +74,6 @@ export default function Nav() {
       keepMounted
       open={isMenuOpen}
       onClose={handleMenuClose}
-      anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-      transformOrigin={{ vertical: 'top', horizontal: 'right' }}
     >
       <MenuItem onClick={handleMenuClose}>Meu Perfil</MenuItem>
       <MenuItem onClick={handleMenuClose}>Sair</MenuItem>
@@ -77,23 +82,34 @@ export default function Nav() {
 
   return (
     <Box sx={{ flexGrow: 1 }}>
-      <AppBar position="static">
-        <Toolbar>
+      <AppBar
+        position="static"
+        elevation={0}
+        sx={{
+          backgroundColor: 'transparent',
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
+          backdropFilter: 'blur(4px)', // opcional
+        }}
+      >
 
+        <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
           {/* LOGO à esquerda */}
-          <Box sx={{ flexGrow: 1 }}>
-            <Image
-              src="/images/logo.png" // caminho da imagem
+          
+          <Box sx={{ flex: 1, display: 'flex', alignItems: 'center' }}>
+            <Link href="/" passHref>
+                        <Image
+              src="/images/logo.png"
               alt="Logo LoopCode"
               width={50}
               height={50}
               priority
             />
+            </Link>
           </Box>
+          
 
-
-          {/* Pesquisa + Perfil à direita */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          {/* Pesquisa centralizada */}
+          <Box sx={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
             <Search>
               <SearchIconWrapper>
                 <SearchIcon />
@@ -103,7 +119,10 @@ export default function Nav() {
                 inputProps={{ 'aria-label': 'search' }}
               />
             </Search>
+          </Box>
 
+          {/* Perfil à direita */}
+          <Box sx={{ flex: 1, display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
             <IconButton
               size="large"
               edge="end"
@@ -113,11 +132,13 @@ export default function Nav() {
               onClick={handleProfileMenuOpen}
               color="inherit"
             >
-              <AccountCircle />
+              <Avatar sx={{ width: 35, height: 35, bgcolor: 'primary.main' }}>
+                        <Typography variant="subtitle1" color="white">U</Typography>
+                    </Avatar>
             </IconButton>
           </Box>
-
         </Toolbar>
+
       </AppBar>
       {renderMenu}
     </Box>
