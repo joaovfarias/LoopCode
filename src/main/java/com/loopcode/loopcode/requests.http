@@ -1,0 +1,39 @@
+POST http://localhost:8080/auth/register
+Content-Type: application/json
+
+{
+  "username": "adesto",
+  "email": "adesto@example.com",
+  "password": "12346678",
+  "role": "ADMIN"
+}
+
+###
+
+POST http://localhost:8080/auth/login
+Content-Type: application/json
+
+{
+  "email": "adesto@example.com",
+  "password": "12346678"
+}
+
+
+###
+
+
+POST http://localhost:8080/exercises
+Content-Type: application/json
+Authorization: Bearer 
+
+{
+  "title": "Soma de Dois Números",
+  "language": "java",
+  "difficulty": "EASY",
+  "description": "Dado dois inteiros, retorne a soma.",
+  "mainCode": "public int solve(int a, int b) { /* seu código aqui */ }",
+  "testCode": "assert solve(2,3) == 5; assert solve(-1,1) == 0;"
+}
+
+
+
