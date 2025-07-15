@@ -6,9 +6,9 @@ import com.loopcode.loopcode.repositories.ExerciseRepository;
 import com.loopcode.loopcode.domain.user.User;
 import com.loopcode.loopcode.repositories.UserRepository;
 
-import org.springframework.data.domain.Page; // Para paginação
-import org.springframework.data.domain.PageRequest; // Para paginação
-import org.springframework.data.domain.Sort; // Para ordenação
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 //import org.springframework.data.jpa.repository.JpaRepository;
 //import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
@@ -68,8 +68,7 @@ public class ExerciseService {
         PageRequest pageable = PageRequest.of(page, size, sort);
 
         if (language != null && !language.isEmpty() && !language.equalsIgnoreCase("all")) {
-            // return exerciseRepository.findByLanguage(language, pageable);
-            return null;
+            return exerciseRepository.findByLanguage(language, pageable);
         }
 
         return exerciseRepository.findAll(pageable);

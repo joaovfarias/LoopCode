@@ -57,8 +57,9 @@ public class DailyChallengeService {
 
         System.out.println("Novo desafio diário selecionado para " + date + ": " +
                 selectedExercise.getTitle());
-        // return Optional.of(selectedExercise);
 
-        return null;
+        return Optional.of(selectedExercise);
+
+        // return null;
     }
 }

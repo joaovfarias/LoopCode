@@ -1,5 +1,5 @@
 package com.loopcode.loopcode.dtos;
 
-public record AuthResponseDto(String Token) {
+public record AuthResponseDto(String token) {
 
 }
