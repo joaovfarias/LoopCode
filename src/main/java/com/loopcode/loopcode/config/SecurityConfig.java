@@ -1,25 +1,25 @@
 package com.loopcode.loopcode.config;
 
-import com.loopcode.loopcode.security.JwtAuthFilter;
-import com.loopcode.loopcode.security.AppUserDetailsService;
+import static org.springframework.boot.autoconfigure.security.servlet.PathRequest.toH2Console;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 
-import static org.springframework.boot.autoconfigure.security.servlet.PathRequest.toH2Console;
+import com.loopcode.loopcode.security.AppUserDetailsService;
+import com.loopcode.loopcode.security.JwtAuthFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -45,12 +45,17 @@ public class SecurityConfig {
 
     @Bean
     @Order(2)
-    public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http,
+            DaoAuthenticationProvider authenticationProvider) throws Exception {
         http
+                .authenticationProvider(authenticationProvider)
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/auth/login", "/auth/register").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/exercises").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/exercises").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/exercises/*/solve").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/exercises/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/daily-challenge").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/daily-challenge").permitAll()
                         .requestMatchers(HttpMethod.GET, "/").permitAll()
                         .anyRequest().authenticated())

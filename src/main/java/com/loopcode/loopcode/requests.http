@@ -18,13 +18,15 @@ Content-Type: application/json
   "password": "12346678"
 }
 
+###
+
+GET
 
 ###
 
-
 POST http://localhost:8080/exercises
 Content-Type: application/json
-Authorization: Bearer 
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZGVzdG8iLCJpYXQiOjE3NTI3OTcyOTUsImV4cCI6MTc1Mjg4MzY5NX0.7zOjlq7MKfJgUWVBRuq55_LOhtDHXw-bt9u4FDXr7VM
 
 {
   "title": "Soma de Dois Números",
@@ -35,5 +37,14 @@ Authorization: Bearer
   "testCode": "assert solve(2,3) == 5; assert solve(-1,1) == 0;"
 }
 
+###
 
+POST http://localhost:8080/exercises/00a9f823-3a79-4b4f-a242-56d2bb5b6699/solve
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZGVzdG8iLCJpYXQiOjE3NTI3OTcyOTUsImV4cCI6MTc1Mjg4MzY5NX0.7zOjlq7MKfJgUWVBRuq55_LOhtDHXw-bt9u4FDXr7VM
 
+{
+  "userCode": "public int solve(int a, int b) { return a + b; }",
+  "inputs": ["2", "3"],
+  "language": "java"
+}
