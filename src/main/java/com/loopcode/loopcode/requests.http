@@ -1,4 +1,4 @@
-POST http://localhost:8080/auth/register
+POST http://localhost:8084/auth/register
 Content-Type: application/json
 
 {
@@ -10,7 +10,7 @@ Content-Type: application/json
 
 ###
 
-POST http://localhost:8080/auth/login
+POST http://localhost:8084/auth/login
 Content-Type: application/json
 
 {
@@ -24,7 +24,7 @@ GET
 
 ###
 
-POST http://localhost:8080/exercises
+POST http://localhost:8084/exercises
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZGVzdG8iLCJpYXQiOjE3NTI3OTcyOTUsImV4cCI6MTc1Mjg4MzY5NX0.7zOjlq7MKfJgUWVBRuq55_LOhtDHXw-bt9u4FDXr7VM
 
@@ -39,7 +39,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZGVzdG8iLCJpYXQiOjE3NTI3O
 
 ###
 
-POST http://localhost:8080/exercises/00a9f823-3a79-4b4f-a242-56d2bb5b6699/solve
+POST http://localhost:8084/exercises/00a9f823-3a79-4b4f-a242-56d2bb5b6699/solve
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZGVzdG8iLCJpYXQiOjE3NTI3OTcyOTUsImV4cCI6MTc1Mjg4MzY5NX0.7zOjlq7MKfJgUWVBRuq55_LOhtDHXw-bt9u4FDXr7VM
 
