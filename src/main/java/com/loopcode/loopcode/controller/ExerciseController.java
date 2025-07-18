@@ -4,6 +4,8 @@ import com.loopcode.loopcode.domain.exercise.Exercise;
 import com.loopcode.loopcode.dtos.ExerciseRequestDto;
 import com.loopcode.loopcode.service.ExerciseService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 import org.springframework.data.domain.Page;
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/exercises")
+@Tag(name = "Exercicios/Atividades", description = "Endpoint dos exercicios")
 public class ExerciseController {
 
     private final ExerciseService exerciseService;
@@ -28,6 +31,7 @@ public class ExerciseController {
     }
 
     @PostMapping
+    @Operation(summary =  "Cria exercicio", description = "Recebe de parametro o Dto do exercicio e retorna o exercicio criado")
     public ResponseEntity<Exercise> createExercise(@Valid @RequestBody ExerciseRequestDto dto,
             Authentication authentication) {
 
@@ -38,6 +42,7 @@ public class ExerciseController {
     }
 
     @GetMapping
+    @Operation(summary = "Retorna um exercicio", description = "Retorna um exercicio recebendo seu id de parametro.")
     public ResponseEntity<Page<Exercise>> getExercises(
             @RequestParam(required = false) String language,
             @RequestParam(required = false) String difficulty,

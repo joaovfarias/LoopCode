@@ -58,7 +58,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/daily-challenge").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/daily-challenge").permitAll()
                         .requestMatchers(HttpMethod.GET, "/").permitAll()
-                        .anyRequest().authenticated())
+                        .anyRequest().permitAll()) // ta permitAll() mas vou mudar algum dia (joao)
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
