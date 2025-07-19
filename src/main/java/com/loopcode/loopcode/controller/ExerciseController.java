@@ -42,17 +42,17 @@ public class ExerciseController {
     }
 
     @GetMapping
-    @Operation(summary = "Retorna um exercicio", description = "Retorna um exercicio recebendo seu id de parametro.")
+    @Operation(summary = "Retorna exercícios paginados", description = "Retorna uma pagina de exercicios recebendo como paramêtro a linguagem, tipo de sort e etc...")
     public ResponseEntity<Page<Exercise>> getExercises(
             @RequestParam(required = false) String language,
-            @RequestParam(required = false) String difficulty,
+            //@RequestParam(required = false) String difficulty,
             @RequestParam(required = false, defaultValue = "createdAt") String sortBy,
             @RequestParam(required = false, defaultValue = "desc") String order,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 
         Page<Exercise> exercises = exerciseService.getExercises(
-                language, difficulty, null, sortBy, order, page, size);
+                language, sortBy, order, page, size);
         return ResponseEntity.ok(exercises);
     }
 }

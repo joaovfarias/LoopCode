@@ -28,6 +28,7 @@ public class ExerciseService {
     private final UserRepository userRepository;
     private final CodeExecutionService execService;
 
+    //Aparentemente certo
     public ExerciseService(ExerciseRepository exerciseRepository, UserRepository userRepository,
             CodeExecutionService execService) {
         this.exerciseRepository = exerciseRepository;
@@ -59,8 +60,8 @@ public class ExerciseService {
 
     public Page<Exercise> getExercises(
             String language,
-            String difficulty,
-            String type, // 'exercise' ou 'list' (se for um endpoint unificado para ambos)
+            //String difficulty,         ------------------TEM QUE IMPLEMENTAR DIFFICULTY E TYPE DEPOIS!!------------------
+            //String type, // 'exercise' ou 'list' (se for um endpoint unificado para ambos)
             String sortBy, // 'createdAt', 'upvotes', etc.
             String order, // 'asc' ou 'desc'
             int page,
@@ -80,6 +81,7 @@ public class ExerciseService {
 
     }
 
+    /*
     @Transactional
     public SolveResponseDto solve(UUID exerciseId,
             String userCode,
@@ -104,5 +106,7 @@ public class ExerciseService {
                 passed,
                 feedback,
                 expectedOutput);
-    }
+    }*/
 }
+
+

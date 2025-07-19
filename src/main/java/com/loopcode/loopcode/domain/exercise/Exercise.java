@@ -13,6 +13,8 @@ import lombok.AllArgsConstructor;
 
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Table(name = "exercises")
 @Data
@@ -30,9 +32,11 @@ public class Exercise {
     private String description;
 
     @Lob
+    @JsonIgnore
     private String mainCode;
 
     @Lob
+    @JsonIgnore
     private String testCode;
 
     private String createdBy;

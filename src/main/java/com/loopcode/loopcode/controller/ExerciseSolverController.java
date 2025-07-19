@@ -26,6 +26,7 @@ public class ExerciseSolverController {
         this.exerciseService = exerciseService;
     }
 
+    /*
     @PostMapping("/{id}/solve")
     public ResponseEntity<SolveResponseDto> solveExercise(
             @PathVariable("id") UUID exerciseId,
@@ -40,5 +41,5 @@ public class ExerciseSolverController {
                 requestDto.language(),
                 username);
         return ResponseEntity.ok(result);
-    }
+    }*/
 }

@@ -19,32 +19,33 @@ Content-Type: application/json
 }
 
 ###
-
-GET
-
-###
-
 POST http://localhost:8084/exercises
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZGVzdG8iLCJpYXQiOjE3NTI3OTcyOTUsImV4cCI6MTc1Mjg4MzY5NX0.7zOjlq7MKfJgUWVBRuq55_LOhtDHXw-bt9u4FDXr7VM
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZGVzdG8iLCJpYXQiOjE3NTI4ODkxNjksImV4cCI6MTc1Mjk3NTU2OX0.k_z6sxHnmyZ8MvsfbTPqDHPFwk-DDsioJfKuiaYyjjo
 
 {
   "title": "Soma de Dois Números",
-  "language": "java",
+  "language": "c++",
   "difficulty": "EASY",
   "description": "Dado dois inteiros, retorne a soma.",
   "mainCode": "public int solve(int a, int b) { /* seu código aqui */ }",
   "testCode": "assert solve(2,3) == 5; assert solve(-1,1) == 0;"
 }
 
-###
+##
 
-POST http://localhost:8084/exercises/00a9f823-3a79-4b4f-a242-56d2bb5b6699/solve
+POST http://localhost:8084/exercises/84b0e24d-cf92-42c4-b813-ba3450199234/solve
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZGVzdG8iLCJpYXQiOjE3NTI3OTcyOTUsImV4cCI6MTc1Mjg4MzY5NX0.7zOjlq7MKfJgUWVBRuq55_LOhtDHXw-bt9u4FDXr7VM
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZGVzdG8xMiIsImlhdCI6MTc1Mjg4NDg4MCwiZXhwIjoxNzUyOTcxMjgwfQ.MAFtpT75jBZdPtdHY05Xw3UN8sP9Ueq3hIHBbNzGOeM
 
 {
   "userCode": "public int solve(int a, int b) { return a + b; }",
   "inputs": ["2", "3"],
   "language": "java"
 }
+
+###
+
+GET http://localhost:8084/exercises
+Content-Type: application/json
+Authorization: 
