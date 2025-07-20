@@ -18,6 +18,7 @@ const theme = createTheme({
     card: {
       primary: "#1B1C30",
       secondary: "#303042ff", // divider
+      dark: "#0B0C1C",
     },
   },
   typography: {
