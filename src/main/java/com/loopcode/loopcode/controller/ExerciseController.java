@@ -2,6 +2,7 @@ package com.loopcode.loopcode.controller;
 
 import com.loopcode.loopcode.domain.exercise.Exercise;
 import com.loopcode.loopcode.dtos.ExerciseRequestDto;
+import com.loopcode.loopcode.dtos.ExerciseResponseDto;
 import com.loopcode.loopcode.service.ExerciseService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -43,16 +44,16 @@ public class ExerciseController {
 
     @GetMapping
     @Operation(summary = "Retorna exercícios paginados", description = "Retorna uma pagina de exercicios recebendo como paramêtro a linguagem, tipo de sort e etc...")
-    public ResponseEntity<Page<Exercise>> getExercises(
+    public ResponseEntity<Page<ExerciseResponseDto>> getExercises(
             @RequestParam(required = false) String language,
-            //@RequestParam(required = false) String difficulty,
+            @RequestParam(required = false) String difficulty,
             @RequestParam(required = false, defaultValue = "createdAt") String sortBy,
             @RequestParam(required = false, defaultValue = "desc") String order,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 
-        Page<Exercise> exercises = exerciseService.getExercises(
-                language, sortBy, order, page, size);
-        return ResponseEntity.ok(exercises);
+        Page<ExerciseResponseDto> exercisesDtoPage = exerciseService.getExercises(
+                language, difficulty, sortBy, order, page, size);
+        return ResponseEntity.ok(exercisesDtoPage);
     }
 }

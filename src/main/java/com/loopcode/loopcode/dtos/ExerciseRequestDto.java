@@ -1,10 +1,12 @@
 package com.loopcode.loopcode.dtos;
 
+import java.util.List;
+
 public record ExerciseRequestDto(
                 String title,
-                String language,
-                String difficulty,
                 String description,
                 String mainCode,
-                String testCode) {
-}
+                String difficulty, // "EASY", "MEDIUM", "HARD"
+                Long languageId,
+                List<TestCaseDto> testCases
+) {}
