@@ -8,11 +8,14 @@ import com.loopcode.loopcode.dtos.ExerciseRequestDto;
 import com.loopcode.loopcode.dtos.ExerciseResponseDto;
 import com.loopcode.loopcode.dtos.LanguageDto;
 import com.loopcode.loopcode.dtos.SimpleUserDto;
+import com.loopcode.loopcode.exceptions.ResourceNotFoundException;
 import com.loopcode.loopcode.repositories.ExerciseRepository;
 import com.loopcode.loopcode.repositories.ProgrammingLanguageRepository;
 import com.loopcode.loopcode.domain.user.User;
 import com.loopcode.loopcode.repositories.UserRepository;
 import com.loopcode.loopcode.service.specifications.ExerciseSpecifications;
+
+import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -110,6 +113,14 @@ public class ExerciseService {
         return exercisePage.map(this::convertToDto);
     }
 
+    @Transactional(readOnly = true)
+    public ExerciseResponseDto getExerciseById(UUID id)
+    {
+        Exercise exercise = exerciseRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Exercício não encontrado com o ID: " + id));
+
+        return convertToDto(exercise);
+    }
     /*
     @Transactional
     public SolveResponseDto solve(UUID exerciseId,
