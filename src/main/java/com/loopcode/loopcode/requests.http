@@ -59,6 +59,6 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZGVzdG8xMiIsImlhdCI6MTc1M
 
 ###
 
-GET http://localhost:8084/exercises
+GET http://localhost:8084/exercises/{id}
 Content-Type: application/json
-Authorization: 
+Authorization: Bearer {token} 
