@@ -36,7 +36,7 @@ public class User implements UserDetails {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, columnDefinition = "VARCHAR(255) DEFAULT 'USER'")
-    private Role role = Role.USER;   
+    private Role role = Role.USER;
 
     @Column()
     @Override

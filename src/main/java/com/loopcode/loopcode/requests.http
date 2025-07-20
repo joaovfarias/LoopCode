@@ -1,0 +1,51 @@
+POST http://localhost:8084/auth/register
+Content-Type: application/json
+
+{
+  "username": "adesto",
+  "email": "adesto@example.com",
+  "password": "12346678",
+  "role": "ADMIN"
+}
+
+###
+
+POST http://localhost:8084/auth/login
+Content-Type: application/json
+
+{
+  "email": "adesto@example.com",
+  "password": "12346678"
+}
+
+###
+POST http://localhost:8084/exercises
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZGVzdG8iLCJpYXQiOjE3NTI4ODkxNjksImV4cCI6MTc1Mjk3NTU2OX0.k_z6sxHnmyZ8MvsfbTPqDHPFwk-DDsioJfKuiaYyjjo
+
+{
+  "title": "Soma de Dois Números",
+  "language": "c++",
+  "difficulty": "EASY",
+  "description": "Dado dois inteiros, retorne a soma.",
+  "mainCode": "public int solve(int a, int b) { /* seu código aqui */ }",
+  "testCode": "assert solve(2,3) == 5; assert solve(-1,1) == 0;"
+}
+
+##
+
+POST http://localhost:8084/exercises/84b0e24d-cf92-42c4-b813-ba3450199234/solve
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZGVzdG8xMiIsImlhdCI6MTc1Mjg4NDg4MCwiZXhwIjoxNzUyOTcxMjgwfQ.MAFtpT75jBZdPtdHY05Xw3UN8sP9Ueq3hIHBbNzGOeM
+
+{
+  "userCode": "public int solve(int a, int b) { return a + b; }",
+  "inputs": ["2", "3"],
+  "language": "java"
+}
+
+###
+
+GET http://localhost:8084/exercises
+Content-Type: application/json
+Authorization: 
