@@ -28,7 +28,10 @@ export default function ExercisePage({ params }) {
       const response = await fetch(`${baseUrl}/exercises/${id}`, {
         method: "GET",
       });
-      if (!response.ok) throw new Error("Erro ao buscar exercício");
+      // if (!response.ok) throw new Error("Erro ao buscar exercício");
+      if (!response.ok) {
+        window.location.href = "/not-found";
+      }
       return response.json();
     } catch (err) {
       console.error(err);
