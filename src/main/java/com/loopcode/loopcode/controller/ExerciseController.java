@@ -3,6 +3,8 @@ package com.loopcode.loopcode.controller;
 import com.loopcode.loopcode.domain.exercise.Exercise;
 import com.loopcode.loopcode.dtos.ExerciseRequestDto;
 import com.loopcode.loopcode.dtos.ExerciseResponseDto;
+import com.loopcode.loopcode.dtos.SolveRequestDto;
+import com.loopcode.loopcode.dtos.SolveResponseDto;
 import com.loopcode.loopcode.service.ExerciseService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -66,5 +68,20 @@ public class ExerciseController {
         ExerciseResponseDto exerciseDto = exerciseService.getExerciseById(id);
         return ResponseEntity.ok(exerciseDto);
     }
+
+    @PostMapping("/{id}/solve")
+    @Operation(summary = "Submete uma solução para um exercício", description = "Executa o código do usuário contra os casos de teste e retorna o resultado.")
+    public ResponseEntity<SolveResponseDto> solveExercise(
+        @PathVariable UUID id,
+        @RequestBody @Valid SolveRequestDto solveDto,
+        Authentication authentication)
+    {
+        String username = authentication.getName();
+
+        SolveResponseDto response = exerciseService.solveExercise(id, solveDto, username);
+
+        return ResponseEntity.ok(response);
+    }
+    
     
 }

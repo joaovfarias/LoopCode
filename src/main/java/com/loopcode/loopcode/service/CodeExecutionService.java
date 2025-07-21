@@ -1,8 +1,8 @@
 package com.loopcode.loopcode.service;
 
-import java.util.List;
+import com.loopcode.loopcode.dtos.ExecutionResultDto;
 
 public interface CodeExecutionService {
-    String execute(String code, List<String> inputs, String language);
-}
 
+    public ExecutionResultDto execute(String code, String input, String language);
+}

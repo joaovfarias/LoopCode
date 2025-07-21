@@ -4,10 +4,13 @@ import com.loopcode.loopcode.domain.exercise.Difficulty;
 import com.loopcode.loopcode.domain.exercise.Exercise;
 import com.loopcode.loopcode.domain.exercise.TestCase;
 import com.loopcode.loopcode.domain.language.ProgrammingLanguage;
+import com.loopcode.loopcode.dtos.ExecutionResultDto;
 import com.loopcode.loopcode.dtos.ExerciseRequestDto;
 import com.loopcode.loopcode.dtos.ExerciseResponseDto;
 import com.loopcode.loopcode.dtos.LanguageDto;
 import com.loopcode.loopcode.dtos.SimpleUserDto;
+import com.loopcode.loopcode.dtos.SolveRequestDto;
+import com.loopcode.loopcode.dtos.SolveResponseDto;
 import com.loopcode.loopcode.exceptions.ResourceNotFoundException;
 import com.loopcode.loopcode.repositories.ExerciseRepository;
 import com.loopcode.loopcode.repositories.ProgrammingLanguageRepository;
@@ -32,16 +35,17 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class ExerciseService {
 
-    private final ProgrammingLanguageRepository programmingLanguageRepository;
 
+    private final ProgrammingLanguageRepository programmingLanguageRepository;
     private final ExerciseRepository exerciseRepository;
     private final UserRepository userRepository;
-
+    private final CodeExecutionService codeExecutionService;
     //Aparentemente certo
-    public ExerciseService(ExerciseRepository exerciseRepository, UserRepository userRepository, ProgrammingLanguageRepository programmingLanguageRepository) {
+    public ExerciseService(ExerciseRepository exerciseRepository, UserRepository userRepository, ProgrammingLanguageRepository programmingLanguageRepository, CodeExecutionService codeExecutionService) {
         this.exerciseRepository = exerciseRepository;
         this.userRepository = userRepository;
         this.programmingLanguageRepository = programmingLanguageRepository;
+        this.codeExecutionService = codeExecutionService;
     }
 
     @Transactional
@@ -113,40 +117,50 @@ public class ExerciseService {
         return exercisePage.map(this::convertToDto);
     }
 
+    private Exercise getExerciseByIdUtil(UUID id){ 
+        Exercise exercise = exerciseRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Exercício não encontrado com o ID: " + id));
+        
+        return exercise;
+    }
+
     @Transactional(readOnly = true)
     public ExerciseResponseDto getExerciseById(UUID id)
     {
-        Exercise exercise = exerciseRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Exercício não encontrado com o ID: " + id));
-
-        return convertToDto(exercise);
+        return convertToDto(getExerciseByIdUtil(id));
     }
-    /*
+    
     @Transactional
-    public SolveResponseDto solve(UUID exerciseId,
-            String userCode,
-            List<String> inputs,
-            String language,
-            String username) {
+    public SolveResponseDto solveExercise(UUID exerciseId, SolveRequestDto solveDto, String username)
+    {
+        Exercise exercise = getExerciseByIdUtil(exerciseId);
+        
+        String apiLanguageIdentifier = exercise.getProgrammingLanguage().getApiIdentifier();
 
-        Exercise exercise = exerciseRepository.findById(exerciseId)
-                .orElseThrow(() -> new RuntimeException("Exercise not found: " + exerciseId));
+        for (TestCase testCase : exercise.getTestCode()){
+            ExecutionResultDto result = codeExecutionService.execute(
+                solveDto.code(),
+                testCase.getInput(),
+                apiLanguageIdentifier
+            );
 
-        String expectedOutput = execService.execute(exercise.getTestCode(), inputs, language);
+            if (result.error() != null && !result.error().isEmpty())
+            {
+                return new SolveResponseDto(result.error(),false,"Ocorreu um erro de compilacão ou execucão:", "");
+            }
 
-        String actualOutput = execService.execute(userCode, inputs, language);
+            if (!result.output().trim().equals(testCase.getExpectedOutput().trim()))
+            {
+                String feedbackMessage = "Falhou no caso de teste com input: \"" + testCase.getExpectedOutput() + "\".";
+                return new SolveResponseDto(result.output(),false,feedbackMessage, testCase.getExpectedOutput());
+            }
 
-        boolean passed = expectedOutput.trim().equals(actualOutput.trim());
-        String feedback = passed
-                ? "Resposta correta!"
-                : "Resposta incorreta. Saída esperada: `" + expectedOutput + "`";
 
-        return new SolveResponseDto(
-                actualOutput,
-                passed,
-                feedback,
-                expectedOutput);
-    }*/
+        }
+        //Aqui marcar na tabela dos resolvido qnd tiver.
+        return new SolveResponseDto("",true,"Voce passou em todos os testes!","");
+
+    }
 
     private ExerciseResponseDto convertToDto(Exercise exercise)
     {
