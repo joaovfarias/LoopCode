@@ -19,9 +19,7 @@ import LocalFireDepartmentIcon from "@mui/icons-material/LocalFireDepartment";
 import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ReplyIcon from "@mui/icons-material/Reply";
-import MenuIcon from "@mui/icons-material/Menu";
-import Image from "next/image";
-import Link from "next/link";
+import SpeedDial from "@/components/SpeedDial"; // Importando o SpeedDial
 
 const botaoEstilo = (ativo = false) => ({
   width: "100%",
@@ -139,7 +137,6 @@ const atividadesMock = [
 export default function HomePage() {
   const [filtro, setFiltro] = useState("Tudo");
   const [voteStatus, setVoteStatus] = useState(null); // 'up', 'down', or null
-  const [openSidebar, setOpenSidebar] = useState(false);
 
   {
     /* Estado para votos */
@@ -198,90 +195,10 @@ export default function HomePage() {
     <Box
       sx={{ display: "flex", bgcolor: "background.default", color: "white" }}
     >
-      {/* Sidebar */}
-      {!openSidebar && (
-        <IconButton
-          onClick={() => setOpenSidebar(true)}
-          sx={{
-            position: "absolute",
-            top: "72px", // ajuste para a altura da navbar
-            left: "16px",
-            zIndex: 1201,
-          }}
-        >
-          <MenuIcon sx={{ color: "white" }} />
-        </IconButton>
-      )}
-      <Divider sx={{ bgcolor: "card.secondary" }} />
-      <Drawer
-        variant="temporary"
-        open={openSidebar}
-        onClose={() => setOpenSidebar(false)}
-        sx={{
-          "& .MuiDrawer-paper": {
-            width: 240,
-            bgcolor: "card.dark",
-            color: "white",
-          },
-        }}
-      >
-        <Box sx={{ p: 2 }}>
-          <Link href="/" passHref>
-            <Box sx={{ display: "flex", justifyContent: "center" }}>
-              <Image
-                src="/images/logo.png"
-                alt="Logo LoopCode"
-                width={50}
-                height={50}
-                priority
-              />
-            </Box>
-          </Link>
-        </Box>
-        <Divider sx={{ bgcolor: "card.secondary" }} />
-
-        <List sx={{ px: 1, width: "100%" }}>
-          <ListItem disablePadding>
-            <ListItemButton
-              component={Link}
-              href="/dailyChallenge"
-              sx={botaoEstilo(false)}
-            >
-              <ListItemText primary="Desafio Diário" />
-            </ListItemButton>
-          </ListItem>
-
-          <ListItem disablePadding>
-            <ListItemButton
-              component={Link}
-              href="/createActivities"
-              sx={botaoEstilo(false)}
-            >
-              <ListItemText primary="Criar Exercício" />
-            </ListItemButton>
-          </ListItem>
-
-          <ListItem disablePadding>
-            <ListItemButton
-              component={Link}
-              href="/createLists"
-              sx={botaoEstilo(false)}
-            >
-              <ListItemText primary="Criar Lista" />
-            </ListItemButton>
-          </ListItem>
-        </List>
-
-        <Box sx={{ p: 2 }}>
-          <Typography variant="subtitle2">Minhas listas</Typography>
-          {/* <Chip label="⭐ Lista 1" sx={{ mt: 1, bgcolor: "#334155", color: "white" }} /> */}
-          {/* TODO: Implementar a lógica para exibir as listas do usuário e criar um link para elas */}
-        </Box>
-      </Drawer>
-
-      {/* Conteúdo principal */}
+      {/* TODO: Implementar a lógica para exibir as listas do usuário e criar um link para elas */}
       {/* TODO: Implementar a lógica de exibição das atividades após receber da API */}
       {/* TODO: Colocar a opção de filtragem por outras categorias (recente, mais votadas, etc) */}
+      {/* Conteúdo principal */}
       <Box
         sx={{
           flex: 1,
@@ -300,7 +217,7 @@ export default function HomePage() {
       >
         {/* Filtros horizontais */}
         {/* TODO: Implementar a lógica de filtragem */}
-        <Stack direction="row" spacing={2} mb={3} flexWrap="wrap">
+        <Stack direction="row" spacing={2} mb={3} pl={2} flexWrap="wrap">
           {filtros.map((item) => (
             <Chip
               key={item}
@@ -309,7 +226,7 @@ export default function HomePage() {
               color={filtro === item ? "primary" : "default"}
               onClick={() => setFiltro(item)}
               sx={{
-                bgcolor: filtro === item ? "primary.main" : "primary.contrast",
+                bgcolor: filtro === item ? "primary.main" : "card.dark",
                 color: "white",
               }}
             />
@@ -425,6 +342,7 @@ export default function HomePage() {
             color="primary"
           />
         </Box>
+        <SpeedDial /> {/* Adicionando o SpeedDial aqui */}
       </Box>
     </Box>
   );
