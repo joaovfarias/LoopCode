@@ -17,6 +17,25 @@ export default function AuthGuard({ children }) {
     } else {
       setAuthorized(true);
     }
+
+    // Verifica se o token é válido
+    if (token && !publicPaths.includes(pathname)) {
+      fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/validate`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+        .then(response => {
+          if (!response.ok) {
+            localStorage.removeItem('token');
+            router.push('/login');
+          } else {
+            setAuthorized(true);
+          }
+        })
+        .catch((e) => {
+          localStorage.removeItem('token');
+          router.push('/login');
+        });
+    }
   }, [pathname]);
 
   if (!authorized && pathname !== '/login' && pathname !== '/register') {
