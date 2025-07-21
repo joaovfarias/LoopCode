@@ -1,3 +1,4 @@
+// app/layout.js
 import { Inter } from "next/font/google";
 import "./globals.css";
 import MuiThemeProvider from './theme-provider';
@@ -20,12 +21,12 @@ export default function RootLayout({ children }) {
     <html lang="pt-BR">
       <body className={`${inter.variable} antialiased`}>
         <MuiThemeProvider>
-          <NavWrapper />
-          <Container maxWidth="xl">
-            <AuthGuard>
+          <AuthGuard>
+            <NavWrapper />
+            <Container maxWidth="xl" sx={{ mt: 4 }}>
               {children}
-            </AuthGuard> 
-          </Container>
+            </Container>
+          </AuthGuard>
         </MuiThemeProvider>
       </body>
     </html>

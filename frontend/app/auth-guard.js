@@ -1,46 +1,94 @@
 'use client';
 
+import { createContext, useContext, useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { Box, CircularProgress } from '@mui/material';
+
+const AuthContext = createContext();
+
+export function useAuth() {
+  return useContext(AuthContext);
+}
+
+const PUBLIC_ROUTES = ['/login', '/register'];
 
 export default function AuthGuard({ children }) {
-  const pathname = usePathname();
   const router = useRouter();
+  const pathname = usePathname();
+  const [loading, setLoading] = useState(true);
   const [authorized, setAuthorized] = useState(false);
 
+  const isPublic = PUBLIC_ROUTES.includes(pathname);
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+  
   useEffect(() => {
-    const publicPaths = ['/login', '/register'];
     const token = localStorage.getItem('token');
-    
-    if (!publicPaths.includes(pathname) && !token) {
-      router.push('/login');
-    } else {
-      setAuthorized(true);
+
+    // Se rota for pública, não precisa validar token
+    if (isPublic) {
+      setLoading(false);
+      return;
     }
 
-    // Verifica se o token é válido
-    if (token && !publicPaths.includes(pathname)) {
-      fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/validate`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      })
-        .then(response => {
-          if (!response.ok) {
-            localStorage.removeItem('token');
-            router.push('/login');
-          } else {
-            setAuthorized(true);
-          }
-        })
-        .catch((e) => {
-          localStorage.removeItem('token');
-          router.push('/login');
-        });
+    // Se não tiver token, redireciona para login
+    if (!token) {
+      router.replace('/login');
+      return;
     }
+
+    // Valida o token com a API
+    fetch(`${baseUrl}/auth/validate`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((res) => {
+        if (res.ok) {
+          setAuthorized(true);
+        } else {
+          localStorage.removeItem('token');
+          router.replace('/login');
+        }
+      })
+      .catch(() => {
+        localStorage.removeItem('token');
+        router.replace('/login');
+      })
+      .finally(() => setLoading(false));
   }, [pathname]);
 
-  if (!authorized && pathname !== '/login' && pathname !== '/register') {
-    return null;
+  // Bloqueia qualquer render até o loading acabar
+  if (loading) {
+    return (
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        minHeight="100vh"
+      >
+        <CircularProgress size={48} />
+      </Box>
+    );
   }
 
-  return <>{children}</>;
+  // Página pública: renderiza normalmente
+  if (isPublic) {
+    return (
+      <AuthContext.Provider value={{ authorized: false, loading }}>
+        {children}
+      </AuthContext.Provider>
+    );
+  }
+
+  // Página protegida + autorizado: renderiza
+  if (authorized) {
+    return (
+      <AuthContext.Provider value={{ authorized, loading }}>
+        {children}
+      </AuthContext.Provider>
+    );
+  }
+
+  // Página protegida + não autorizado: não renderiza nada (já redirecionou)
+  return null;
 }
