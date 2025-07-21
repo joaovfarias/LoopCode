@@ -1,5 +1,5 @@
 # LoopCode
-## BackEnd
+## Backend
 ### Rodar:
 mvn clean install
 
@@ -8,7 +8,7 @@ mvn spring-boot:run
 ### Documentação:
 http://localhost:8080/swagger-ui/index.html
 
-## FrontEnd
+## Frontend
 ### Dependências:
 npm install
 ### Rodar:
