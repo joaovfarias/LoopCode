@@ -55,8 +55,36 @@ export default function ExercisePage({ params }) {
     // Example test cases
   ];
 
-  const handleRun = () => {
-    // Implement the logic to run the code
+  const handleRun = async (e) => {
+    e.preventDefault();
+    setResultado("Executando...");
+
+    try {
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error("Usuário não autenticado");
+
+      const response = await fetch(`${baseUrl}/exercises/${id}/solve`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ code: code }),
+      });
+
+      if (!response.ok) throw new Error("Erro ao executar o código");
+
+      const data = await response.json();
+
+      if (data.feedback === "Ocorreu um erro de compilacão ou execucão:") {
+        setResultado(data.output);
+      } else {
+        setResultado(data.feedback || "Nenhum resultado retornado");
+      }
+    } catch (err) {
+      setResultado(`Erro: ${err.message}`);
+    }
   };
 
   const handleTestCaseSelect = (index) => {
