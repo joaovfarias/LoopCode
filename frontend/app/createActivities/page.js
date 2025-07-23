@@ -73,7 +73,7 @@ export default function CreateExercisePage() {
         {step === 1 && (
           <>
             <Typography variant="h5" fontWeight="bold" gutterBottom>
-              Titulo do Exercício
+              Título do Exercício
             </Typography>
             <TextField
               fullWidth
@@ -152,7 +152,7 @@ export default function CreateExercisePage() {
               onClick={handleNext}
               sx={{ bgcolor: "#6D6AF2", ":hover": { bgcolor: "#5755d9" } }}
             >
-              Next
+              Próximo
             </Button>
           </>
         )}
