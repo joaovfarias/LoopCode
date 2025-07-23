@@ -82,31 +82,13 @@ export default function ExercisePage({ params }) {
     setCaseResults([]);
 
     const extractBody = (code) => {
-      const match = code.match(/def\s+[a-zA-Z_]\w*\s*\(.*?\):\s*\n([\s\S]*)/);
-      if (!match) return "";
+      const patternToRemove = /^def .*\(.*\):\n\t/;
 
-      const body = match[1];
+      let modifiedString = code.replaceAll("\t", "    ");
+      modifiedString = modifiedString.replaceAll("    ", "\t");
+      modifiedString = modifiedString.replace(patternToRemove, "");
 
-      const lines = body.split("\n");
-
-      const transformed = lines
-        .map((line, index) => {
-          const matchSpaces = line.match(/^( {4})*/);
-          const leadingSpaces = matchSpaces ? matchSpaces[0].length : 0;
-          const tabCount = leadingSpaces / 4;
-
-          const trimmedLine = line.slice(leadingSpaces);
-
-          const tabs =
-            index === 0 && tabCount > 0
-              ? "\t".repeat(tabCount - 1)
-              : "\t".repeat(tabCount);
-
-          return `${tabs}${trimmedLine}`;
-        })
-        .join("\n");
-
-      return transformed;
+      return modifiedString;
     };
 
     const userCode = extractBody(code);
@@ -140,6 +122,8 @@ export default function ExercisePage({ params }) {
         data.feedback === "Ocorreu um erro de compilacão ou execucão:"
       ) {
         setResultado(data.output);
+      } else {
+        setResultado(data.feedback);
       }
     } catch (err) {
       setResultado(`Erro: ${err.message}`);
