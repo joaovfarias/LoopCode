@@ -4,6 +4,7 @@ import com.loopcode.loopcode.domain.user.User;
 import com.loopcode.loopcode.dtos.AuthResponseDto;
 import com.loopcode.loopcode.dtos.LoginRequestDto;
 import com.loopcode.loopcode.dtos.RegisterRequestDto;
+import com.loopcode.loopcode.dtos.UserResponseDto;
 import com.loopcode.loopcode.exceptions.UserAlreadyExistsException;
 import com.loopcode.loopcode.repositories.UserRepository;
 import com.loopcode.loopcode.security.Role;
@@ -59,5 +60,17 @@ public class AuthService {
         String jwtToken = jwtService.generateToken(authentication);
 
         return new AuthResponseDto(jwtToken);
+    }
+
+    @Transactional(readOnly = true)
+    public UserResponseDto getCurrentUser(Authentication authentication) {
+        User user = (User) authentication.getPrincipal();
+        return new UserResponseDto(
+                user.getUsername(),
+                user.getEmail(),
+                user.getRole().name(),
+                user.getDaily_streak()
+        );
+    
     }
 }

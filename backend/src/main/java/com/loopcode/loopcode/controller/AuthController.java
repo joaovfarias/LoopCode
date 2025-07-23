@@ -3,6 +3,7 @@ package com.loopcode.loopcode.controller;
 import com.loopcode.loopcode.dtos.AuthResponseDto;
 import com.loopcode.loopcode.dtos.LoginRequestDto;
 import com.loopcode.loopcode.dtos.RegisterRequestDto;
+import com.loopcode.loopcode.dtos.UserResponseDto;
 import com.loopcode.loopcode.security.JwtService;
 import com.loopcode.loopcode.service.AuthService;
 
@@ -51,11 +52,24 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/validate")
+    @GetMapping("/me")
     @Operation(summary = "Validar token JWT", description = "Verifica se o token enviado no header é válido.")
     public ResponseEntity<Void> validateToken(Authentication authentication) {
         return ResponseEntity.ok().build();
     }
+
+    @GetMapping("/validate")
+    @Operation(summary = "Obter informações do usuário logado", description = "Retorna as informações do usuário logado.")
+    public ResponseEntity<UserResponseDto> getCurrentUser(Authentication authentication) {
+        UserResponseDto user = authService.getCurrentUser(authentication);
+        return ResponseEntity.ok(user);
+    }
+
+    /*
+     * /users/{username} -> Retorna informações do usuário
+     * /users/{username}/exercises -> Retorna os exercícios do usuário
+     * /users/{username}/lists -> Retorna as listas do usuário
+     */
 
     /*
      * @GetMapping("/validate")
@@ -70,5 +84,6 @@ public class AuthController {
      * ? ResponseEntity.ok().build()
      * : ResponseEntity.status(401).build();
      */
+    
 
 }

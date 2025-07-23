@@ -62,6 +62,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/exercises/*/solve").authenticated()
                 .requestMatchers(HttpMethod.GET, "/auth/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/auth/validate").permitAll()
+                .requestMatchers(HttpMethod.GET, "/auth/me").authenticated()
                 .requestMatchers(HttpMethod.GET, "/exercises/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/daily-challenge").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/daily-challenge").permitAll()
