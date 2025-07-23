@@ -3,17 +3,11 @@
 import React, { useState, useEffect } from "react";
 import {
   Box,
-  Drawer,
   Typography,
   Stack,
   Chip,
-  Divider,
   IconButton,
   Pagination,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemText,
 } from "@mui/material";
 import { useRouter } from "next/navigation";
 import LocalFireDepartmentIcon from "@mui/icons-material/LocalFireDepartment";
@@ -36,112 +30,11 @@ const botaoEstilo = (ativo = false) => ({
 });
 const filtros = ["Tudo", "JavaScript", "Python", "C", "Listas", "Exercícios"];
 
-const atividadesMock = [
-  {
-    id: 1,
-    autor: "MasterOfPuppets",
-    titulo: "Calculadora em C utilizando MySQL",
-    descricao: "这是我的练习题，请你们检查。",
-    votos: 98,
-    tempo: "1h ago",
-  },
-  {
-    id: 2,
-    autor: "Florismunda",
-    titulo: "Title",
-    descricao: "Description",
-    votos: 17,
-    tempo: "1h ago",
-  },
-  {
-    id: 3,
-    autor: "Mr.LonelyCat",
-    titulo: "العنوان",
-    descricao: "الوصف",
-    votos: 54,
-    tempo: "2h ago",
-  },
-  {
-    id: 4,
-    autor: "MasterOfPuppets",
-    titulo: "Calculadora em C utilizando MySQL",
-    descricao: "这是我的练习题，请你们检查。",
-    votos: 98,
-    tempo: "1h ago",
-  },
-  {
-    id: 5,
-    autor: "Florismunda",
-    titulo: "Title",
-    descricao: "Description",
-    votos: 17,
-    tempo: "1h ago",
-  },
-  {
-    id: 6,
-    autor: "Mr.LonelyCat",
-    titulo: "العنوان",
-    descricao: "الوصف",
-    votos: 54,
-    tempo: "2h ago",
-  },
-  {
-    id: 7,
-    autor: "MasterOfPuppets",
-    titulo: "Calculadora em C utilizando MySQL",
-    descricao: "这是我的练习题，请你们检查。",
-    votos: 98,
-    tempo: "1h ago",
-  },
-  {
-    id: 8,
-    autor: "Florismunda",
-    titulo: "Title",
-    descricao: "Description",
-    votos: 17,
-    tempo: "1h ago",
-  },
-  {
-    id: 9,
-    autor: "Mr.LonelyCat",
-    titulo: "العنوان",
-    descricao: "الوصف",
-    votos: 54,
-    tempo: "2h ago",
-  },
-  {
-    id: 10,
-    autor: "MasterOfPuppets",
-    titulo: "Calculadora em C utilizando MySQL",
-    descricao: "这是我的练习题，请你们检查。",
-    votos: 98,
-    tempo: "1h ago",
-  },
-  {
-    id: 11,
-    autor: "Florismunda",
-    titulo: "Title",
-    descricao: "Description",
-    votos: 17,
-    tempo: "1h ago",
-  },
-  {
-    id: 12,
-    autor: "Mr.LonelyCat",
-    titulo: "العنوان",
-    descricao: "الوصف",
-    votos: 54,
-    tempo: "2h ago",
-  },
-];
-
 export default function HomePage() {
   const [filtro, setFiltro] = useState("Tudo");
   const [voteStatus, setVoteStatus] = useState(null); // 'up', 'down', or null
 
   const router = useRouter();
-
-  
 
   const [exercises, setExercises] = useState([]);
   const [currentPage, setCurrentPage] = useState(0); // começa em 0
@@ -182,7 +75,7 @@ export default function HomePage() {
 
 
 
-  {/* Estado para votos */}
+  {/* Estado para votos */ }
   const handleDownvote = () => {
     if (voteStatus === "down") {
       //  setVotes(votes + 1);
@@ -263,6 +156,9 @@ export default function HomePage() {
           {exercises.map((atv) => (
             <Box
               key={atv.id}
+              onClick={() => router.push(`/activities/${atv.id}`)}
+              role="button"
+              tabIndex={0}
               sx={{
                 bgcolor: "card.primary",
                 p: 2,
@@ -273,24 +169,24 @@ export default function HomePage() {
                 boxShadow: 3,
                 maxWidth: 1200,
                 width: "100%",
+                cursor: "pointer",
+                transition: "all 0.2s ease-in-out",
+                "&:hover": {
+                  boxShadow: 6,
+                  bgcolor: "primary.dark",
+                },
               }}
             >
               <Typography
                 variant="subtitle1"
                 fontWeight="bold"
                 sx={{
-                  cursor: "pointer",
                   color: "white",
-                  "&:hover": {
-                    textDecoration: "underline",
-                    color: "primary.main",
-                  },
                 }}
-                onClick={() => router.push(`/activities/${atv.id}`)}
               >
                 {atv.title}
               </Typography>
-              
+
               <Typography variant="body2" color="gray">
                 {atv.description}
               </Typography>
@@ -302,6 +198,7 @@ export default function HomePage() {
                 sx={{ ml: "auto" }}
               >
                 {handleFireIcon(atv)}
+
                 <Box
                   sx={{
                     display: "flex",
@@ -312,8 +209,9 @@ export default function HomePage() {
                     py: 0.2,
                     gap: 0.5,
                   }}
+                  onClick={(e) => e.stopPropagation()} // Evita que clique nesse box redirecione
                 >
-                  <IconButton size="small" onClick={handleUpvote}>
+                  <IconButton size="small" onClick={(e) => { e.stopPropagation(); handleUpvote(); }}>
                     <ArrowDropUpIcon
                       sx={{ color: voteStatus === "up" ? "red" : "gray" }}
                     />
@@ -329,7 +227,7 @@ export default function HomePage() {
                     90
                   </Typography>
 
-                  <IconButton size="small" onClick={handleDownvote}>
+                  <IconButton size="small" onClick={(e) => { e.stopPropagation(); handleDownvote(); }}>
                     <ArrowDropDownIcon
                       sx={{
                         color: voteStatus === "down" ? "darkblue" : "darkgray",
@@ -337,6 +235,7 @@ export default function HomePage() {
                     />
                   </IconButton>
                 </Box>
+
                 <Box
                   sx={{
                     display: "flex",
@@ -347,16 +246,17 @@ export default function HomePage() {
                     py: 0.2,
                     gap: 0.5,
                   }}
+                  onClick={(e) => e.stopPropagation()} // Também evita redirecionamento
                 >
                   <IconButton size="small">
                     <ReplyIcon
                       sx={{ color: "white", transform: "scaleX(-1)" }}
                     />
-                    {/* TODO: Implementar funcionalidade de compartilhamento */}
                   </IconButton>
                 </Box>
               </Stack>
             </Box>
+
           ))}
         </Stack>
         <Box display="flex" justifyContent="center" mt={4}>
