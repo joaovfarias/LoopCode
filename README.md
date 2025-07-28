@@ -13,6 +13,9 @@ Para funcionar o exercise/{id}/solve:
 ### Documentação:
 http://localhost:8080/swagger-ui/index.html
 
+### Banco de dados:
+http://localhost:8080/h2-console/
+
 ## Frontend
 ### Dependências:
 npm install

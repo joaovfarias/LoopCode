@@ -17,6 +17,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from 'next/navigation';
+import { useAuth } from '../app/auth-guard';
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -59,6 +60,7 @@ export default function Nav() {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const isMenuOpen = Boolean(anchorEl);
   const router = useRouter();
+  const { username } = useAuth();
 
   const handleProfileMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
@@ -82,7 +84,15 @@ export default function Nav() {
       open={isMenuOpen}
       onClose={handleMenuClose}
     >
-      <MenuItem onClick={handleMenuClose}>Meu Perfil</MenuItem>
+      <MenuItem
+        onClick={() => {
+          handleMenuClose();
+          router.push(`/users/${username}`);
+        }}
+      >
+        Meu Perfil
+      </MenuItem>
+
       <MenuItem onClick={handleLogout}>Sair</MenuItem>
     </Menu>
   );
@@ -144,8 +154,11 @@ export default function Nav() {
               color="inherit"
             >
               <Avatar sx={{ width: 35, height: 35, bgcolor: 'primary.main' }}>
-                <Typography variant="subtitle1" color="white">U</Typography>
+                <Typography variant="subtitle1" color="white">
+                  {username ? username[0].toUpperCase() : 'U'}
+                </Typography>
               </Avatar>
+
             </IconButton>
           </Box>
         </Toolbar>

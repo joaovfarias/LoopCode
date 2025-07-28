@@ -3,13 +3,20 @@ package com.loopcode.loopcode.service;
 import com.loopcode.loopcode.domain.ban.BanRecord;
 import com.loopcode.loopcode.domain.timeout.TimeoutRecord;
 import com.loopcode.loopcode.domain.user.User;
+import com.loopcode.loopcode.domain.exercise.Exercise;
 import com.loopcode.loopcode.dtos.BanRequestDto;
 import com.loopcode.loopcode.dtos.TimeoutRequestDto;
+import com.loopcode.loopcode.dtos.UserResponseDto;
+import com.loopcode.loopcode.dtos.ExerciseResponseDto;
+import com.loopcode.loopcode.dtos.LanguageDto;
+import com.loopcode.loopcode.dtos.SimpleUserDto;
 import com.loopcode.loopcode.repositories.BanRecordRepository;
 import com.loopcode.loopcode.repositories.TimeoutRecordRepository;
 import com.loopcode.loopcode.repositories.UserRepository;
+import com.loopcode.loopcode.repositories.ExerciseRepository;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +39,21 @@ public class UserService {
     @Autowired
     private TimeoutRecordRepository timeoutRecordRepository;
 
+    @Autowired
+    private ExerciseRepository exerciseRepository;
+
+    @Transactional(readOnly = true)
+    public UserResponseDto getUserByUsername(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado."));
+        
+        return new UserResponseDto(
+            user.getUsername(),
+            user.getEmail(),
+            user.getRole().name(),
+            user.getDaily_streak()
+        );
+    }
     @Transactional
     public void banUser(String usernameToBan, BanRequestDto banRequestDto) {
         User userToBan = userRepository.findByUsername(usernameToBan)
@@ -110,5 +132,33 @@ public class UserService {
 
         activeTimeout.setActive(false);
         timeoutRecordRepository.save(activeTimeout);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ExerciseResponseDto> getExercisesByUsername(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado."));
+        
+        List<Exercise> exercises = exerciseRepository.findByCreatedBy(user);
+        
+        return exercises.stream()
+                .map(exercise -> new ExerciseResponseDto(
+                    exercise.getId(),
+                    exercise.getTitle(),
+                    new LanguageDto(
+                        exercise.getProgrammingLanguage().getId(),
+                        exercise.getProgrammingLanguage().getName()
+                    ),
+                    exercise.getDifficulty().name(),
+                    exercise.getDescription(),
+                    new SimpleUserDto(
+                        exercise.getCreatedBy().getUsername()
+                    ),
+                    exercise.isVerified(),
+                    exercise.getCreatedAt(),
+                    exercise.getMainCode(),
+                    exercise.getTestCode()
+                ))
+                .toList();
     }
 }

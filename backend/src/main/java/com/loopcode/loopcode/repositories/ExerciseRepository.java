@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 
 
 import com.loopcode.loopcode.domain.exercise.Exercise;
+import com.loopcode.loopcode.domain.user.User;
 
 import java.util.List;
 import java.util.UUID;
@@ -13,5 +14,5 @@ import java.util.UUID;
 @Repository
 public interface ExerciseRepository extends JpaRepository<Exercise, UUID>, JpaSpecificationExecutor<Exercise> {
     List<Exercise> findByVerifiedTrue();
-
+    List<Exercise> findByCreatedBy(User user);
 }

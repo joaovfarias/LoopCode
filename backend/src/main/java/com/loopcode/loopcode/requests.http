@@ -44,46 +44,47 @@ Content-Type: application/json
 
 PATCH http://localhost:8084/users/banTest/ban
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZGVzdG8iLCJpYXQiOjE3NTM3MTEzMDcsImV4cCI6MTc1Mzc5NzcwN30.1hKuJbwwymkMRSIvlxSv49Zm6l7smtdA9de7cyc1xZw
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZGVzdG8iLCJpYXQiOjE3NTM3MTEzNjAsImV4cCI6MTc1Mzc5Nzc2MH0.AkIBAbKb8V_JBZU7mFcCn47pvAH25f9-WX1n-V6ExMk
 
 {
   "banReason": "TESTE TESTE TESTE"
 }
 
-###
+### UNBAN
 
 PATCH http://localhost:8084/users/banTest/unban
 Content-Type: application/json
-Authorization: Bearer {SEU_TOKEN_ADMIN_AQUI}
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZGVzdG8iLCJpYXQiOjE3NTM3MTEzNjAsImV4cCI6MTc1Mzc5Nzc2MH0.AkIBAbKb8V_JBZU7mFcCn47pvAH25f9-WX1n-V6ExMk
 
 ### TIMEOUT
 
 PATCH http://localhost:8084/users/banTest/timeout
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZGVzdG8iLCJpYXQiOjE3NTM3MTA3MjUsImV4cCI6MTc1Mzc5NzEyNX0.r71kQYV5FTmF24wVlpea7zZhHRVWSXhhbAVgUqSH1x0
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZGVzdG8iLCJpYXQiOjE3NTM3MTEzNjAsImV4cCI6MTc1Mzc5Nzc2MH0.AkIBAbKb8V_JBZU7mFcCn47pvAH25f9-WX1n-V6ExMk
 
 {
   "reason": "TESTE TIMEOUT",
-  "durationMinutes": 1
+  "durationMinutes": 5
 }
 
-###
+### CLEAR TIMEOUT
 
 PATCH http://localhost:8084/users/banTest/untimeout
 Content-Type: application/json
-Authorization: Bearer {SEU_TOKEN_ADMIN_AQUI}
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZGVzdG8iLCJpYXQiOjE3NTM3MTEzNjAsImV4cCI6MTc1Mzc5Nzc2MH0.AkIBAbKb8V_JBZU7mFcCn47pvAH25f9-WX1n-V6ExMk
 
 ###
+
 POST http://localhost:8084/exercises
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJiYW5UZXN0IiwiaWF0IjoxNzUzNzEwODQ1LCJleHAiOjE3NTM3OTcyNDV9.FJrzW1hBId0KNLbgYxFM14W43_LKyVTDqhlJCeiF42M
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJiYW5UZXN0IiwiaWF0IjoxNzUzNzExNjE1LCJleHAiOjE3NTM3OTgwMTV9.WtRHbN26N7NKG1Upnu6IVMEWyEjcPVQbr-pCvVD2mSg
 
 {
     "title": "Soma de Dois Números",
     "description": "Crie uma função que receba dois números inteiros como parâmetro e retorne a soma deles.",
     "mainCode": "public class Solution {\n    public int somar(int a, int b) {\n        // Seu código aqui\n        return 0;\n    }\n}",
     "difficulty": "EASY",
-    "languageId": 2,
+    "languageId": 3,
     "testCases": [
         {
             "input": "5, 10",

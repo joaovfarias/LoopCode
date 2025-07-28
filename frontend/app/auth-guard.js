@@ -13,6 +13,7 @@ export function useAuth() {
 const PUBLIC_ROUTES = ['/login', '/register'];
 
 export default function AuthGuard({ children }) {
+  const [username, setUsername] = useState(null); 
   const router = useRouter();
   const pathname = usePathname();
   const [loading, setLoading] = useState(true);
@@ -44,7 +45,10 @@ export default function AuthGuard({ children }) {
     })
       .then((res) => {
         if (res.ok) {
-          setAuthorized(true);
+          res.json().then(data => {
+            setUsername(data.username);
+            setAuthorized(true);
+          });
         } else {
           localStorage.removeItem('token');
           router.replace('/login');
@@ -74,7 +78,7 @@ export default function AuthGuard({ children }) {
   // Página pública: renderiza normalmente
   if (isPublic) {
     return (
-      <AuthContext.Provider value={{ authorized: false, loading }}>
+      <AuthContext.Provider value={{ authorized: false, loading, username  }}>
         {children}
       </AuthContext.Provider>
     );
@@ -83,7 +87,7 @@ export default function AuthGuard({ children }) {
   // Página protegida + autorizado: renderiza
   if (authorized) {
     return (
-      <AuthContext.Provider value={{ authorized, loading }}>
+      <AuthContext.Provider value={{ authorized, loading, username }}>
         {children}
       </AuthContext.Provider>
     );

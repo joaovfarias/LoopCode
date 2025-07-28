@@ -12,7 +12,7 @@ export default function ExcluirExercicioDialog({ open, onClose, exercicio }) {
       <DialogTitle>Excluir Exercício</DialogTitle>
       <DialogContent>
         {/* conteúdo de edição */}
-        <Typography>Tem certeza que deseja excluir o exercício {exercicio.id}?</Typography>
+        <Typography>Tem certeza que deseja excluir o exercício {exercicio.title}?</Typography>
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose} color='background'>Cancelar</Button>
