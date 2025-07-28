@@ -3,13 +3,36 @@
 import { Avatar, Box, Typography, Card, CardContent, Stack } from '@mui/material';
 import CodeIcon from '@mui/icons-material/Code';
 import ListIcon from '@mui/icons-material/List';
-import { use } from 'react';
+import { use, useEffect } from 'react';
 import ExercicioItem from '@/components/ExercicioItem';
 import ListaItem from '@/components/ListaItem';
 import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function PerfilUsuario({ params }) {
-    const { id } = use(params);
+    const { username } = use(params);
+    const [userData, setUserData] = useState(null);
+    const router = useRouter();
+
+    useEffect(() => {
+        const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+        const fetchUserData = async () => {
+            try {
+                const response = await fetch(`${baseUrl}/users/${username}`);
+                if (!response.ok) {
+                    router.push('/404');
+                    return;
+                }
+                const data = await response.json();
+                setUserData(data);
+            } catch (error) {
+                console.error('Error fetching user data:', error);
+            }
+        };
+        fetchUserData();
+    }, [username]);
+
 
     return (
         <Box className="p-8">
@@ -24,10 +47,10 @@ export default function PerfilUsuario({ params }) {
                 {/* Informações do usuário coladas no avatar */}
                 <Box className="ml-3 mt-1">
                     <Typography variant="h6">
-                        {id}
+                        {userData ? userData.username : 'Carregando...'}
                     </Typography>
                     <Typography variant="body2" color="gray">
-                        user@gmail.com
+                        {userData ? userData.email : 'Carregando...'}
                     </Typography>
 
                     <Stack direction="row" spacing={2} className="mt-5">
@@ -79,7 +102,7 @@ export default function PerfilUsuario({ params }) {
                             }}
                         >
                             <LocalFireDepartmentIcon />
-                            <Typography variant="body2">5</Typography>
+                            <Typography variant="body2">{userData ? userData.dailyStreak : 'Carregando...'}</Typography>
                         </Card>
                     </Stack>
 

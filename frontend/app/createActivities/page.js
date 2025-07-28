@@ -28,6 +28,8 @@ export default function CreateExercisePage() {
   const handleNext = () => setStep(2);
   const handleBack = () => setStep(1);
 
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+
   function ModifyMainCode(code) {
     const regex = /def\s+([a-zA-Z_]\w*)\s*\((.*)\):/;
     const foundMatch = code.match(regex);
@@ -262,7 +264,7 @@ export default function CreateExercisePage() {
 
                   try {
                     const response = await fetch(
-                      "http://localhost:8080/exercises",
+                      `${baseUrl}/exercises`,
                       {
                         method: "POST",
                         headers: {
