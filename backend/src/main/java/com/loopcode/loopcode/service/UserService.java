@@ -3,6 +3,7 @@ package com.loopcode.loopcode.service;
 import com.loopcode.loopcode.domain.ban.BanRecord;
 import com.loopcode.loopcode.domain.user.User;
 import com.loopcode.loopcode.dtos.BanRequestDto;
+import com.loopcode.loopcode.dtos.UserResponseDto;
 import com.loopcode.loopcode.repositories.BanRecordRepository;
 import com.loopcode.loopcode.repositories.UserRepository;
 
@@ -22,12 +23,24 @@ import org.springframework.web.server.ResponseStatusException;
 @Service
 public class UserService {
 
-        @Autowired
+    @Autowired
     private UserRepository userRepository;
 
     @Autowired
     private BanRecordRepository banRecordRepository;
 
+    @Transactional(readOnly = true)
+    public UserResponseDto getUserByUsername(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado."));
+        
+        return new UserResponseDto(
+            user.getUsername(),
+            user.getEmail(),
+            user.getRole().name(),
+            user.getDaily_streak()
+        );
+    }
     @Transactional
     public void banUser(String usernameToBan, BanRequestDto banRequestDto) {
         User userToBan = userRepository.findByUsername(usernameToBan)
