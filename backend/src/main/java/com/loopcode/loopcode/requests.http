@@ -19,9 +19,41 @@ Content-Type: application/json
 }
 
 ###
+
+POST http://localhost:8084/auth/register
+Content-Type: application/json
+
+{
+  "username": "banTest",
+  "email": "banTest@example.com",
+  "password": "12346678",
+  "role": "USER"
+}
+
+###
+
+POST http://localhost:8084/auth/login
+Content-Type: application/json
+
+{
+  "email": "banTest@example.com",
+  "password": "12346678"
+}
+
+###
+
+PATCH http://localhost:8084/users/banTest/ban
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZGVzdG8iLCJpYXQiOjE3NTM2NjcyMzAsImV4cCI6MTc1Mzc1MzYzMH0.sjVUTsNnVac1uhEi4hsEDFsTi1y_fxiZEExb4_9aDtA
+
+{
+  "banReason": "TESTE TESTE TESTE"
+}
+
+###
 POST http://localhost:8084/exercises
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZGVzdG8iLCJpYXQiOjE3NTI4ODkxNjksImV4cCI6MTc1Mjk3NTU2OX0.k_z6sxHnmyZ8MvsfbTPqDHPFwk-DDsioJfKuiaYyjjo
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJiYW5UZXN0IiwiaWF0IjoxNzUzNjY3MDg5LCJleHAiOjE3NTM3NTM0ODl9.GRNaiQYGRG6njK18lt1CX0o4h8e8l8FhugKpD6g-y7A
 
 {
     "title": "Soma de Dois Números",

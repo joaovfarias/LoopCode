@@ -89,7 +89,6 @@ public class ExerciseService {
     public Page<ExerciseResponseDto> getExercises(
             String language,
             String difficulty,         
-            //------------------TEM QUE IMPLEMENTAR DIFFICULTY E TYPE DEPOIS!!------------------
             //String type, // 'exercise' ou 'list' (se for um endpoint unificado para ambos)
             String sortBy, // 'createdAt', 'upvotes', etc.
             String order, // 'asc' ou 'desc'
