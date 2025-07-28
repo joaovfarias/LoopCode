@@ -18,6 +18,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import com.loopcode.loopcode.domain.exercise.Exercise;
+import com.loopcode.loopcode.dtos.ExerciseResponseDto;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/users")
@@ -32,6 +36,13 @@ public class UserController {
     public ResponseEntity<UserResponseDto> getUserByUsername(@PathVariable String username) {
         UserResponseDto userResponse = userService.getUserByUsername(username);
         return ResponseEntity.ok(userResponse);
+    }
+
+    @GetMapping("/{username}/exercises")
+    @Operation(summary = "Buscar exercícios criados pelo usuário", description = "Retorna todos os exercícios criados por um usuário específico.")
+    public ResponseEntity<List<ExerciseResponseDto>> getExercisesByUsername(@PathVariable String username) {
+        List<ExerciseResponseDto> exercises = userService.getExercisesByUsername(username);
+        return ResponseEntity.ok(exercises);
     }
 
     @PatchMapping("/{username}/ban")
