@@ -1,10 +1,11 @@
 // app/layout.js
 import { Inter } from "next/font/google";
 import "./globals.css";
-import MuiThemeProvider from './theme-provider';
-import NavWrapper from '../components/NavWrapper';
-import { Container } from '@mui/material';
-import AuthGuard from './auth-guard';
+import MuiThemeProvider from "./theme-provider";
+import NavWrapper from "../components/NavWrapper";
+import { Container } from "@mui/material";
+import AuthGuard from "./auth-guard";
+import SpeedDial from "@/components/SpeedDial";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -23,6 +24,7 @@ export default function RootLayout({ children }) {
         <MuiThemeProvider>
           <AuthGuard>
             <NavWrapper />
+            <SpeedDial />
             <Container maxWidth="xl" sx={{ mt: 4 }}>
               {children}
             </Container>

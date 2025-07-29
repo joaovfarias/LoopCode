@@ -14,7 +14,6 @@ import LocalFireDepartmentIcon from "@mui/icons-material/LocalFireDepartment";
 import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ReplyIcon from "@mui/icons-material/Reply";
-import SpeedDial from "@/components/SpeedDial"; // Importando o SpeedDial
 
 const botaoEstilo = (ativo = false) => ({
   width: "100%",
@@ -73,9 +72,9 @@ export default function HomePage() {
     fetchData();
   }, [currentPage]);
 
-
-
-  {/* Estado para votos */ }
+  {
+    /* Estado para votos */
+  }
   const handleDownvote = () => {
     if (voteStatus === "down") {
       //  setVotes(votes + 1);
@@ -95,7 +94,6 @@ export default function HomePage() {
       setVoteStatus("up");
     }
   };
-
 
   function handleFireIcon(ex) {
     if (ex.votos > 50) {
@@ -211,7 +209,13 @@ export default function HomePage() {
                   }}
                   onClick={(e) => e.stopPropagation()} // Evita que clique nesse box redirecione
                 >
-                  <IconButton size="small" onClick={(e) => { e.stopPropagation(); handleUpvote(); }}>
+                  <IconButton
+                    size="small"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleUpvote();
+                    }}
+                  >
                     <ArrowDropUpIcon
                       sx={{ color: voteStatus === "up" ? "red" : "gray" }}
                     />
@@ -227,7 +231,13 @@ export default function HomePage() {
                     90
                   </Typography>
 
-                  <IconButton size="small" onClick={(e) => { e.stopPropagation(); handleDownvote(); }}>
+                  <IconButton
+                    size="small"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDownvote();
+                    }}
+                  >
                     <ArrowDropDownIcon
                       sx={{
                         color: voteStatus === "down" ? "darkblue" : "darkgray",
@@ -256,7 +266,6 @@ export default function HomePage() {
                 </Box>
               </Stack>
             </Box>
-
           ))}
         </Stack>
         <Box display="flex" justifyContent="center" mt={4}>
@@ -267,7 +276,6 @@ export default function HomePage() {
             color="primary"
           />
         </Box>
-        <SpeedDial /> {/* Adicionando o SpeedDial aqui */}
       </Box>
     </Box>
   );
