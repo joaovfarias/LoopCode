@@ -1,12 +1,15 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Button,
   MenuItem,
   TextField,
   Typography,
+  Radio,
+  RadioGroup,
+  FormControlLabel,
   Alert,
 } from "@mui/material";
 
@@ -14,15 +17,87 @@ export default function CreateExercisePage() {
   const [step, setStep] = useState(1);
 
   const [title, setTitle] = useState("");
-  const [language, setLanguage] = useState("");
   const [difficulty, setDifficulty] = useState("");
   const [description, setDescription] = useState("");
 
   const [mainCode, setMainCode] = useState("");
-  const [testInput, setTestInput] = useState("");
+  const [testCases, setTestCases] = useState([]);
+  const [argNames, setArgNames] = useState([]);
+  const [errorMessage, setErrorMessage] = useState("");
+
+  // Função para extrair os argumentos da função escrita
+  const extractArguments = (code) => {
+    const match = code.match(/def\s+\w+\s*\((.*?)\)/);
+    if (!match) return [];
+    return match[1]
+      .split(",")
+      .map((arg) => arg.trim())
+      .filter(Boolean);
+  };
+
+  // Função para adicionar um novo caso de teste
+  const addTestCase = () => {
+    const args = extractArguments(mainCode);
+    const regex = /def\s+([a-zA-Z_]\w*)\s*\((.*)\):/;
+
+    if (args.length === 0 || !regex.test(mainCode)) {
+      setErrorMessage("Função inválida ou não definida.");
+      return;
+    }
+
+    setErrorMessage("");
+    setArgNames(args);
+
+    // Rebuild all existing test cases with updated argument names
+    const updatedCases = testCases.map((test) => {
+      const newInputs = {};
+      args.forEach((arg) => {
+        // Keep old value if it exists, otherwise set as empty string
+        newInputs[arg] = test.inputs[arg] ?? "";
+      });
+      return {
+        inputs: newInputs,
+        expectedOutput: test.expectedOutput,
+        argNames: args,
+      };
+    });
+
+    // Create new test case with the same args
+    const newInputs = {};
+    args.forEach((arg) => {
+      newInputs[arg] = "";
+    });
+
+    const newTestCase = {
+      inputs: newInputs,
+      expectedOutput: "",
+      argNames: args,
+    };
+
+    setTestCases([...updatedCases, newTestCase]);
+  };
+
+  // Manipuladores de input/output
+  const handleInputChange = (index, key, value) => {
+    const updated = [...testCases];
+    updated[index].inputs[key] = value;
+    setTestCases(updated);
+  };
+
+  const handleOutputChange = (index, value) => {
+    const updated = [...testCases];
+    updated[index].expectedOutput = value;
+    setTestCases(updated);
+  };
+
+  const removeTestCase = (index) => {
+    const updated = [...testCases];
+    updated.splice(index, 1);
+    setTestCases(updated);
+  };
+
   const [expectedOutput, setExpectedOutput] = useState("");
 
-  const languages = ["JavaScript", "Python", "Java", "C++"];
   const difficulties = ["Easy", "Medium", "Hard"];
 
   const handleNext = () => setStep(2);
@@ -85,7 +160,7 @@ export default function CreateExercisePage() {
               sx={{
                 mb: 3,
                 input: { color: "white" },
-                "& .MuiOutlinedInput-root": { bgcolor: "#0f172a" },
+                "& .MuiOutlinedInput-root": { bgcolor: "background.default" },
               }}
             />
 
@@ -93,43 +168,39 @@ export default function CreateExercisePage() {
               Linguagem
             </Typography>
             <TextField
-              select
               fullWidth
-              value={language}
-              onChange={(e) => setLanguage(e.target.value)}
+              value="Python"
+              InputProps={{ readOnly: true }}
               sx={{
                 mb: 3,
                 input: { color: "white" },
-                "& .MuiOutlinedInput-root": { bgcolor: "#0f172a" },
+                "& .MuiOutlinedInput-root": { bgcolor: "background.default" },
               }}
-            >
-              {languages.map((lang) => (
-                <MenuItem key={lang} value={lang}>
-                  {lang}
-                </MenuItem>
-              ))}
-            </TextField>
+            />
 
             <Typography variant="h6" gutterBottom>
               Dificuldade
             </Typography>
-            <TextField
-              select
-              fullWidth
-              value={difficulty}
-              onChange={(e) => setDifficulty(e.target.value)}
-              sx={{
-                mb: 3,
-                input: { color: "white" },
-                "& .MuiOutlinedInput-root": { bgcolor: "#0f172a" },
-              }}
-            >
-              {difficulties.map((dif) => (
-                <MenuItem key={dif} value={dif}>
-                  {dif}
-                </MenuItem>
-              ))}
-            </TextField>
+            <Box sx={{ mb: 3 }}>
+              <RadioGroup
+                row
+                value={difficulty}
+                onChange={(e) => setDifficulty(e.target.value)}
+              >
+                {difficulties.map((dif) => (
+                  <FormControlLabel
+                    key={dif}
+                    value={dif}
+                    control={<Radio sx={{ color: "white" }} />}
+                    label={dif}
+                    sx={{
+                      color: "white",
+                      "& .MuiRadio-root": { color: "white" },
+                    }}
+                  />
+                ))}
+              </RadioGroup>
+            </Box>
 
             <Typography variant="h6" gutterBottom>
               Descrição
@@ -144,7 +215,7 @@ export default function CreateExercisePage() {
               sx={{
                 mb: 4,
                 textarea: { color: "white" },
-                "& .MuiOutlinedInput-root": { bgcolor: "#0f172a" },
+                "& .MuiOutlinedInput-root": { bgcolor: "background.default" },
               }}
             />
 
@@ -174,45 +245,66 @@ export default function CreateExercisePage() {
               sx={{
                 mb: 3,
                 textarea: { color: "white" },
-                "& .MuiOutlinedInput-root": { bgcolor: "#0f172a" },
+                "& .MuiOutlinedInput-root": { bgcolor: "background.default" },
               }}
             />
 
-            <Typography variant="h6" fontWeight="bold" gutterBottom>
-              Inputs Teste
-            </Typography>
-            <TextField
-              multiline
-              minRows={4}
-              fullWidth
-              placeholder="Um por linha (ex: 5, 10)"
-              value={testInput}
-              onChange={(e) => setTestInput(e.target.value)}
-              sx={{
-                mb: 3,
-                textarea: { color: "white" },
-                "& .MuiOutlinedInput-root": { bgcolor: "#0f172a" },
-              }}
-            />
+            <Box sx={{ mb: 2 }}>
+              <Button variant="contained" onClick={addTestCase}>
+                + Adicionar Caso de Teste
+              </Button>
+            </Box>
+            {errorMessage && (
+              <Alert severity="error" sx={{ mt: 1, mb: 2, width: "100%" }}>
+                {errorMessage}
+              </Alert>
+            )}
 
-            <Typography variant="h6" fontWeight="bold" gutterBottom>
-              Outputs Esperados
-            </Typography>
-            <TextField
-              multiline
-              minRows={4}
-              fullWidth
-              placeholder="Um por linha (ex: 15)"
-              value={expectedOutput}
-              onChange={(e) => setExpectedOutput(e.target.value)}
-              sx={{
-                mb: 4,
-                textarea: { color: "white" },
-                "& .MuiOutlinedInput-root": { bgcolor: "#0f172a" },
-              }}
-            />
+            {testCases.map((test, index) => (
+              <Box
+                key={index}
+                sx={{
+                  mt: 2,
+                  p: 2,
+                  bgcolor: "background.default",
+                  borderRadius: 2,
+                }}
+              >
+                <Box
+                  display="flex"
+                  justifyContent="space-between"
+                  alignItems="flex-start"
+                >
+                  <Typography variant="subtitle2">Caso {index + 1}</Typography>
+                  <Button
+                    color="error"
+                    onClick={() => removeTestCase(index)}
+                    sx={{ minWidth: "auto", p: 0 }}
+                  >
+                    Remover
+                  </Button>
+                </Box>
+                {(test.argNames || []).map((arg) => (
+                  <TextField
+                    key={arg}
+                    label={arg}
+                    value={test.inputs[arg] ?? ""}
+                    onChange={(e) =>
+                      handleInputChange(index, arg, e.target.value)
+                    }
+                    sx={{ m: 1 }}
+                  />
+                ))}
+                <TextField
+                  label="Saída esperada"
+                  value={test.expectedOutput}
+                  onChange={(e) => handleOutputChange(index, e.target.value)}
+                  sx={{ m: 1 }}
+                />
+              </Box>
+            ))}
 
-            <Box display="flex" justifyContent="space-between">
+            <Box display="flex" justifyContent="space-between" mt={3}>
               <Button
                 variant="contained"
                 onClick={handleBack}
@@ -225,32 +317,16 @@ export default function CreateExercisePage() {
                 variant="contained"
                 sx={{ bgcolor: "#6D6AF2" }}
                 onClick={async () => {
-                  const languageMap = {
-                    JavaScript: 1,
-                    Python: 2,
-                    Java: 3,
-                    CPP: 4,
-                  };
-
-                  const inputList = testInput
-                    .split("\n")
-                    .map((s) => s.trim())
-                    .filter(Boolean);
-                  const outputList = expectedOutput
-                    .split("\n")
-                    .map((s) => s.trim())
-                    .filter(Boolean);
-
-                  if (inputList.length !== outputList.length) {
-                    alert(
-                      "Each input must have a corresponding expected output."
-                    );
+                  if (testCases.length === 0) {
+                    alert("Adicione pelo menos um caso de teste.");
                     return;
                   }
 
-                  const testCases = inputList.map((input, i) => ({
-                    input,
-                    expectedOutput: outputList[i],
+                  const formattedTestCases = testCases.map((test) => ({
+                    input: (test.argNames || [])
+                      .map((arg) => test.inputs[arg])
+                      .join(", "),
+                    expectedOutput: test.expectedOutput,
                   }));
 
                   const requestBody = {
@@ -258,24 +334,23 @@ export default function CreateExercisePage() {
                     description,
                     mainCode: ModifyMainCode(mainCode),
                     difficulty: difficulty.toUpperCase(),
-                    languageId: languageMap[language],
-                    testCases,
+                    languageId: 2,
+                    testCases: formattedTestCases,
                   };
 
+                  console.log("Request Body:", requestBody);
+
                   try {
-                    const response = await fetch(
-                      `${baseUrl}/exercises`,
-                      {
-                        method: "POST",
-                        headers: {
-                          "Content-Type": "application/json",
-                          Authorization: `Bearer ${localStorage.getItem(
-                            "token"
-                          )}`,
-                        },
-                        body: JSON.stringify(requestBody),
-                      }
-                    );
+                    const response = await fetch(`${baseUrl}/exercises`, {
+                      method: "POST",
+                      headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${localStorage.getItem(
+                          "token"
+                        )}`,
+                      },
+                      body: JSON.stringify(requestBody),
+                    });
 
                     if (!response.ok)
                       throw new Error("Error creating exercise");
