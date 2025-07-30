@@ -6,4 +6,7 @@ import java.util.List;
 
 public interface UserListRepository extends JpaRepository<UserList, Long> {
     List<UserList> findByOwnerUsername(String username);
+
+    java.util.Optional<UserList> findByIdAndOwnerUsername(Long id, String username);
+
 }
