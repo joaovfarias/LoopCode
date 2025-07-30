@@ -1,7 +1,10 @@
 package com.loopcode.loopcode.service;
 
+import com.loopcode.loopcode.domain.challenge.ChallengeResolution;
 import com.loopcode.loopcode.domain.challenge.DailyChallenge;
+import com.loopcode.loopcode.domain.challenge.ResolutionKey;
 import com.loopcode.loopcode.domain.exercise.Exercise;
+import com.loopcode.loopcode.domain.user.User;
 import com.loopcode.loopcode.repositories.DailyChallengeRepository;
 import com.loopcode.loopcode.repositories.ExerciseRepository;
 import com.loopcode.loopcode.repositories.ChallengeResolutionRepository;
@@ -13,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
@@ -64,18 +68,25 @@ public class DailyChallengeService {
 
     @Transactional
     public void resolveDaily(String username) {
-        // LocalDate today = LocalDate.now();
-        // DailyChallenge dc = dailyChallengeRepository.findByChallengeDate(today)
-        // .orElseThrow(() -> new RuntimeException("Desafio diário não definido"));
-        // if (resolutionRepository.existsByIdUsernameAndIdChallengeDate(username,
-        // today)) {
-        // throw new RuntimeException("Você já resolveu o desafio de hoje");
-        // }
-        // User u = userRepository.findByUsername(username)
-        // .orElseThrow();
-        // resolutionRepository.save(new ChallengeResolution(
-        // new ResolutionKey(username, today),
-        // u, dc,
-        // LocalDateTime.now()));
+        LocalDate today = LocalDate.now();
+        DailyChallenge dc = dailyChallengeRepository.findByChallengeDate(today)
+                .orElseThrow(() -> new RuntimeException("Desafio diário não definido"));
+
+        if (resolutionRepository.existsByIdUsernameAndIdChallengeDate(username, today)) {
+            throw new RuntimeException("Você já resolveu o desafio de hoje");
+        }
+
+        User u = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
+        ResolutionKey key = new ResolutionKey(username, today);
+        ChallengeResolution resolution = new ChallengeResolution(
+                key,
+                u,
+                dc,
+                LocalDateTime.now());
+
+        resolutionRepository.save(resolution);
     }
+
 }
