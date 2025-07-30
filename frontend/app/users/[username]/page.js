@@ -47,11 +47,25 @@ export default function PerfilUsuario({ params }) {
             console.error('Error fetching exercises:', error);
         }
     };
+
+    const fetchLists = async () => {
+        try {
+            const response = await fetch(`${baseUrl}/users/${username}/lists`);
+            if (!response.ok) {
+                console.error('Failed to fetch lists');
+                return;
+            }
+            const data = await response.json();
+            setLists(data);
+        } catch (error) {
+            console.error('Error fetching lists:', error);
+        }
+    }
+
     useEffect(() => {
-        const baseUrl = process.env.NEXT_PUBLIC_API_URL;
-        
         fetchUserData();
         fetchExercises();
+        fetchLists();
     }, [username]);
 
 
@@ -156,9 +170,9 @@ export default function PerfilUsuario({ params }) {
                         </Typography>
                         <Box className="rounded-2xl">
                                 <Stack spacing={2}>
-                                    {[1, 2, 3, 4, 5].map((item, i) => (
+                                    {lists.map((item, i) => (
                                         <Box key={i}>
-                                            <ListaItem lista={{ id: i, exercicios: i * 3 }} />
+                                            <ListaItem lista={item} />
                                         </Box>
                                     ))}
                                 </Stack>

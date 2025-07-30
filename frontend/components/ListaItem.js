@@ -40,9 +40,11 @@ export default function ListaItem({ lista }) {
     <>
     <Box className="flex justify-between items-center py-2 border-b-1 border-neutral-700">
       <Box>
-        <Typography variant="body1">Título {lista.id}</Typography>
+        <Typography variant="body1">
+          {lista.name}
+        </Typography>
         <Typography variant="caption" color="gray">
-          {lista.exercicios} exercícios
+          {lista.exerciseIds.length} exercícios
         </Typography>
       </Box>
 

@@ -127,7 +127,7 @@ export default function RegisterPage() {
             <form onSubmit={handleRegistro} className="flex flex-col gap-4">
 
               <TextField
-                label="Nome"
+                label="username"
                 type="text"
                 variant="outlined"
                 fullWidth
@@ -137,7 +137,7 @@ export default function RegisterPage() {
               />
 
               <TextField
-                label="Email"
+                label="email"
                 type="email"
                 variant="outlined"
                 fullWidth
@@ -148,7 +148,7 @@ export default function RegisterPage() {
 
               {/* SENHA */}
               <FormControl variant="outlined" fullWidth required>
-                <InputLabel htmlFor="senha">Senha</InputLabel>
+                <InputLabel htmlFor="senha">senha</InputLabel>
                 <OutlinedInput
                   id="senha"
                   type={mostrarSenha ? 'text' : 'password'}
@@ -173,13 +173,13 @@ export default function RegisterPage() {
 
               {/* CONFIRMAR SENHA */}
               <FormControl variant="outlined" fullWidth required error={erroSenha}>
-                <InputLabel htmlFor="confirmarSenha">Confirmar Senha</InputLabel>
+                <InputLabel htmlFor="confirmarSenha">confirmar senha</InputLabel>
                 <OutlinedInput
                   id="confirmarSenha"
                   type={mostrarConfirmar ? 'text' : 'password'}
                   value={confirmarSenha}
                   onChange={(e) => setConfirmarSenha(e.target.value)}
-                  label="Confirmar Senha"
+                  label="confirmar senha"
                   endAdornment={
                     <InputAdornment position="end">
                       <IconButton
@@ -204,7 +204,7 @@ export default function RegisterPage() {
               </Button>
 
               <Typography variant="body2" color="textSecondary" align="center" style={{ marginTop: '16px' }}>
-                Já tem uma conta? <Link
+                Já possui uma conta? <Link
                   color="secondary"
                   underline="none"
                   onClick={login}

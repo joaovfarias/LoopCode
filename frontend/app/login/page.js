@@ -95,7 +95,7 @@ export default function LoginPage() {
             <form onSubmit={handleLogin} className="flex flex-col gap-4">
 
               <TextField
-                label="Email"
+                label="email"
                 type="email"
                 variant="outlined"
                 fullWidth
@@ -105,7 +105,7 @@ export default function LoginPage() {
               />
 
               <FormControl variant="outlined" fullWidth required>
-                <InputLabel htmlFor="senha">Senha</InputLabel>
+                <InputLabel htmlFor="senha">senha</InputLabel>
                 <OutlinedInput
                   id="senha"
                   type={mostrarSenha ? 'text' : 'password'}

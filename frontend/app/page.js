@@ -42,17 +42,21 @@ export default function HomePage() {
 
   const getExercises = async (page = 0) => {
     const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+    const token = localStorage.getItem('token');
     try {
       const response = await fetch(`${baseUrl}/exercises?page=${page}`, {
         method: "GET",
-      });
-      if (!response.ok) {
-        window.location.href = "/not-found";
-      }
-      return response.json();
-    } catch (err) {
-      console.error(err);
-      return null;
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    if (!response.ok) {
+      window.location.href = "/not-found";
+    }
+    return response.json();
+  } catch (err) {
+    console.error(err);
+    return null;
     }
   };
 

@@ -1,0 +1,228 @@
+'use client';
+
+import React, { useState, useEffect } from 'react';
+import {
+  Box,
+  TextField,
+  IconButton,
+  Button,
+  Paper,
+  List,
+  ListItem,
+  ListItemText,
+  ListItemIcon,
+  Pagination,
+  CircularProgress,
+} from '@mui/material';
+import CodeIcon from '@mui/icons-material/Code';
+import AddIcon from '@mui/icons-material/Add';
+import CloseIcon from '@mui/icons-material/Close';
+import SearchIcon from '@mui/icons-material/Search';
+
+export default function CreateList() {
+  const [lista, setLista] = useState([]);
+  const [search, setSearch] = useState('');
+  const [listaTitulo, setListaTitulo] = useState('Título da Lista');
+  const [exercises, setExercises] = useState([]);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const [loading, setLoading] = useState(false);
+
+  const getExercises = async (page = 0) => {
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+    const token = localStorage.getItem('token');
+    try {
+      const response = await fetch(`${baseUrl}/exercises?page=${page}`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!response.ok) {
+        console.error('Failed to fetch exercises:', response);
+      }
+      return response.json();
+    } catch (err) {
+      console.error(err);
+      return null;
+    }
+  };
+
+  const fetchExercises = async (page = 0) => {
+    setLoading(true);
+    try {
+      const data = await getExercises(page);
+      if (data) {
+        setExercises(data.content || []);
+        setTotalPages(data.totalPages || 0);
+      }
+    } catch (error) {
+      console.error('Error fetching exercises:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchExercises(currentPage);
+  }, [currentPage]);
+
+  const handleAdd = (item) => {
+    if (!lista.find((i) => i.id === item.id)) {
+      setLista([...lista, item]);
+    }
+  };
+
+  const handleRemove = (id) => {
+    setLista(lista.filter((item) => item.id !== id));
+  };
+
+  const handleCreateList = () => {
+    alert('Lista criada!');
+  };
+
+  const filteredExercises = exercises.filter((item) =>
+    item.title?.toLowerCase().includes(search.toLowerCase()) ||
+    item.programmingLanguage?.toLowerCase().includes(search.toLowerCase())
+  );
+
+  return (
+    <Box sx={{ 
+      width: '100%', 
+      height: '100vh', 
+      display: 'flex',
+      overflow: 'hidden' 
+    }}>
+      {/* Painel da Lista */}
+      <Box sx={{ flex: 1 }}>
+        <Paper sx={{ bgcolor: 'card.primary', borderRadius: 0, p: 2, height: '100%' }}>
+          <TextField
+            fullWidth
+            value={listaTitulo}
+            onChange={(e) => setListaTitulo(e.target.value)}
+            variant="standard"
+            InputProps={{
+              disableUnderline: true,
+              sx: { color: '#fff', fontSize: '1.25rem', textAlign: 'center' },
+            }}
+            inputProps={{ style: { textAlign: 'center' } }}
+          />
+          <List>
+            {lista.map((item) => (
+              <ListItem
+                key={item.id}
+                secondaryAction={
+                  <IconButton
+                    edge="end"
+                    onClick={() => handleRemove(item.id)}
+                    sx={{ color: '#ccc' }}
+                  >
+                    <CloseIcon />
+                  </IconButton>
+                }
+              >
+                <ListItemIcon sx={{ color: '#ccc' }}>
+                  <CodeIcon />
+                </ListItemIcon>
+                <ListItemText 
+                  primary={item.title || item.titulo} 
+                  secondary={item.programmingLanguage || item.linguagem}
+                  sx={{
+                    '& .MuiListItemText-primary': { color: '#fff' },
+                    '& .MuiListItemText-secondary': { color: '#ccc' }
+                  }}
+                />
+              </ListItem>
+            ))}
+          </List>
+          <Box textAlign="center" mt={2}>
+            <Button
+              variant="contained"
+              sx={{ bgcolor: '#6c63ff', textTransform: 'none' }}
+              onClick={handleCreateList}
+            >
+              Criar Lista
+            </Button>
+          </Box>
+        </Paper>
+      </Box>
+
+      {/* Painel de Atividades */}
+      <Box sx={{ flex: 1 }}>
+        <Paper sx={{ bgcolor: 'card.primary', borderRadius: 0, p: 2, height: '100%' }}>
+          <Box display="flex" alignItems="center" mb={2}>
+            <SearchIcon sx={{ mr: 1, color: '#ccc' }} />
+            <TextField
+              variant="standard"
+              placeholder="Pesquisar atividades..."
+              fullWidth
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              InputProps={{
+                disableUnderline: true,
+                sx: { color: '#fff' },
+              }}
+            />
+          </Box>
+          
+          {loading ? (
+            <Box display="flex" justifyContent="center" mt={4}>
+              <CircularProgress sx={{ color: '#fff' }} />
+            </Box>
+          ) : (
+            <>
+              <List>
+                {filteredExercises.map((item) => (
+                  <ListItem
+                    key={item.id}
+                    secondaryAction={
+                      <IconButton
+                        edge="end"
+                        onClick={() => handleAdd(item)}
+                        sx={{ color: '#ccc' }}
+                      >
+                        <AddIcon />
+                      </IconButton>
+                    }
+                  >
+                    <ListItemIcon sx={{ color: '#ccc' }}>
+                      <CodeIcon />
+                    </ListItemIcon>
+                    <ListItemText 
+                      primary={item.title} 
+                      secondary={item.programmingLanguage}
+                      sx={{
+                        '& .MuiListItemText-primary': { color: '#fff' },
+                        '& .MuiListItemText-secondary': { color: '#ccc' }
+                      }}
+                    />
+                  </ListItem>
+                ))}
+              </List>
+              
+              {totalPages > 1 && (
+                <Box display="flex" justifyContent="center" mt={4}>
+                  <Pagination
+                    count={totalPages}
+                    page={currentPage + 1}
+                    onChange={(_, value) => setCurrentPage(value - 1)}
+                    color="primary"
+                    sx={{
+                      '& .MuiPaginationItem-root': {
+                        color: '#fff',
+                      },
+                      '& .Mui-selected': {
+                        backgroundColor: '#6c63ff !important',
+                        color: '#fff',
+                      }
+                    }}
+                  />
+                </Box>
+              )}
+            </>
+          )}
+        </Paper>
+      </Box>
+    </Box>
+  );
+}

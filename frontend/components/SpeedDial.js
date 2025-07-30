@@ -38,12 +38,12 @@ export default function CustomSpeedDial() {
           <SpeedDialAction
                icon={<CreateIcon />}
                tooltipTitle="Criar Exercício"
-               onClick={() => router.push("/createActivities")}
+               onClick={() => router.push("/create-activities")}
           />
           <SpeedDialAction
                icon={<CreateNewFolderIcon />}
                tooltipTitle="Criar Lista"
-               onClick={() => router.push("/createLists")}
+               onClick={() => router.push("/create-list")}
           />
      </SpeedDial>
      );
