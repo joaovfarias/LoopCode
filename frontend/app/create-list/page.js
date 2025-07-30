@@ -89,13 +89,14 @@ export default function CreateList() {
   return (
     <Box sx={{ 
       width: '100%', 
-      height: '100vh', 
+      height: '80vh', 
       display: 'flex',
-      overflow: 'hidden' 
+      overflow: 'hidden',
+      marginTop: 6
     }}>
       {/* Painel da Lista */}
       <Box sx={{ flex: 1 }}>
-        <Paper sx={{ bgcolor: 'card.primary', borderRadius: 0, p: 2, height: '100%' }}>
+        <Paper sx={{ bgcolor: 'card.primary', borderRadius: 0, p: 2, height: '100%', marginRight: 2 }}>
           <TextField
             fullWidth
             value={listaTitulo}
@@ -154,7 +155,7 @@ export default function CreateList() {
             <SearchIcon sx={{ mr: 1, color: '#ccc' }} />
             <TextField
               variant="standard"
-              placeholder="Pesquisar atividades..."
+              placeholder="Pesquisar exercícios..."
               fullWidth
               value={search}
               onChange={(e) => setSearch(e.target.value)}
