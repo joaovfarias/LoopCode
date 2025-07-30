@@ -4,6 +4,7 @@ import com.loopcode.loopcode.domain.exercise.Exercise;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -11,6 +12,7 @@ import java.util.Set;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class UserList {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,5 +27,7 @@ public class UserList {
 
     @ManyToMany
     @JoinTable(name = "user_list_exercises", joinColumns = @JoinColumn(name = "list_id"), inverseJoinColumns = @JoinColumn(name = "exercise_id"))
-    private Set<Exercise> exercises;
+    @Builder.Default
+    private Set<Exercise> exercises = new HashSet<>();
+
 }
