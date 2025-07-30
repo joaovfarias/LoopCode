@@ -24,5 +24,15 @@ public class Vote {
     @JoinColumn(name = "user_username", nullable = false)
     private User user;
 
-    private boolean upvote;
+    @Column(nullable = false)
+    private int votoValue;
+
+    public int getValue() {
+        return votoValue;
+    }
+
+    public void setValue(int value) {
+        this.votoValue = value;
+    }
+
 }
