@@ -1,3 +1,4 @@
+###
 POST http://localhost:8084/auth/register
 Content-Type: application/json
 
@@ -9,7 +10,6 @@ Content-Type: application/json
 }
 
 ###
-
 POST http://localhost:8084/auth/login
 Content-Type: application/json
 
@@ -19,7 +19,6 @@ Content-Type: application/json
 }
 
 ###
-
 POST http://localhost:8084/auth/register
 Content-Type: application/json
 
@@ -31,7 +30,6 @@ Content-Type: application/json
 }
 
 ###
-
 POST http://localhost:8084/auth/login
 Content-Type: application/json
 
@@ -40,81 +38,103 @@ Content-Type: application/json
   "password": "12346678"
 }
 
-### BANIMENTO
-
+###
 PATCH http://localhost:8084/users/banTest/ban
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZGVzdG8iLCJpYXQiOjE3NTM3MTEzNjAsImV4cCI6MTc1Mzc5Nzc2MH0.AkIBAbKb8V_JBZU7mFcCn47pvAH25f9-WX1n-V6ExMk
+Authorization: Bearer {{admin_token}}
 
 {
   "banReason": "TESTE TESTE TESTE"
 }
 
-### UNBAN
-
+###
 PATCH http://localhost:8084/users/banTest/unban
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZGVzdG8iLCJpYXQiOjE3NTM3MTEzNjAsImV4cCI6MTc1Mzc5Nzc2MH0.AkIBAbKb8V_JBZU7mFcCn47pvAH25f9-WX1n-V6ExMk
+Authorization: Bearer {{admin_token}}
 
-### TIMEOUT
-
+###
 PATCH http://localhost:8084/users/banTest/timeout
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZGVzdG8iLCJpYXQiOjE3NTM3MTEzNjAsImV4cCI6MTc1Mzc5Nzc2MH0.AkIBAbKb8V_JBZU7mFcCn47pvAH25f9-WX1n-V6ExMk
+Authorization: Bearer {{admin_token}}
 
 {
   "reason": "TESTE TIMEOUT",
   "durationMinutes": 5
 }
 
-### CLEAR TIMEOUT
-
+###
 PATCH http://localhost:8084/users/banTest/untimeout
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZGVzdG8iLCJpYXQiOjE3NTM3MTEzNjAsImV4cCI6MTc1Mzc5Nzc2MH0.AkIBAbKb8V_JBZU7mFcCn47pvAH25f9-WX1n-V6ExMk
+Authorization: Bearer {{admin_token}}
 
 ###
-
 POST http://localhost:8084/exercises
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJiYW5UZXN0IiwiaWF0IjoxNzUzNzExNjE1LCJleHAiOjE3NTM3OTgwMTV9.WtRHbN26N7NKG1Upnu6IVMEWyEjcPVQbr-pCvVD2mSg
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJiYW5UZXN0IiwiaWF0IjoxNzUzOTEwNDM4LCJleHAiOjE3NTM5OTY4Mzh9.mc5mVQrW_9iQPWwmzIbL5s4RyY0aY4tisuh6sOPVeXg
 
 {
-    "title": "Soma de Dois Números",
-    "description": "Crie uma função que receba dois números inteiros como parâmetro e retorne a soma deles.",
-    "mainCode": "public class Solution {\n    public int somar(int a, int b) {\n        // Seu código aqui\n        return 0;\n    }\n}",
-    "difficulty": "EASY",
-    "languageId": 3,
-    "testCases": [
-        {
-            "input": "5, 10",
-            "expectedOutput": "15"
-        },
-        {
-            "input": "-1, 1",
-            "expectedOutput": "0"
-        },
-        {
-            "input": "0, 0",
-            "expectedOutput": "0"
-        }
-    ]
+  "title": "Soma de Dois Números",
+  "description": "Crie uma função que receba dois números e retorne a soma.",
+  "mainCode": "public class Solution {\n    public int somar(int a, int b) {\n        // Seu código\n        return {user_code};\n    }\n}",
+  "difficulty": "EASY",
+  "languageId": 1,
+  "testCases": [
+    { "input": "5 10", "expectedOutput": "15" },
+    { "input": "-1 1", "expectedOutput": "0" }
+  ]
 }
 
 ###
-
-POST http://localhost:8084/exercises/84b0e24d-cf92-42c4-b813-ba3450199234/solve
+# 10. Listar exercícios filtrando por linguagem “Java”
+GET http://localhost:8084/exercises?language=Java&page=0&size=1
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZGVzdG8xMiIsImlhdCI6MTc1Mjg4NDg4MCwiZXhwIjoxNzUyOTcxMjgwfQ.MAFtpT75jBZdPtdHY05Xw3UN8sP9Ueq3hIHBbNzGOeM
+
+###
+# 11. Buscar exercício por ID
+GET http://localhost:8084/exercises/0a2c5fa9-0a66-42ac-9cec-a4458e43f911
+Content-Type: application/json
+
+###
+# 12. Submeter solução para exercício (solve)
+POST http://localhost:8084/exercises/16e51e3c-84fc-492b-8780-074c354fb630/solve
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJiYW5UZXN0IiwiaWF0IjoxNzUzOTEwNDM4LCJleHAiOjE3NTM5OTY4Mzh9.mc5mVQrW_9iQPWwmzIbL5s4RyY0aY4tisuh6sOPVeXg
 
 {
-  "userCode": "public int solve(int a, int b) { return a + b; }",
-  "inputs": ["2", "3"],
-  "language": "java"
+  "code": "public int somar(int a, int b) { return a + b; }"
 }
 
 ###
-
-GET http://localhost:8084/exercises/{id}
+# 13. Upvote no exercício
+POST http://localhost:8084/exercises/0a2c5fa9-0a66-42ac-9cec-a4458e43f911/upvote
 Content-Type: application/json
-Authorization: Bearer {token} 
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJiYW5UZXN0IiwiaWF0IjoxNzUzOTEwNDM4LCJleHAiOjE3NTM5OTY4Mzh9.mc5mVQrW_9iQPWwmzIbL5s4RyY0aY4tisuh6sOPVeXg
+
+###
+# 14. Downvote no exercício
+POST http://localhost:8084/exercises/0a2c5fa9-0a66-42ac-9cec-a4458e43f911/downvote
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJiYW5UZXN0IiwiaWF0IjoxNzUzOTEwNDM4LCJleHAiOjE3NTM5OTY4Mzh9.mc5mVQrW_9iQPWwmzIbL5s4RyY0aY4tisuh6sOPVeXg
+
+###
+# 15. Criar lista de exercícios para o usuário banTest
+POST http://localhost:8084/users/banTest/lists
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJiYW5UZXN0IiwiaWF0IjoxNzUzOTEwNDM4LCJleHAiOjE3NTM5OTY4Mzh9.mc5mVQrW_9iQPWwmzIbL5s4RyY0aY4tisuh6sOPVeXg
+
+{
+  "name": "Minhas Listas Legais",
+  "exerciseIds": ["0a2c5fa9-0a66-42ac-9cec-a4458e43f911"]
+}
+
+###
+# 16. Listar todas as listas de banTest
+GET http://localhost:8084/users/banTest/lists
+Content-Type: application/json
+Authorization: Bearer {{user_token}}
+
+###
+# 17. Buscar lista específica por ID
+GET http://localhost:8084/users/banTest/lists/2
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJiYW5UZXN0IiwiaWF0IjoxNzUzOTEwNDM4LCJleHAiOjE3NTM5OTY4Mzh9.mc5mVQrW_9iQPWwmzIbL5s4RyY0aY4tisuh6sOPVeXg
