@@ -185,7 +185,8 @@ public class UserService {
                                                 exercise.isVerified(),
                                                 exercise.getCreatedAt(),
                                                 exercise.getMainCode(),
-                                                exercise.getTestCode()))
+                                                exercise.getTestCode(),
+                                                0, 0))
                                 .toList();
         }
 
