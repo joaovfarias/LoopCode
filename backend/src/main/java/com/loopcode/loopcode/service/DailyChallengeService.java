@@ -19,47 +19,59 @@ public class DailyChallengeService {
 
     private final DailyChallengeRepository dailyChallengeRepository;
     private final ExerciseRepository exerciseRepository;
+    private final ChallengeResolutionRepository resolutionRepository;
+    private final UserRepository userRepository;
 
     public DailyChallengeService(DailyChallengeRepository dailyChallengeRepository,
-            ExerciseRepository exerciseRepository) {
+            ExerciseRepository exerciseRepository,
+            ChallengeResolutionRepository resolutionRepository,
+            UserRepository userRepository) {
         this.dailyChallengeRepository = dailyChallengeRepository;
         this.exerciseRepository = exerciseRepository;
+        this.resolutionRepository = resolutionRepository;
+        this.userRepository = userRepository;
+    }
+
+    @Scheduled(cron = "0 0 0 * * *")
+    @Transactional
+    public void scheduleDaily() {
+        LocalDate today = LocalDate.now();
+        if (dailyChallengeRepository.findByChallengeDate(today).isEmpty()) {
+            selectNewDailyChallenge(today);
+        }
     }
 
     @Transactional
     public Optional<Exercise> getDailyChallenge() {
         LocalDate today = LocalDate.now();
-        Optional<DailyChallenge> existingChallenge = dailyChallengeRepository.findByChallengeDate(today);
-
-        if (existingChallenge.isPresent()) {
-            return Optional.of(existingChallenge.get().getExercise());
-        } else {
-            return selectNewDailyChallenge(today);
-        }
+        return dailyChallengeRepository.findByChallengeDate(today)
+                .map(DailyChallenge::getExercise)
+                .or(() -> selectNewDailyChallenge(today));
     }
 
-    // botar a lógica aqui
     @Transactional
     public Optional<Exercise> selectNewDailyChallenge(LocalDate date) {
-
-        List<Exercise> verifiedExercises = exerciseRepository.findByVerifiedTrue();
-
-        if (verifiedExercises.isEmpty()) {
-            System.out.println("Nenhum exercício verificado disponível para o desafio diário.");
+        List<Exercise> verified = exerciseRepository.findByVerifiedTrue();
+        if (verified.isEmpty())
             return Optional.empty();
+        Exercise chosen = verified.get(new Random().nextInt(verified.size()));
+        dailyChallengeRepository.save(new DailyChallenge(chosen, date));
+        return Optional.of(chosen);
+    }
+
+    @Transactional
+    public void resolveDaily(String username) {
+        LocalDate today = LocalDate.now();
+        DailyChallenge dc = dailyChallengeRepository.findByChallengeDate(today)
+                .orElseThrow(() -> new RuntimeException("Desafio diário não definido"));
+        if (resolutionRepository.existsByIdUsernameAndIdChallengeDate(username, today)) {
+            throw new RuntimeException("Você já resolveu o desafio de hoje");
         }
-        Random random = new Random();
-        Exercise selectedExercise = verifiedExercises.get(random.nextInt(verifiedExercises.size()));
-
-        // Salva o novo desafio diário
-        DailyChallenge newChallenge = new DailyChallenge(selectedExercise, date);
-        dailyChallengeRepository.save(newChallenge);
-
-        System.out.println("Novo desafio diário selecionado para " + date + ": " +
-                selectedExercise.getTitle());
-
-        return Optional.of(selectedExercise);
-
-        // return null;
+        User u = userRepository.findByUsername(username)
+                .orElseThrow();
+        resolutionRepository.save(new ChallengeResolution(
+                new ResolutionKey(username, today),
+                u, dc,
+                LocalDateTime.now()));
     }
 }
