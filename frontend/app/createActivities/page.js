@@ -37,12 +37,24 @@ export default function CreateExercisePage() {
     const functionName = foundMatch[1];
     const argNames = foundMatch[2];
 
-    let finalCode = "import sys\n";
+    let finalCode = "import sys\nimport ast\n";
 
     const argumentsCount = argNames.split(",").map((p) => p.trim());
 
     argumentsCount.forEach((param, index) => {
-      finalCode += `${param} = int(sys.argv[${index + 1}])\n`;
+      // Find the argument type from argumentsList
+      const argObj = argumentsList.find((a) => a.name === param);
+      let parseLine = "";
+      if (argObj) {
+        if (argObj.type === "Int") {
+          parseLine = `${param} = int(sys.argv[${index + 1}])`;
+        } else if (argObj.type === "String") {
+          parseLine = `${param} = sys.argv[${index + 1}]`;
+        } else if (argObj.type === "Array") {
+          parseLine = `${param} = ast.literal_eval(sys.argv[${index + 1}])`;
+        }
+      }
+      finalCode += parseLine + "\n";
     });
 
     finalCode += `${code}\n\t{user_code}\n`;
@@ -410,6 +422,8 @@ export default function CreateExercisePage() {
                     languageId: 2,
                     testCases: formattedTestCases,
                   };
+
+                  console.log("Request body:", requestBody);
 
                   try {
                     const response = await fetch(`${baseUrl}/exercises`, {

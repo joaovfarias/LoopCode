@@ -152,9 +152,12 @@ public class ExerciseService {
                 return new SolveResponseDto(result.error(),false,"Ocorreu um erro de compilacão ou execucão:", "");
             }
 
-            if (!result.output().trim().equals(testCase.getExpectedOutput().trim()))
+            String normalizedOutput = result.output().replaceAll("\\s+", "");
+            String normalizedExpectedOutput = testCase.getExpectedOutput().replaceAll("\\s+", "");
+
+            if (!normalizedOutput.equals(normalizedExpectedOutput))
             {
-                String feedbackMessage = "Falhou no caso de teste com input: \"" + testCase.getExpectedOutput() + "\".";
+                String feedbackMessage = "Falhou no caso de teste com output: \"" + testCase.getExpectedOutput() + "\".";
                 return new SolveResponseDto(result.output(),false,feedbackMessage, testCase.getExpectedOutput());
             }
 
