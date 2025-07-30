@@ -37,7 +37,7 @@ public class ExerciseController {
     }
 
     @PostMapping
-    @Operation(summary =  "Cria exercicio", description = "Recebe de parametro o Dto do exercicio e retorna o exercicio criado")
+    @Operation(summary = "Cria exercicio", description = "Recebe de parametro o Dto do exercicio e retorna o exercicio criado")
     public ResponseEntity<Exercise> createExercise(@Valid @RequestBody ExerciseRequestDto dto,
             Authentication authentication) {
 
@@ -72,16 +72,26 @@ public class ExerciseController {
     @PostMapping("/{id}/solve")
     @Operation(summary = "Submete uma solução para um exercício", description = "Executa o código do usuário contra os casos de teste e retorna o resultado.")
     public ResponseEntity<SolveResponseDto> solveExercise(
-        @PathVariable UUID id,
-        @RequestBody @Valid SolveRequestDto solveDto,
-        Authentication authentication)
-    {
+            @PathVariable UUID id,
+            @RequestBody @Valid SolveRequestDto solveDto,
+            Authentication authentication) {
         String username = authentication.getName();
 
         SolveResponseDto response = exerciseService.solveExercise(id, solveDto, username);
 
         return ResponseEntity.ok(response);
     }
-    
-    
+
+    @PostMapping("/{id}/upvote")
+    public ResponseEntity<Void> upvote(@PathVariable UUID id, Authentication auth) {
+        exerciseService.vote(id, auth.getName(), true);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/{id}/downvote")
+    public ResponseEntity<Void> downvote(@PathVariable UUID id, Authentication auth) {
+        exerciseService.vote(id, auth.getName(), false);
+        return ResponseEntity.ok().build();
+    }
+
 }
