@@ -47,12 +47,14 @@ public class UserController {
         return ResponseEntity.ok(exercises);
     }
 
-    @GetMapping("/{username}/lists")
-    @Operation(summary = "Buscar listas de exercícios do usuário", description = "Retorna todas as listas criadas por um usuário específico.")
-    public ResponseEntity<List<UserListDto>> getListsByUsername(@PathVariable String username) {
-        List<UserListDto> lists = userService.getListsByUsername(username);
-        return ResponseEntity.ok(lists);
-    }
+    // @GetMapping("/{username}/lists")
+    // @Operation(summary = "Buscar listas de exercícios do usuário", description =
+    // "Retorna todas as listas criadas por um usuário específico.")
+    // public ResponseEntity<List<UserListDto>> getListsByUsername(@PathVariable
+    // String username) {
+    // List<UserListDto> lists = userService.getListsByUsername(username);
+    // return ResponseEntity.ok(lists);
+    // }
 
     @PatchMapping("/{username}/ban")
     @PreAuthorize("hasRole('ADMIN')")
