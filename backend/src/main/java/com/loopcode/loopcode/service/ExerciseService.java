@@ -26,6 +26,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.core.context.SecurityContextHolder;
 //import org.springframework.data.jpa.repository.JpaRepository;
 //import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
@@ -176,6 +177,16 @@ public class ExerciseService {
         SimpleUserDto userDto = new SimpleUserDto(
                 exercise.getCreatedBy().getUsername());
 
+        int ups = (int) voteRepository.countByExerciseAndVotoValue(exercise, +1);
+        int downs = (int) voteRepository.countByExerciseAndVotoValue(exercise, -1);
+        int voteCount = ups - downs;
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        int userVote = 0;
+        if (auth != null && auth.isAuthenticated()) {
+            userVote = voteRepository.findByExerciseAndUser(exercise,
+                    userRepository.findByUsername(auth.getName()).orElseThrow())
+                    .map(Vote::getValue).orElse(0);
+        }
         return new ExerciseResponseDto(
                 exercise.getId(),
                 exercise.getTitle(),
@@ -186,32 +197,25 @@ public class ExerciseService {
                 exercise.isVerified(),
                 exercise.getCreatedAt(),
                 exercise.getMainCode(),
-                exercise.getTestCode());
+                exercise.getTestCode(), voteCount,
+                userVote);
 
     }
 
     @Transactional
-    public void vote(UUID exerciseId, String username, boolean isUpvote) {
-        Exercise exercise = exerciseRepository.findById(exerciseId)
-                .orElseThrow(() -> new ResourceNotFoundException("Exercício não encontrado: " + exerciseId));
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado: " + username));
-
-        Vote vote = voteRepository.findByExerciseAndUser(exercise, user)
+    public void vote(UUID exerciseId, String username, boolean up) {
+        Exercise ex = getExerciseByIdUtil(exerciseId);
+        User u = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        int val = up ? +1 : -1;
+        Vote v = voteRepository.findByExerciseAndUser(ex, u)
                 .orElseGet(() -> {
-                    Vote v = new Vote();
-                    v.setExercise(exercise);
-                    v.setUser(user);
-                    return v;
+                    var x = new Vote();
+                    x.setExercise(ex);
+                    x.setUser(u);
+                    return x;
                 });
-
-        vote.setUpvote(isUpvote);
-        voteRepository.save(vote);
-
-        long ups = voteRepository.countByExerciseAndUpvoteTrue(exercise);
-        long downs = voteRepository.countByExerciseAndUpvoteFalse(exercise);
-        exercise.setUpvotes((int) ups);
-        exercise.setDownvotes((int) downs);
-        exerciseRepository.save(exercise);
+        v.setValue(val);
+        voteRepository.save(v);
     }
 }
