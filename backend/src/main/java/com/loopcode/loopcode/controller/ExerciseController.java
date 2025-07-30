@@ -16,7 +16,9 @@ import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -83,15 +85,25 @@ public class ExerciseController {
     }
 
     @PostMapping("/{id}/upvote")
-    public ResponseEntity<Void> upvote(@PathVariable UUID id, Authentication auth) {
-        exerciseService.vote(id, auth.getName(), true);
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Void> upvote(@PathVariable UUID id) {
+        exerciseService.vote(id,
+                SecurityContextHolder.getContext().getAuthentication().getName(),
+                true);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/{id}/downvote")
-    public ResponseEntity<Void> downvote(@PathVariable UUID id, Authentication auth) {
-        exerciseService.vote(id, auth.getName(), false);
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Void> downvote(@PathVariable UUID id) {
+        exerciseService.vote(id,
+                SecurityContextHolder.getContext().getAuthentication().getName(),
+                false);
         return ResponseEntity.ok().build();
     }
+
+    // private String authUser() {
+    // return SecurityContextHolder.getContext().getAuthentication().getName();
+    // }
 
 }
