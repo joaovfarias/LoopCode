@@ -181,7 +181,7 @@ export default function CreateExercisePage() {
         sx={{
           width: "100%",
           maxWidth: 700,
-          bgcolor: "background.default",
+          bgcolor: "card.primary",
           p: 4,
           borderRadius: 3,
           boxShadow: 3,
@@ -278,13 +278,13 @@ export default function CreateExercisePage() {
         {step === 2 && (
           <>
             <Box mt={3}>
-              <Divider sx={{ mb: 3 }}>Visualização da Função</Divider>
+              <Divider sx={{ mb: 3, mt: -3 }}>Visualização da Função</Divider>
               <Box
                 sx={{
                   mt: 1,
                   mb: 2,
                   p: 2,
-                  bgcolor: "#0f172a",
+                  bgcolor: "background.default",
                   borderRadius: 1,
                   fontFamily: "monospace",
                 }}
