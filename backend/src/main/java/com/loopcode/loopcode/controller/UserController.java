@@ -45,7 +45,7 @@ public class UserController {
     }
 
     @GetMapping("/{username}/exercises")
-    @Operation(summary = "Buscar exercícios criados pelo usuário", description = "Retorna os exercícios paginados criados por um usuário específico.")
+    @Operation(summary = "Buscar exercícios criados pelo usuário (paginado)", description = "Retorna os exercícios paginados criados por um usuário específico.")
     public ResponseEntity<Page<ExerciseResponseDto>> getExercisesByUsername(
             @PathVariable String username,
             @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {

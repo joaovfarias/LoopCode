@@ -3,6 +3,8 @@ package com.loopcode.loopcode.controller;
 import com.loopcode.loopcode.dtos.CreateUserListDto;
 import com.loopcode.loopcode.dtos.UserListDto;
 import com.loopcode.loopcode.service.UserListService;
+
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
@@ -27,6 +29,7 @@ public class UserListController {
 
     @PostMapping
     @PreAuthorize("#username == authentication.name")
+    @Operation(summary = "Cria uma nova lista de exercícios")
     public ResponseEntity<UserListDto> create(
             @PathVariable String username,
             @RequestBody @Valid CreateUserListDto dto) {
@@ -36,6 +39,7 @@ public class UserListController {
 
     @GetMapping
     @PreAuthorize("#username == authentication.name")
+    @Operation(summary = "Obtém todas as listas de exercícios do usuário (paginado)")
     public ResponseEntity<Page<UserListDto>> all(
             @PathVariable String username,
             @PageableDefault(size = 5, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
@@ -47,6 +51,7 @@ public class UserListController {
 
     @GetMapping("/{listId}")
     @PreAuthorize("#username == authentication.name")
+    @Operation(summary = "Obtém uma lista de exercícios pelo ID")
     public ResponseEntity<UserListDto> getById(
             @PathVariable String username,
             @PathVariable Long listId) {

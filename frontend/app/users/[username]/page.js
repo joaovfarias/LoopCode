@@ -28,6 +28,26 @@ export default function PerfilUsuario({ params }) {
 
     const baseUrl = process.env.NEXT_PUBLIC_API_URL;
 
+    const handleVote = async (exerciseId, voteType) => {
+        const token = localStorage.getItem("token");
+        const endpoint = `${baseUrl}/exercises/${exerciseId}/${voteType}`;
+        try {
+            const response = await fetch(endpoint, {
+            method: "POST",
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+            });
+            if (response.ok) {
+                fetchExercises(page); // atualiza os dados após o voto
+            } else {
+            console.error("Erro ao votar");
+            }
+        } catch (error) {
+            console.error("Erro na requisição de voto", error);
+        }
+        };
+
     const fetchUserData = async () => {
             try {
                 const response = await fetch(`${baseUrl}/users/${username}`);
@@ -173,7 +193,11 @@ export default function PerfilUsuario({ params }) {
                                 <Stack spacing={2}>
                                     {exercises.map((exercicio, i) => (
                                         <Box key={i}>
-                                            <ExercicioItem exercicio={exercicio} />
+                                            <ExercicioItem
+                                                exercicio={exercicio}
+                                                onUpvote={() => handleVote(exercicio.id, "upvote")}
+                                                onDownvote={() => handleVote(exercicio.id, "downvote")}
+                                                />
                                         </Box>
                                     ))}
                                 </Stack>

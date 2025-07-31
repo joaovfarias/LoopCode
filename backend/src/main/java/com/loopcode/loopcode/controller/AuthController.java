@@ -59,31 +59,9 @@ public class AuthController {
     }
 
     @GetMapping("/validate")
-    @Operation(summary = "Obter informações do usuário logado", description = "Retorna as informações do usuário logado.")
+    @Operation(summary = "Validar token JWT", description = "Verifica se o token enviado no header é válido.")
     public ResponseEntity<UserResponseDto> getCurrentUser(Authentication authentication) {
         UserResponseDto user = authService.getCurrentUser(authentication);
         return ResponseEntity.ok(user);
     }
-
-    /*
-     * /users/{username} -> Retorna informações do usuário
-     * /users/{username}/exercises -> Retorna os exercícios do usuário
-     * /users/{username}/lists -> Retorna as listas do usuário
-     */
-
-    /*
-     * @GetMapping("/validate")
-     * public ResponseEntity<Void> validateToken(HttpServletRequest request) {
-     * String header = request.getHeader("Authorization");
-     * if (header == null || !header.startsWith("Bearer ")) {
-     * return ResponseEntity.status(401).build();
-     * }
-     * String token = header.substring(7);
-     * boolean valid = jwtService.validateToken(token);
-     * return valid
-     * ? ResponseEntity.ok().build()
-     * : ResponseEntity.status(401).build();
-     */
-    
-
 }

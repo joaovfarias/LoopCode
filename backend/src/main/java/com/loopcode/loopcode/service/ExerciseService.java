@@ -20,6 +20,7 @@ import com.loopcode.loopcode.repositories.UserRepository;
 import com.loopcode.loopcode.repositories.VoteRepository;
 import com.loopcode.loopcode.service.specifications.ExerciseSpecifications;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
@@ -68,11 +69,6 @@ public class ExerciseService {
         exercise.setDescription(dto.description());
         exercise.setMainCode(dto.mainCode());
 
-        // exercise.setUpvotes(0);
-        // exercise.setDownvotes(0);
-        // exercise.setVerified(false);
-        // exercise.setCreatedAt(LocalDateTime.now());
-
         try {
             exercise.setDifficulty(Difficulty.valueOf(dto.difficulty().toUpperCase()));
         } catch (IllegalArgumentException e) {
@@ -96,8 +92,6 @@ public class ExerciseService {
     public Page<ExerciseResponseDto> getExercises(
             String language,
             String difficulty,
-            // String type, // 'exercise' ou 'list' (se for um endpoint unificado para
-            // ambos)
             String sortBy, // 'createdAt', 'upvotes', etc.
             String order, // 'asc' ou 'desc'
             int page,
@@ -205,18 +199,32 @@ public class ExerciseService {
     }
 
     @Transactional
-    public void vote(UUID exerciseId, String username, boolean up) {
+    public void toggleVote(UUID exerciseId, String username, boolean up) {
         Exercise ex = getExerciseByIdUtil(exerciseId);
         User u = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-        Vote v = voteRepository.findByExerciseAndUser(ex, u)
-                .orElseGet(() -> {
-                    var x = new Vote();
-                    x.setExercise(ex);
-                    x.setUser(u);
-                    return x;
-                });
-        v.setValue(up ? +1 : -1);
-        voteRepository.save(v);
+        
+        Optional<Vote> existingVoteOpt = voteRepository.findByExerciseAndUser(ex, u);
+        int newValue = up ? +1 : -1;
+
+        if (existingVoteOpt.isPresent()) {
+            Vote existingVote = existingVoteOpt.get();
+            if (existingVote.getValue() == newValue) {
+                // Se o voto atual for igual ao que usuário clicou, remove o voto (toggle off)
+                voteRepository.delete(existingVote);
+            } else {
+                // Se for voto diferente, atualiza para o novo
+                existingVote.setValue(newValue);
+                voteRepository.save(existingVote);
+            }
+        } else {
+            // Se não existir voto, cria um novo com o valor informado
+            Vote v = new Vote();
+            v.setExercise(ex);
+            v.setUser(u);
+            v.setValue(newValue);
+            voteRepository.save(v);
+        }
     }
+
 }

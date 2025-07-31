@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/exercises")
-@Tag(name = "Exercicios/Atividades", description = "Endpoint dos exercicios")
+@Tag(name = "Exercicios", description = "Endpoint dos exercicios")
 public class ExerciseController {
 
     private final ExerciseService exerciseService;
@@ -39,7 +39,7 @@ public class ExerciseController {
     }
 
     @PostMapping
-    @Operation(summary = "Cria exercicio", description = "Recebe de parametro o Dto do exercicio e retorna o exercicio criado")
+    @Operation(summary = "Criar um novo exercício", description = "Cria um novo exercício e retorna o objeto criado.")
     public ResponseEntity<Exercise> createExercise(@Valid @RequestBody ExerciseRequestDto dto,
             Authentication authentication) {
 
@@ -50,7 +50,7 @@ public class ExerciseController {
     }
 
     @GetMapping
-    @Operation(summary = "Retorna exercícios paginados", description = "Retorna uma pagina de exercicios recebendo como paramêtro a linguagem, tipo de sort e etc...")
+    @Operation(summary = "Retorna exercícios (paginado)", description = "Retorna uma pagina de exercicios recebendo como paramêtro a linguagem, tipo de sort e etc...")
     public ResponseEntity<Page<ExerciseResponseDto>> getExercises(
             @RequestParam(required = false) String language,
             @RequestParam(required = false) String difficulty,
@@ -86,8 +86,9 @@ public class ExerciseController {
 
     @PostMapping("/{id}/upvote")
     @PreAuthorize("isAuthenticated()")
+    @Operation(summary = "Vota positivamente em um exercício (Funciona como Toggle)", description = "Permite que um usuário vote positivamente em um exercício.")
     public ResponseEntity<Void> upvote(@PathVariable UUID id) {
-        exerciseService.vote(id,
+        exerciseService.toggleVote(id,
                 SecurityContextHolder.getContext().getAuthentication().getName(),
                 true);
         return ResponseEntity.ok().build();
@@ -95,15 +96,11 @@ public class ExerciseController {
 
     @PostMapping("/{id}/downvote")
     @PreAuthorize("isAuthenticated()")
+    @Operation(summary = "Vota negativamente em um exercício (Funciona como Toggle)", description = "Permite que um usuário vote negativamente em um exercício.")
     public ResponseEntity<Void> downvote(@PathVariable UUID id) {
-        exerciseService.vote(id,
+        exerciseService.toggleVote(id,
                 SecurityContextHolder.getContext().getAuthentication().getName(),
                 false);
         return ResponseEntity.ok().build();
     }
-
-    // private String authUser() {
-    // return SecurityContextHolder.getContext().getAuthentication().getName();
-    // }
-
 }

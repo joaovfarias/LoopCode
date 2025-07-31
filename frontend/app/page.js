@@ -30,7 +30,9 @@ const filtros = ["Tudo", "Listas", "Exercícios"];
 
 export default function HomePage() {
   const [filtro, setFiltro] = useState("Tudo");
-  const [voteStatus, setVoteStatus] = useState(null);
+
+  const [voteStatusMap, setVoteStatusMap] = useState({});
+
   const [exercises, setExercises] = useState([]);
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
@@ -38,6 +40,76 @@ export default function HomePage() {
 
   const observer = useRef();
   const router = useRouter();
+
+  const handleVote = async (exerciseId, type) => {
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+    const token = localStorage.getItem("token");
+
+    try {
+      const response = await fetch(`${baseUrl}/exercises/${exerciseId}/${type}`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        console.error("Erro ao votar");
+        return;
+      }
+
+      // Atualiza localmente o contador e status
+      updateVoteLocalmente(exerciseId, type);
+    } catch (error) {
+      console.error("Erro na requisição de voto:", error);
+    }
+  };
+
+  const updateVoteLocalmente = (exerciseId, type) => {
+    setExercises((prevExercises) =>
+      prevExercises.map((ex) => {
+        if (ex.id !== exerciseId) return ex;
+
+        const currentVote = voteStatusMap[exerciseId];
+        let delta = 0;
+        let newStatus = currentVote;
+
+        if (type === "upvote") {
+          if (currentVote === "up") {
+            delta = -1;
+            newStatus = null;
+          } else if (currentVote === "down") {
+            delta = 2;
+            newStatus = "up";
+          } else {
+            delta = 1;
+            newStatus = "up";
+          }
+        } else if (type === "downvote") {
+          if (currentVote === "down") {
+            delta = 1;
+            newStatus = null;
+          } else if (currentVote === "up") {
+            delta = -2;
+            newStatus = "down";
+          } else {
+            delta = -1;
+            newStatus = "down";
+          }
+        }
+
+        setVoteStatusMap((prev) => ({
+          ...prev,
+          [exerciseId]: newStatus,
+        }));
+
+        return {
+          ...ex,
+          voteCount: ex.voteCount + delta,
+        };
+      })
+    );
+  };
 
   const getExercises = async (page = 0) => {
     const baseUrl = process.env.NEXT_PUBLIC_API_URL;
@@ -65,6 +137,16 @@ export default function HomePage() {
     const data = await getExercises(currentPage);
     if (data) {
       setExercises((prev) => [...prev, ...data.content]);
+
+      // Mapeia os votos do usuário para cada exercício
+      const voteMap = {};
+      data.content.forEach((ex) => {
+        if (ex.userVote === 1) voteMap[ex.id] = "up";
+        else if (ex.userVote === -1) voteMap[ex.id] = "down";
+        else voteMap[ex.id] = null;
+      });
+      setVoteStatusMap((prev) => ({ ...prev, ...voteMap }));
+
       setTotalPages(data.totalPages);
       setCurrentPage((prev) => prev + 1);
     }
@@ -194,6 +276,8 @@ export default function HomePage() {
                     px: 0.4,
                     py: 0.2,
                     gap: 0.5,
+                    width: "100px",
+                    justifyContent: "space-between",
                   }}
                   onClick={(e) => e.stopPropagation()}
                 >
@@ -201,13 +285,17 @@ export default function HomePage() {
                     size="small"
                     onClick={(e) => {
                       e.stopPropagation();
-                      handleUpvote();
+                      handleVote(atv.id, "upvote");
                     }}
                   >
-                    <ArrowDropUpIcon sx={{ color: voteStatus === "up" ? "red" : "gray" }} />
+                    <ArrowDropUpIcon
+                      sx={{ color: voteStatusMap[atv.id] === "up" ? "red" : "gray" }}
+                    />
                   </IconButton>
 
-                  <Typography sx={{ color: "white", fontWeight: "bold", fontSize: "0.875rem" }}>
+                  <Typography
+                    sx={{ color: "white", fontWeight: "bold", fontSize: "0.875rem" }}
+                  >
                     {atv.voteCount}
                   </Typography>
 
@@ -215,13 +303,14 @@ export default function HomePage() {
                     size="small"
                     onClick={(e) => {
                       e.stopPropagation();
-                      handleDownvote();
+                      handleVote(atv.id, "downvote");
                     }}
                   >
                     <ArrowDropDownIcon
-                      sx={{ color: voteStatus === "down" ? "darkblue" : "darkgray" }}
+                      sx={{ color: voteStatusMap[atv.id] === "down" ? "darkblue" : "darkgray" }}
                     />
                   </IconButton>
+
                 </Box>
               </Stack>
             </Box>
