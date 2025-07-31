@@ -42,9 +42,11 @@ export default function HomeListItem({ list }) {
                     </a>
                   </Typography>
 
-            <Typography  variant="body2" color="gray">
-                {list.exercises.length} exercício(s)
+            <Typography variant="body2" color="gray">
+                {list.exercises.length} exercício(s) –{" "}
+                Avaliação: {list.exercises.reduce((acc, ex) => acc + ex.voteCount, 0)}
             </Typography>
+
         </Box>
     )
 }

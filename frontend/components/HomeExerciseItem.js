@@ -135,7 +135,7 @@ export default function HomeExerciseItem({ exercise, voteStatus, onVote }) {
               onVote(exercise.id, "upvote");
             }}
           >
-            <ArrowDropUpIcon sx={{ color: voteStatus === "up" ? "red" : "gray" }} />
+            <ArrowDropUpIcon sx={{ color: voteStatus === "up" ? "primary.main" : "gray" }} />
           </IconButton>
 
           <Typography
@@ -151,7 +151,7 @@ export default function HomeExerciseItem({ exercise, voteStatus, onVote }) {
               onVote(exercise.id, "downvote");
             }}
           >
-            <ArrowDropDownIcon sx={{ color: voteStatus === "down" ? "darkblue" : "darkgray" }} />
+            <ArrowDropDownIcon sx={{ color: voteStatus === "down" ? "primary.main" : "gray" }} />
           </IconButton>
         </Box>
       </Stack>

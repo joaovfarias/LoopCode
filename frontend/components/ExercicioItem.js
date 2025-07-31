@@ -56,13 +56,13 @@ export default function ExercicioItem({ exercicio, onUpvote, onDownvote }) {
 
         >
           <IconButton size="small" onClick={onUpvote}>
-            <ArrowDropUpIcon sx={{ color: exercicio.userVote === 1 ? "red" : "gray" }} />
+            <ArrowDropUpIcon sx={{ color: exercicio.userVote === 1 ? "primary.main" : "gray" }} />
           </IconButton>
 
           <Typography variant="body2">{exercicio.voteCount}</Typography>
 
           <IconButton size="small" onClick={onDownvote}>
-            <ArrowDropDownIcon sx={{ color: exercicio.userVote === -1 ? "blue" : "gray" }} />
+            <ArrowDropDownIcon sx={{ color: exercicio.userVote === -1 ? "primary.main" : "gray" }} />
           </IconButton>
 
         </Box>
