@@ -1,6 +1,10 @@
 package com.loopcode.loopcode.controller;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -41,20 +45,14 @@ public class UserController {
     }
 
     @GetMapping("/{username}/exercises")
-    @Operation(summary = "Buscar exercícios criados pelo usuário", description = "Retorna todos os exercícios criados por um usuário específico.")
-    public ResponseEntity<List<ExerciseResponseDto>> getExercisesByUsername(@PathVariable String username) {
-        List<ExerciseResponseDto> exercises = userService.getExercisesByUsername(username);
+    @Operation(summary = "Buscar exercícios criados pelo usuário", description = "Retorna os exercícios paginados criados por um usuário específico.")
+    public ResponseEntity<Page<ExerciseResponseDto>> getExercisesByUsername(
+            @PathVariable String username,
+            @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
+        
+        Page<ExerciseResponseDto> exercises = userService.getExercisesByUsername(username, pageable);
         return ResponseEntity.ok(exercises);
     }
-
-    // @GetMapping("/{username}/lists")
-    // @Operation(summary = "Buscar listas de exercícios do usuário", description =
-    // "Retorna todas as listas criadas por um usuário específico.")
-    // public ResponseEntity<List<UserListDto>> getListsByUsername(@PathVariable
-    // String username) {
-    // List<UserListDto> lists = userService.getListsByUsername(username);
-    // return ResponseEntity.ok(lists);
-    // }
 
     @PatchMapping("/{username}/ban")
     @PreAuthorize("hasRole('ADMIN')")

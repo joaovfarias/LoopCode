@@ -27,6 +27,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -170,63 +172,38 @@ public class UserService {
         }
 
         @Transactional(readOnly = true)
-        public List<ExerciseResponseDto> getExercisesByUsername(String username) {
+        public Page<ExerciseResponseDto> getExercisesByUsername(String username, Pageable pageable) {
                 User user = userRepository.findByUsername(username)
-                                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-                                                "Usuário não encontrado."));
+                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado."));
 
-                List<Exercise> exercises = exerciseRepository.findByCreatedBy(user);
+                Page<Exercise> exercises = exerciseRepository.findByCreatedBy(user, pageable);
 
-                return exercises.stream()
-                                .map(exercise -> {
-                                        int ups = (int) voteRepository.countByExerciseAndVotoValue(exercise, +1);
-                                        int downs = (int) voteRepository.countByExerciseAndVotoValue(exercise, -1);
-                                        int voteCount = ups - downs;
+                return exercises.map(exercise -> {
+                        int ups = (int) voteRepository.countByExerciseAndVotoValue(exercise, +1);
+                        int downs = (int) voteRepository.countByExerciseAndVotoValue(exercise, -1);
+                        int voteCount = ups - downs;
 
-                                        int userVote = voteRepository.findByExerciseAndUser(exercise, user)
-                                                        .map(Vote::getValue)
-                                                        .orElse(0);
+                        int userVote = voteRepository.findByExerciseAndUser(exercise, user)
+                                .map(Vote::getValue)
+                                .orElse(0);
 
-                                        return new ExerciseResponseDto(
-                                                        exercise.getId(),
-                                                        exercise.getTitle(),
-                                                        new LanguageDto(
-                                                                        exercise.getProgrammingLanguage().getId(),
-                                                                        exercise.getProgrammingLanguage().getName()),
-                                                        exercise.getDifficulty().name(),
-                                                        exercise.getDescription(),
-                                                        new SimpleUserDto(exercise.getCreatedBy().getUsername()),
-                                                        exercise.isVerified(),
-                                                        exercise.getCreatedAt(),
-                                                        exercise.getMainCode(),
-                                                        exercise.getTestCode(),
-                                                        voteCount,
-                                                        ups,
-                                                        downs,
-                                                        userVote);
-                                })
-                                .toList();
+                        return new ExerciseResponseDto(
+                                exercise.getId(),
+                                exercise.getTitle(),
+                                new LanguageDto(
+                                        exercise.getProgrammingLanguage().getId(),
+                                        exercise.getProgrammingLanguage().getName()),
+                                exercise.getDifficulty().name(),
+                                exercise.getDescription(),
+                                new SimpleUserDto(exercise.getCreatedBy().getUsername()),
+                                exercise.isVerified(),
+                                exercise.getCreatedAt(),
+                                exercise.getMainCode(),
+                                exercise.getTestCode(),
+                                voteCount,
+                                ups,
+                                downs,
+                                userVote);
+                });
         }
-
-        @Transactional(readOnly = true)
-        public List<UserListDto> getListsByUsername(String username) {
-                User user = userRepository.findByUsername(username)
-                                .orElseThrow(() -> new ResourceNotFoundException(
-                                                "Usuário não encontrado: " + username));
-
-                List<UserList> lists = userListRepository.findByOwnerUsername(username);
-
-                return lists.stream()
-                                .map(list -> new UserListDto(
-                                                list.getId(),
-                                                list.getName(),
-                                                list.getOwner().getUsername(),
-                                                list.getExercises().stream()
-                                                                .map(ex -> ex.getId())
-                                                                .collect(Collectors.toSet())
-
-                                ))
-                                .collect(Collectors.toList());
-        }
-
 }

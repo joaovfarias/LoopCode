@@ -10,6 +10,8 @@ import com.loopcode.loopcode.repositories.ExerciseRepository;
 import com.loopcode.loopcode.repositories.UserListRepository;
 import com.loopcode.loopcode.repositories.UserRepository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,17 +30,6 @@ public class UserListService {
         this.userRepository = userRepository;
         this.exerciseRepository = exerciseRepository;
         this.userListRepository = userListRepository;
-    }
-
-    @Transactional(readOnly = true)
-    public List<UserListDto> getListsFor(String username) {
-        userRepository.findByUsername(username)
-                .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado: " + username));
-
-        return userListRepository.findByOwnerUsername(username)
-                .stream()
-                .map(this::toDto)
-                .collect(Collectors.toList());
     }
 
     @Transactional
@@ -73,14 +64,20 @@ public class UserListService {
                         .collect(Collectors.toSet()));
     }
 
-    @Transactional(readOnly = true)
-    public java.util.List<UserListDto> getListsByUsername(String ownerUsername) {
-        return userListRepository.findByOwnerUsername(ownerUsername).stream()
-                .map(l -> new UserListDto(
-                        l.getId(), l.getName(), ownerUsername,
-                        l.getExercises().stream().map(Exercise::getId).collect(Collectors.toSet())))
-                .collect(Collectors.toList());
-    }
+        @Transactional(readOnly = true)
+        public Page<UserListDto> getListsByUsername(String ownerUsername, Pageable pageable) {
+        Page<UserList> page = userListRepository.findByOwnerUsername(ownerUsername, pageable);
+
+        return page.map(l -> new UserListDto(
+                l.getId(),
+                l.getName(),
+                ownerUsername,
+                l.getExercises().stream()
+                .map(Exercise::getId)
+                .collect(Collectors.toSet())
+        ));
+        }
+
 
     private UserListDto toDto(UserList list) {
         return new UserListDto(

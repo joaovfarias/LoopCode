@@ -144,12 +144,13 @@ export default function CreateList() {
         <Paper
           sx={{
             bgcolor: 'card.primary',
-            borderRadius: 0,
+            borderRadius: 2,
             p: 2,
             height: '100%',
             display: 'flex',
             flexDirection: 'column',
             marginRight: 4,
+
           }}
         >
           <TextField
@@ -208,7 +209,7 @@ export default function CreateList() {
 
       {/* Painel de Atividades */}
       <Box sx={{ flex: 1 }}>
-        <Paper sx={{ bgcolor: 'card.primary', borderRadius: 0, p: 2, height: '100%' }}>
+        <Paper sx={{ bgcolor: 'card.primary', borderRadius: 2, p: 2, height: '100%' }}>
           <Box display="flex" alignItems="center" >
             <SearchIcon sx={{ mr: 1, color: '#ccc' }} />
             <TextField
@@ -259,6 +260,8 @@ export default function CreateList() {
               {totalPages > 1 && (
                 <Box display="flex" justifyContent="center" mt={4}>
                   <Pagination
+                    variant="outlined"
+                    shape="rounded"
                     count={totalPages}
                     page={currentPage + 1}
                     onChange={(_, value) => setCurrentPage(value - 1)}

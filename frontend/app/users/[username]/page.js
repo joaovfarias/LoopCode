@@ -9,6 +9,7 @@ import ListaItem from '@/components/ListaItem';
 import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Pagination from '@mui/material/Pagination';
 
 export default function PerfilUsuario({ params }) {
     const { username } = use(params);
@@ -16,7 +17,14 @@ export default function PerfilUsuario({ params }) {
     const router = useRouter();
 
     const [exercises, setExercises] = useState([]);
+    const [numExercises, setNumExercises] = useState(0);
+    const [page, setPage] = useState(0);
+    const [totalPages, setTotalPages] = useState(1);
+    
     const [lists, setLists] = useState([]);
+    const [listPage, setListPage] = useState(0);
+    const [totalListPages, setTotalListPages] = useState(1);
+    const [totalLists, setTotalLists] = useState(0);
 
     const baseUrl = process.env.NEXT_PUBLIC_API_URL;
 
@@ -34,40 +42,49 @@ export default function PerfilUsuario({ params }) {
             }
     };
 
-    const fetchExercises = async () => {
+    const fetchExercises = async (pageNumber = 0) => {
         try {
-            const response = await fetch(`${baseUrl}/users/${username}/exercises`);
+            const response = await fetch(`${baseUrl}/users/${username}/exercises?page=${pageNumber}&size=5&sort=createdAt,desc`);
             if (!response.ok) {
                 console.error('Failed to fetch exercises');
                 return;
             }
             const data = await response.json();
-            setExercises(data);
+            setExercises(data.content);
+            setTotalPages(data.totalPages);
+            setNumExercises(data.totalElements);
         } catch (error) {
             console.error('Error fetching exercises:', error);
         }
     };
 
-    const fetchLists = async () => {
+    const fetchLists = async (pageNumber = 0) => {
         try {
-            const response = await fetch(`${baseUrl}/users/${username}/lists`);
+            const response = await fetch(`${baseUrl}/users/${username}/lists?page=${pageNumber}&size=5&sort=id,desc`);
             if (!response.ok) {
                 console.error('Failed to fetch lists');
                 return;
             }
             const data = await response.json();
-            setLists(data);
+            setLists(data.content);
+            setTotalListPages(data.totalPages);
+            setTotalLists(data.totalElements);
         } catch (error) {
             console.error('Error fetching lists:', error);
         }
-    }
+    };
 
     useEffect(() => {
         fetchUserData();
-        fetchExercises();
-        fetchLists();
     }, [username]);
 
+    useEffect(() => {
+        fetchExercises(page);
+    }, [username, page]);
+
+    useEffect(() => {
+        fetchLists(listPage);
+    }, [username, listPage]);
 
     return (
         <Box className="p-8">
@@ -103,7 +120,7 @@ export default function PerfilUsuario({ params }) {
                             }}
                         >
                             <CodeIcon />
-                            <Typography variant="body2">{exercises.length}</Typography>
+                            <Typography variant="body2">{numExercises}</Typography>
                         </Card>
 
                         {/* Listas */}
@@ -120,7 +137,7 @@ export default function PerfilUsuario({ params }) {
                             }}
                         >
                             <ListIcon />
-                            <Typography variant="body2">{lists.length}</Typography>
+                            <Typography variant="body2">{totalLists}</Typography>
                         </Card>
 
                         {/* Daily */}
@@ -161,6 +178,18 @@ export default function PerfilUsuario({ params }) {
                                     ))}
                                 </Stack>
                         </Box>
+
+                    <Box display="flex" justifyContent="center" mt={4}>
+                        <Pagination
+                            count={totalPages}
+                            page={page + 1}
+                            onChange={(event, value) => setPage(value - 1)} // Spring começa em 0
+                            color="primary"
+                            variant="outlined"
+                            shape="rounded"
+                        />
+                    </Box>
+
                     </Box>
 
                     {/* Listas */}
@@ -177,6 +206,18 @@ export default function PerfilUsuario({ params }) {
                                     ))}
                                 </Stack>
                         </Box>
+
+                        <Box display="flex" justifyContent="center" mt={4}>
+                            <Pagination
+                                count={totalListPages}
+                                page={listPage + 1}
+                                onChange={(event, value) => setListPage(value - 1)}
+                                color="primary"
+                                variant="outlined"
+                                shape="rounded"
+                            />
+                        </Box>
+
                     </Box>
                 </Box>
             </Box>
