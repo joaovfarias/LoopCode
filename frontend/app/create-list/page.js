@@ -13,27 +13,32 @@ import {
   ListItemIcon,
   Pagination,
   CircularProgress,
+  Chip
 } from '@mui/material';
 import CodeIcon from '@mui/icons-material/Code';
 import AddIcon from '@mui/icons-material/Add';
 import CloseIcon from '@mui/icons-material/Close';
 import SearchIcon from '@mui/icons-material/Search';
+import { useAuth } from '../auth-guard';
+import { useRouter } from 'next/navigation';
 
 export default function CreateList() {
+  const router = useRouter();
   const [lista, setLista] = useState([]);
   const [search, setSearch] = useState('');
-  const [listaTitulo, setListaTitulo] = useState('Título da Lista');
+  const [listaTitulo, setListaTitulo] = useState('');
   const [exercises, setExercises] = useState([]);
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [loading, setLoading] = useState(false);
 
-  const getExercises = async (page = 0) => {
     const baseUrl = process.env.NEXT_PUBLIC_API_URL;
     const token = localStorage.getItem('token');
+    const { username } = useAuth();
+
+  const getExercises = async (page = 0) => {
     try {
-      const response = await fetch(`${baseUrl}/exercises?page=${page}`, {
-        method: "GET",
+      const response = await fetch(`${baseUrl}/exercises?page=${page}&size=9`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -77,8 +82,48 @@ export default function CreateList() {
     setLista(lista.filter((item) => item.id !== id));
   };
 
-  const handleCreateList = () => {
-    alert('Lista criada!');
+  const handleCreateList = async () => {
+    if (!listaTitulo.trim()) {
+      alert('Por favor, insira um título para a lista');
+      return;
+    }
+    
+    if (lista.length === 0) {
+      alert('Por favor, adicione pelo menos um exercício à lista');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      
+      const body = {
+        name: listaTitulo,
+        exerciseIds: lista.map(item => item.id)
+      };
+
+      const response = await fetch(`${baseUrl}/users/${username}/lists`, {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(body)
+      });
+
+      if (!response.ok) {
+        throw new Error('Falha ao criar a lista');
+      }
+
+      alert('Lista criada com sucesso!');
+
+      router.push(`/users/${username}`);
+
+    } catch (error) {
+      console.error('Error creating list:', error);
+      alert('Erro ao criar a lista. Tente novamente.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const filteredExercises = exercises.filter((item) =>
@@ -89,24 +134,34 @@ export default function CreateList() {
   return (
     <Box sx={{ 
       width: '100%', 
-      height: '80vh', 
+      height: '88vh', 
       display: 'flex',
       overflow: 'hidden',
-      marginTop: 6
+      marginTop: 6,
     }}>
-      {/* Painel da Lista */}
+     {/* Painel da Lista */}
       <Box sx={{ flex: 1 }}>
-        <Paper sx={{ bgcolor: 'card.primary', borderRadius: 0, p: 2, height: '100%', marginRight: 2 }}>
+        <Paper
+          sx={{
+            bgcolor: 'card.primary',
+            borderRadius: 0,
+            p: 2,
+            height: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+            marginRight: 4,
+          }}
+        >
           <TextField
             fullWidth
             value={listaTitulo}
             onChange={(e) => setListaTitulo(e.target.value)}
             variant="standard"
             InputProps={{
-              disableUnderline: true,
-              sx: { color: '#fff', fontSize: '1.25rem', textAlign: 'center' },
+              sx: { fontSize: '1.25rem', textAlign: 'center' },
             }}
             inputProps={{ style: { textAlign: 'center' } }}
+            placeholder="Título da Lista"
           />
           <List>
             {lista.map((item) => (
@@ -125,18 +180,20 @@ export default function CreateList() {
                 <ListItemIcon sx={{ color: '#ccc' }}>
                   <CodeIcon />
                 </ListItemIcon>
-                <ListItemText 
-                  primary={item.title || item.titulo} 
+                <ListItemText
+                  primary={item.title || item.titulo}
                   secondary={item.programmingLanguage || item.linguagem}
                   sx={{
                     '& .MuiListItemText-primary': { color: '#fff' },
-                    '& .MuiListItemText-secondary': { color: '#ccc' }
+                    '& .MuiListItemText-secondary': { color: '#ccc' },
                   }}
                 />
               </ListItem>
             ))}
           </List>
-          <Box textAlign="center" mt={2}>
+
+          {/* Botão fixado na parte de baixo */}
+          <Box textAlign="center" mt="auto">
             <Button
               variant="contained"
               sx={{ bgcolor: '#6c63ff', textTransform: 'none' }}
@@ -148,14 +205,15 @@ export default function CreateList() {
         </Paper>
       </Box>
 
+
       {/* Painel de Atividades */}
       <Box sx={{ flex: 1 }}>
         <Paper sx={{ bgcolor: 'card.primary', borderRadius: 0, p: 2, height: '100%' }}>
-          <Box display="flex" alignItems="center" mb={2}>
+          <Box display="flex" alignItems="center" >
             <SearchIcon sx={{ mr: 1, color: '#ccc' }} />
             <TextField
               variant="standard"
-              placeholder="Pesquisar exercícios..."
+              placeholder="Pesquisar atividades..."
               fullWidth
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -191,12 +249,9 @@ export default function CreateList() {
                     </ListItemIcon>
                     <ListItemText 
                       primary={item.title} 
-                      secondary={item.programmingLanguage}
-                      sx={{
-                        '& .MuiListItemText-primary': { color: '#fff' },
-                        '& .MuiListItemText-secondary': { color: '#ccc' }
-                      }}
+                      secondary={item.language.name}
                     />
+                    <Chip label={item.difficulty} color="primary" />
                   </ListItem>
                 ))}
               </List>

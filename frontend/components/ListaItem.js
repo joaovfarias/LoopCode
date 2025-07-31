@@ -1,76 +1,39 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import {
   Box,
   Typography,
-  IconButton,
-  Menu,
-  MenuItem
 } from '@mui/material';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
-import ExcluirListaDialog from './ExcluirListaDialog'; 
+import { useRouter } from 'next/navigation';
 
 export default function ListaItem({ lista }) {
-  const [anchorEl, setAnchorEl] = useState(null);
-  const open = Boolean(anchorEl);
-  const [openDialog, setDialogOpen] = useState(false); // controle do dialog
-  const handleMenuOpen = (event) => {
-    setAnchorEl(event.currentTarget);
+  const router = useRouter();
+  const handleBoxClick = () => {
+    router.push(`/users/${lista.ownerUsername}/lists/${lista.id}`);
   };
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-  };
-
-  const handleEditar = () => {
-    alert(`Editar lista ${lista.id}`);
-    handleMenuClose();
-  };
-
-  const handleExcluir = () => {
-    setDialogOpen(true);
-    handleMenuClose();
-  };
-
-  const handleDialogClose = () => {
-    setDialogOpen(false);
-  }
-
   return (
     <>
-    <Box className="flex justify-between items-center py-2 border-b-1 border-neutral-700">
+    <Box 
+    onClick={handleBoxClick}
+    className="flex justify-between items-center py-2 border-b-1 border-neutral-700">
       <Box>
-        <Typography variant="body1">
+        <Typography
+                    sx={{
+                      transition: 'color 0.15s',
+                      '&:hover': {
+                        color: (theme) => theme.palette.primary.dark,
+                      },
+                      cursor: 'pointer',
+                    }}
+                  >
           {lista.name}
         </Typography>
         <Typography variant="caption" color="gray">
           {lista.exerciseIds.length} exercícios
         </Typography>
       </Box>
-
-      <IconButton
-        aria-label="mais opções"
-        onClick={handleMenuOpen}
-      >
-        <MoreVertIcon />
-      </IconButton>
-      <Menu
-        anchorEl={anchorEl}
-        open={open}
-        onClose={handleMenuClose}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-      >
-        <MenuItem onClick={handleEditar}>Editar</MenuItem>
-        <MenuItem onClick={handleExcluir}>Excluir</MenuItem>
-      </Menu>
     </Box>
-
-    <ExcluirListaDialog 
-            open={openDialog}
-            onClose={handleDialogClose}
-            lista={lista}
-          />
     </>
   );
 }

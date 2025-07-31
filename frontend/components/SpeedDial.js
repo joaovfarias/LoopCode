@@ -2,13 +2,12 @@
 
 import { SpeedDial, SpeedDialAction } from "@mui/material";
 import { useRouter } from "next/navigation";
-import CreateIcon from '@mui/icons-material/Create';
-import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import MenuIcon from "@mui/icons-material/Menu";
-import CreateNewFolderIcon from '@mui/icons-material/CreateNewFolder';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '../app/auth-guard';
-
+import CodeIcon from '@mui/icons-material/Code';
+import TodayIcon from '@mui/icons-material/Today';
+import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 export default function CustomSpeedDial() {
      const router = useRouter();
      const pathname = usePathname();
@@ -31,19 +30,21 @@ export default function CustomSpeedDial() {
           icon={<MenuIcon />}
      >
           <SpeedDialAction
-               icon={<CalendarTodayIcon />}
+               icon={<TodayIcon />}
                tooltipTitle="Desafio Diário"
                onClick={() => router.push("/daily-challenge")}
           />
+          
           <SpeedDialAction
-               icon={<CreateIcon />}
-               tooltipTitle="Criar Exercício"
-               onClick={() => router.push("/create-exercise")}
-          />
-          <SpeedDialAction
-               icon={<CreateNewFolderIcon />}
+               icon={<FormatListBulletedIcon />}
                tooltipTitle="Criar Lista"
                onClick={() => router.push("/create-list")}
+          />
+
+          <SpeedDialAction
+               icon={<CodeIcon />}
+               tooltipTitle="Criar Exercício"
+               onClick={() => router.push("/create-exercise")}
           />
      </SpeedDial>
      );

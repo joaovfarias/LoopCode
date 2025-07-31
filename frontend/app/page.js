@@ -1,19 +1,18 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   Box,
   Typography,
   Stack,
   Chip,
   IconButton,
-  Pagination,
+  CircularProgress,
 } from "@mui/material";
 import { useRouter } from "next/navigation";
 import LocalFireDepartmentIcon from "@mui/icons-material/LocalFireDepartment";
 import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
-import ReplyIcon from "@mui/icons-material/Reply";
 
 const botaoEstilo = (ativo = false) => ({
   width: "100%",
@@ -21,103 +20,96 @@ const botaoEstilo = (ativo = false) => ({
   px: 3,
   py: 1,
   my: 0.5,
-  bgcolor: ativo ? "primary.main" : "card.primary", // fundo escuro
+  bgcolor: ativo ? "primary.main" : "card.primary",
   color: "white",
   "&:hover": {
-    bgcolor: "card.secondary", // fundo no hover
+    bgcolor: "card.secondary",
   },
 });
-const filtros = ["Tudo", "JavaScript", "Python", "C", "Listas", "Exercícios"];
+const filtros = ["Tudo", "Listas", "Exercícios"];
 
 export default function HomePage() {
   const [filtro, setFiltro] = useState("Tudo");
-  const [voteStatus, setVoteStatus] = useState(null); // 'up', 'down', or null
-
-  const router = useRouter();
-
+  const [voteStatus, setVoteStatus] = useState(null);
   const [exercises, setExercises] = useState([]);
-  const [currentPage, setCurrentPage] = useState(0); // começa em 0
-  const [totalPages, setTotalPages] = useState(0);
-  const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+  const [loading, setLoading] = useState(false);
+
+  const observer = useRef();
+  const router = useRouter();
 
   const getExercises = async (page = 0) => {
     const baseUrl = process.env.NEXT_PUBLIC_API_URL;
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
     try {
       const response = await fetch(`${baseUrl}/exercises?page=${page}`, {
         method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    if (!response.ok) {
-      window.location.href = "/not-found";
-    }
-    return response.json();
-  } catch (err) {
-    console.error(err);
-    return null;
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!response.ok) {
+        window.location.href = "/not-found";
+      }
+      return response.json();
+    } catch (err) {
+      console.error(err);
+      return null;
     }
   };
 
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      const data = await getExercises(currentPage);
-      if (data) {
-        setExercises(data.content);
-        setTotalPages(data.totalPages);
-      } else {
-        setExercises([]);
-        setTotalPages(0);
-      }
-      setLoading(false);
-    };
-    fetchData();
-  }, [currentPage]);
-
-  {
-    /* Estado para votos */
-  }
-  const handleDownvote = () => {
-    if (voteStatus === "down") {
-      //  setVotes(votes + 1);
-      setVoteStatus(null);
-    } else {
-      //  setVotes(voteStatus === 'up' ? votes - 2 : votes - 1);
-      setVoteStatus("down");
+  const loadMore = useCallback(async () => {
+    if (loading || currentPage >= totalPages) return;
+    setLoading(true);
+    const data = await getExercises(currentPage);
+    if (data) {
+      setExercises((prev) => [...prev, ...data.content]);
+      setTotalPages(data.totalPages);
+      setCurrentPage((prev) => prev + 1);
     }
+    setLoading(false);
+  }, [currentPage, totalPages, loading]);
+
+  const sentinelRef = useRef(null);
+
+  useEffect(() => {
+    const sentinel = sentinelRef.current;
+    if (!sentinel) return;
+
+    const intObserver = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          loadMore();
+        }
+      },
+      { rootMargin: "300px" }
+    );
+
+    intObserver.observe(sentinel);
+    return () => {
+      if (sentinel) intObserver.unobserve(sentinel);
+    };
+  }, [loadMore]);
+
+  const handleDownvote = () => {
+    setVoteStatus((prev) => (prev === "down" ? null : "down"));
   };
 
   const handleUpvote = () => {
-    if (voteStatus === "up") {
-      //  setVotes(votes - 1);
-      setVoteStatus(null);
-    } else {
-      //  setVotes(voteStatus === 'down' ? votes + 2 : votes + 1);
-      setVoteStatus("up");
-    }
+    setVoteStatus((prev) => (prev === "up" ? null : "up"));
   };
 
   function handleFireIcon(ex) {
-    if (ex.votos > 50) {
-      return <LocalFireDepartmentIcon />;
-    } else {
-      return null;
-    }
+    return ex.votos > 50 ? <LocalFireDepartmentIcon /> : null;
   }
 
   return (
-    <Box
-      sx={{ display: "flex", bgcolor: "background.default", color: "white" }}
-    >
-      {/* TODO: Colocar a opção de filtragem por outras categorias (recente, mais votadas, etc) */}
-      {/* Conteúdo principal */}
+    <Box sx={{ display: "flex", bgcolor: "background.default", color: "white" }}>
       <Box
         sx={{
           flex: 1,
           overflowY: "auto",
-          maxWidth: 1200,
           p: { xs: 2, sm: 3 },
           maxWidth: {
             xs: "100%",
@@ -129,8 +121,6 @@ export default function HomePage() {
           mx: "auto",
         }}
       >
-        {/* Filtros horizontais */}
-        {/* TODO: Implementar a lógica de filtragem */}
         <Stack direction="row" spacing={2} mb={3} pl={2} flexWrap="wrap">
           {filtros.map((item) => (
             <Chip
@@ -147,18 +137,11 @@ export default function HomePage() {
           ))}
         </Stack>
 
-        {/* Lista de atividades mockadas */}
-        <Stack
-          spacing={2}
-          sx={{
-            borderRadius: "5px",
-            padding: 2,
-          }}
-        >
+        <Stack spacing={2} sx={{ borderRadius: "5px", padding: 2 }}>
           {exercises.map((atv) => (
             <Box
               key={atv.id}
-              onClick={() => router.push(`/activities/${atv.id}`)}
+              onClick={() => router.push(`/exercises/${atv.id}`)}
               role="button"
               tabIndex={0}
               sx={{
@@ -169,7 +152,6 @@ export default function HomePage() {
                 flexDirection: "column",
                 gap: 0.5,
                 boxShadow: 3,
-                maxWidth: 1200,
                 width: "100%",
                 cursor: "pointer",
                 transition: "all 0.2s ease-in-out",
@@ -179,28 +161,30 @@ export default function HomePage() {
                 },
               }}
             >
-              <Typography
-                variant="subtitle1"
-                fontWeight="bold"
-                sx={{
-                  color: "white",
-                }}
-              >
+              <Typography variant="subtitle1" fontWeight="bold" sx={{ color: "white" }}>
                 {atv.title}
+              </Typography>
+
+              <Typography variant="body2" color="gray" mb={1}>
+                Criado por{" "}
+                {atv ? (
+                  <a
+                    href={`/users/${atv.createdBy.username}`}
+                    style={{ color: "#8B5CF6", textDecoration: "none", fontWeight: "bold" }}
+                  >
+                    {atv.createdBy.username}
+                  </a>
+                ) : (
+                  "Carregando..."
+                )}
               </Typography>
 
               <Typography variant="body2" color="gray">
                 {atv.description}
               </Typography>
 
-              <Stack
-                direction="row"
-                spacing={1}
-                alignItems="center"
-                sx={{ ml: "auto" }}
-              >
+              <Stack direction="row" spacing={1} alignItems="center" sx={{ ml: "auto" }}>
                 {handleFireIcon(atv)}
-
                 <Box
                   sx={{
                     display: "flex",
@@ -211,7 +195,7 @@ export default function HomePage() {
                     py: 0.2,
                     gap: 0.5,
                   }}
-                  onClick={(e) => e.stopPropagation()} // Evita que clique nesse box redirecione
+                  onClick={(e) => e.stopPropagation()}
                 >
                   <IconButton
                     size="small"
@@ -220,19 +204,11 @@ export default function HomePage() {
                       handleUpvote();
                     }}
                   >
-                    <ArrowDropUpIcon
-                      sx={{ color: voteStatus === "up" ? "red" : "gray" }}
-                    />
+                    <ArrowDropUpIcon sx={{ color: voteStatus === "up" ? "red" : "gray" }} />
                   </IconButton>
 
-                  <Typography
-                    sx={{
-                      color: "white",
-                      fontWeight: "bold",
-                      fontSize: "0.875rem",
-                    }}
-                  >
-                    90
+                  <Typography sx={{ color: "white", fontWeight: "bold", fontSize: "0.875rem" }}>
+                    {atv.voteCount}
                   </Typography>
 
                   <IconButton
@@ -243,28 +219,7 @@ export default function HomePage() {
                     }}
                   >
                     <ArrowDropDownIcon
-                      sx={{
-                        color: voteStatus === "down" ? "darkblue" : "darkgray",
-                      }}
-                    />
-                  </IconButton>
-                </Box>
-
-                <Box
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    backgroundColor: "card.secondary",
-                    borderRadius: "25px",
-                    px: 0.4,
-                    py: 0.2,
-                    gap: 0.5,
-                  }}
-                  onClick={(e) => e.stopPropagation()} // Também evita redirecionamento
-                >
-                  <IconButton size="small">
-                    <ReplyIcon
-                      sx={{ color: "white", transform: "scaleX(-1)" }}
+                      sx={{ color: voteStatus === "down" ? "darkblue" : "darkgray" }}
                     />
                   </IconButton>
                 </Box>
@@ -272,13 +227,10 @@ export default function HomePage() {
             </Box>
           ))}
         </Stack>
-        <Box display="flex" justifyContent="center" mt={4}>
-          <Pagination
-            count={totalPages}
-            page={currentPage + 1}
-            onChange={(_, value) => setCurrentPage(value - 1)}
-            color="primary"
-          />
+
+        {/* Sentinela para carregamento automático */}
+        <Box ref={sentinelRef} display="flex" justifyContent="center" mt={4}>
+          {loading && <CircularProgress color="primary" />}
         </Box>
       </Box>
     </Box>
