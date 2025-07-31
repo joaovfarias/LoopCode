@@ -11,6 +11,7 @@ import {
   RadioGroup,
   FormControlLabel,
   Alert,
+  Divider,
 } from "@mui/material";
 
 export default function CreateExercisePage() {
@@ -276,9 +277,27 @@ export default function CreateExercisePage() {
 
         {step === 2 && (
           <>
+            <Box mt={3}>
+              <Divider sx={{ mb: 3 }}>Visualização da Função</Divider>
+              <Box
+                sx={{
+                  mt: 1,
+                  mb: 2,
+                  p: 2,
+                  bgcolor: "#0f172a",
+                  borderRadius: 1,
+                  fontFamily: "monospace",
+                }}
+              >
+                {generateFunctionHeader()}
+              </Box>
+            </Box>
+
+            <Divider sx={{ mb: 3, mt: 3 }}>Definição da Função</Divider>
+
             <Box>
               <TextField
-                label="Nome da Função"
+                label="Nome"
                 value={functionName}
                 onChange={(e) => setFunctionName(e.target.value)}
                 sx={{ mb: 2 }}
@@ -287,7 +306,7 @@ export default function CreateExercisePage() {
               {argumentsList.map((arg, index) => (
                 <Box key={index} sx={{ display: "flex", gap: 2, mb: 1 }}>
                   <TextField
-                    label={`Parâmetro ${index + 1}`}
+                    label={`Parâmetro`}
                     value={arg.name}
                     onChange={(e) => updateArgumentName(index, e.target.value)}
                   />
@@ -312,34 +331,24 @@ export default function CreateExercisePage() {
                 </Box>
               ))}
 
-              <Button variant="contained" onClick={addArgument}>
+              <Button
+                variant="contained"
+                onClick={addArgument}
+                sx={{ mb: 2, mt: 2 }}
+              >
                 + Adicionar Parâmetro
               </Button>
-
-              <Box mt={3}>
-                <Typography variant="subtitle1">Função:</Typography>
-                <Box
-                  sx={{
-                    mt: 1,
-                    mb: 2,
-                    p: 2,
-                    bgcolor: "#0f172a",
-                    borderRadius: 1,
-                    fontFamily: "monospace",
-                  }}
-                >
-                  {generateFunctionHeader()}
-                </Box>
-              </Box>
             </Box>
 
+            <Divider sx={{ mb: 3, mt: 2 }}>Casos de Teste</Divider>
+
             <Box sx={{ mb: 2 }}>
-              <Button variant="contained" onClick={addTestCase}>
+              <Button variant="contained" onClick={addTestCase} sx={{ mt: 1 }}>
                 + Adicionar Caso de Teste
               </Button>
             </Box>
             {errorMessage && (
-              <Alert severity="error" sx={{ mt: 1, mb: 2, width: "100%" }}>
+              <Alert severity="error" sx={{ mt: 1, mb: 3, width: "100%" }}>
                 {errorMessage}
               </Alert>
             )}
@@ -388,7 +397,7 @@ export default function CreateExercisePage() {
               </Box>
             ))}
 
-            <Box display="flex" justifyContent="space-between" mt={3}>
+            <Box display="flex" justifyContent="space-between" mt={6}>
               <Button
                 variant="contained"
                 onClick={handleBack}
