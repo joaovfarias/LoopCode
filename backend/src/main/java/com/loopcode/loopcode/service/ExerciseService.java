@@ -106,15 +106,17 @@ public class ExerciseService {
 
         // PageRequest pageable = PageRequest.of(page, size, sort);
 
-        Specification<Exercise> spec = Specification
-                .allOf(Optional.ofNullable(language)
-                        .filter(l -> !l.isBlank() && !"all".equalsIgnoreCase(l))
-                        .map(ExerciseSpecifications::hasLanguage)
-                        .orElse(null))
-                .and(Optional.ofNullable(difficulty)
-                        .filter(d -> !d.isBlank())
-                        .map(ExerciseSpecifications::hasDifficulty)
-                        .orElse(null));
+        Specification<Exercise> byLanguage = Optional.ofNullable(language)
+                .filter(l -> !l.isBlank() && !"all".equalsIgnoreCase(l))
+                .map(ExerciseSpecifications::hasLanguage)
+                .orElse(null);
+
+        Specification<Exercise> byDifficulty = Optional.ofNullable(difficulty)
+                .filter(d -> !d.isBlank())
+                .map(ExerciseSpecifications::hasDifficulty)
+                .orElse(null);
+
+        Specification<Exercise> spec = Specification.allOf(byLanguage, byDifficulty);
 
         boolean isGlobal = "votes".equalsIgnoreCase(sortBy);
         if (!isGlobal) {
@@ -132,7 +134,7 @@ public class ExerciseService {
 
         Comparator<ExerciseResponseDto> cmp = Comparator.comparingInt(ExerciseResponseDto::voteCount)
                 .reversed();
-        if ("asc".equalsIgnoreCase(order)) {
+        if ("desc".equalsIgnoreCase(order)) {
             cmp = cmp.reversed();
         }
         all.sort(cmp);
@@ -272,16 +274,20 @@ public class ExerciseService {
         // Sort baseSort = Sort.by(dir, "createdAt");
         // PageRequest pr = PageRequest.of(page, size, baseSort);
 
-        Specification<Exercise> spec = Specification
-                .allOf(ExerciseSpecifications.containsTerm(q))
-                .and(Optional.ofNullable(language)
-                        .filter(l -> !l.isBlank() && !"all".equalsIgnoreCase(l))
-                        .map(ExerciseSpecifications::hasLanguage)
-                        .orElse(null))
-                .and(Optional.ofNullable(difficulty)
-                        .filter(d -> !d.isBlank())
-                        .map(ExerciseSpecifications::hasDifficulty)
-                        .orElse(null));
+        Specification<Exercise> byLanguage = Optional.ofNullable(language)
+                .filter(l -> !l.isBlank() && !"all".equalsIgnoreCase(l))
+                .map(ExerciseSpecifications::hasLanguage)
+                .orElse(null);
+
+        Specification<Exercise> byDifficulty = Optional.ofNullable(difficulty)
+                .filter(d -> !d.isBlank())
+                .map(ExerciseSpecifications::hasDifficulty)
+                .orElse(null);
+
+        Specification<Exercise> spec = Specification.allOf(
+                ExerciseSpecifications.containsTerm(q),
+                byLanguage,
+                byDifficulty);
 
         // Page<Exercise> page0 = exerciseRepository.findAll(spec, pr);
         // Page<ExerciseResponseDto> dtos0 = page0.map(this::convertToDto);
@@ -302,7 +308,7 @@ public class ExerciseService {
 
         Comparator<ExerciseResponseDto> cmp = Comparator.comparingInt(ExerciseResponseDto::voteCount)
                 .reversed();
-        if ("asc".equalsIgnoreCase(order)) {
+        if ("desc".equalsIgnoreCase(order)) {
             cmp = cmp.reversed();
         }
         all.sort(cmp);
