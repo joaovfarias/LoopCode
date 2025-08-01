@@ -31,8 +31,8 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private String password;
 
-    @Column(nullable = true)
-    private int daily_streak;
+    @Column(nullable = false)
+    private int dailyStreak;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, columnDefinition = "VARCHAR(255) DEFAULT 'USER'")
@@ -73,4 +73,13 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
+    public int getDailyStreak() {
+        return dailyStreak;
+    }
+
+    public void setDailyStreak(int dailyStreak) {
+        this.dailyStreak = dailyStreak;
+    }
+
 }

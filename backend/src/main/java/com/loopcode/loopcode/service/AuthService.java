@@ -35,7 +35,8 @@ public class AuthService {
 
     @Transactional
     public void register(RegisterRequestDto requestDto) {
-        if (userRepository.existsByUsername(requestDto.username())|| (userRepository.existsByEmail(requestDto.email())))
+        if (userRepository.existsByUsername(requestDto.username())
+                || (userRepository.existsByEmail(requestDto.email())))
             throw new UserAlreadyExistsException("Username or email already exists.");
 
         User newUser = new User();
@@ -43,7 +44,7 @@ public class AuthService {
         newUser.setEmail(requestDto.email());
         newUser.setPassword(passwordEncoder.encode(requestDto.password()));
         newUser.setRole(requestDto.role() != null ? requestDto.role() : Role.USER);
-        newUser.setDaily_streak(0);
+        newUser.setDailyStreak(0);
 
         userRepository.save(newUser);
 
@@ -69,8 +70,7 @@ public class AuthService {
                 user.getUsername(),
                 user.getEmail(),
                 user.getRole().name(),
-                user.getDaily_streak()
-        );
-    
+                user.getDailyStreak());
+
     }
 }

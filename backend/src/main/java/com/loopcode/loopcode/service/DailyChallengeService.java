@@ -79,6 +79,20 @@ public class DailyChallengeService {
         User u = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
+        Optional<ChallengeResolution> lastResOpt = resolutionRepository
+                .findTopByIdUsernameOrderByIdChallengeDateDesc(username);
+
+        int newStreak = 1;
+        if (lastResOpt.isPresent()) {
+            LocalDate lastDate = lastResOpt.get().getId().getChallengeDate();
+            if (lastDate.equals(today.minusDays(1))) {
+                newStreak = u.getDailyStreak() + 1;
+            }
+        }
+
+        u.setDailyStreak(newStreak);
+        userRepository.save(u);
+
         ResolutionKey key = new ResolutionKey(username, today);
         ChallengeResolution resolution = new ChallengeResolution(
                 key,

@@ -77,7 +77,7 @@ public class UserService {
                                 user.getUsername(),
                                 user.getEmail(),
                                 user.getRole().name(),
-                                user.getDaily_streak());
+                                user.getDailyStreak());
         }
 
         @Transactional
@@ -174,7 +174,8 @@ public class UserService {
         @Transactional(readOnly = true)
         public Page<ExerciseResponseDto> getExercisesByUsername(String username, Pageable pageable) {
                 User user = userRepository.findByUsername(username)
-                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado."));
+                                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                                                "Usuário não encontrado."));
 
                 Page<Exercise> exercises = exerciseRepository.findByCreatedBy(user, pageable);
 
@@ -184,26 +185,26 @@ public class UserService {
                         int voteCount = ups - downs;
 
                         int userVote = voteRepository.findByExerciseAndUser(exercise, user)
-                                .map(Vote::getValue)
-                                .orElse(0);
+                                        .map(Vote::getValue)
+                                        .orElse(0);
 
                         return new ExerciseResponseDto(
-                                exercise.getId(),
-                                exercise.getTitle(),
-                                new LanguageDto(
-                                        exercise.getProgrammingLanguage().getId(),
-                                        exercise.getProgrammingLanguage().getName()),
-                                exercise.getDifficulty().name(),
-                                exercise.getDescription(),
-                                new SimpleUserDto(exercise.getCreatedBy().getUsername()),
-                                exercise.isVerified(),
-                                exercise.getCreatedAt(),
-                                exercise.getMainCode(),
-                                exercise.getTestCode(),
-                                voteCount,
-                                ups,
-                                downs,
-                                userVote);
+                                        exercise.getId(),
+                                        exercise.getTitle(),
+                                        new LanguageDto(
+                                                        exercise.getProgrammingLanguage().getId(),
+                                                        exercise.getProgrammingLanguage().getName()),
+                                        exercise.getDifficulty().name(),
+                                        exercise.getDescription(),
+                                        new SimpleUserDto(exercise.getCreatedBy().getUsername()),
+                                        exercise.isVerified(),
+                                        exercise.getCreatedAt(),
+                                        exercise.getMainCode(),
+                                        exercise.getTestCode(),
+                                        voteCount,
+                                        ups,
+                                        downs,
+                                        userVote);
                 });
         }
 }
