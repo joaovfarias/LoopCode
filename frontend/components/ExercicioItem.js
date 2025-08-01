@@ -1,36 +1,70 @@
-'use client';
+"use client";
 
-import React from 'react';
-import {
-  Box,
-  Typography,
-  IconButton,
-} from '@mui/material';
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
-import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
-import { useRouter } from 'next/navigation';
+import React from "react";
+import { Box, Typography, IconButton } from "@mui/material";
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
+import { useRouter } from "next/navigation";
 
-export default function ExercicioItem({ exercicio, onUpvote, onDownvote }) {
+export default function ExercicioItem({
+  exercicio,
+  onUpvote,
+  onDownvote,
+  onlyVotes = false,
+}) {
   const router = useRouter();
 
   const handleBoxClick = () => {
     router.push(`/exercises/${exercicio.id}`);
   };
 
+  if (onlyVotes) {
+    return (
+      <Box
+        className="flex items-center gap-2"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            backgroundColor: "card.secondary",
+            borderRadius: "25px",
+            px: 0.4,
+            py: 0.2,
+            gap: 0.5,
+            width: "90px",
+            justifyContent: "space-between",
+          }}
+        >
+          <IconButton size="small" onClick={onUpvote} disabled={true}>
+            <ArrowDropUpIcon />
+          </IconButton>
+
+          <Typography variant="body2">{exercicio?.voteCount}</Typography>
+
+          <IconButton size="small" onClick={onDownvote} disabled={true}>
+            <ArrowDropDownIcon />
+          </IconButton>
+        </Box>
+      </Box>
+    );
+  }
+
   return (
     <Box
       className="flex justify-between items-center py-2 border-b-1 border-neutral-700"
-      sx={{ cursor: 'pointer' }}
+      sx={{ cursor: "pointer" }}
       onClick={handleBoxClick}
     >
       <Box>
         <Typography
           sx={{
-            transition: 'color 0.15s',
-            '&:hover': {
+            transition: "color 0.15s",
+            "&:hover": {
               color: (theme) => theme.palette.primary.dark,
             },
-            cursor: 'pointer',
+            cursor: "pointer",
           }}
         >
           {exercicio.title}
@@ -40,7 +74,10 @@ export default function ExercicioItem({ exercicio, onUpvote, onDownvote }) {
         </Typography>
       </Box>
 
-      <Box className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+      <Box
+        className="flex items-center gap-2"
+        onClick={(e) => e.stopPropagation()}
+      >
         <Box
           sx={{
             display: "flex",
@@ -53,18 +90,22 @@ export default function ExercicioItem({ exercicio, onUpvote, onDownvote }) {
             width: "100px",
             justifyContent: "space-between",
           }}
-
         >
           <IconButton size="small" onClick={onUpvote}>
-            <ArrowDropUpIcon sx={{ color: exercicio.userVote === 1 ? "primary.main" : "gray" }} />
+            <ArrowDropUpIcon
+              sx={{ color: exercicio.userVote === 1 ? "primary.main" : "gray" }}
+            />
           </IconButton>
 
           <Typography variant="body2">{exercicio.voteCount}</Typography>
 
           <IconButton size="small" onClick={onDownvote}>
-            <ArrowDropDownIcon sx={{ color: exercicio.userVote === -1 ? "primary.main" : "gray" }} />
+            <ArrowDropDownIcon
+              sx={{
+                color: exercicio.userVote === -1 ? "primary.main" : "gray",
+              }}
+            />
           </IconButton>
-
         </Box>
       </Box>
     </Box>

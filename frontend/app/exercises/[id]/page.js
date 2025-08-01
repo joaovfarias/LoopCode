@@ -6,6 +6,7 @@ import { Box, Typography, Button, Chip } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
 import CodeIcon from "@mui/icons-material/Code";
 import CheckIcon from "@mui/icons-material/Check";
+import ExercicioItem from "@/components/ExercicioItem";
 
 export default function ExercisePage({ params }) {
   const actualParams = React.use(params);
@@ -158,23 +159,42 @@ export default function ExercisePage({ params }) {
           overflow: "auto",
         }}
       >
-        <Typography variant="h5" fontWeight="bold">
-          {exercise ? exercise.title : "Carregando..."}
-        </Typography>
-        
-          <Typography variant="body2" color="gray" gutterBottom mb={1}>
-            Criado por{" "}
-            {exercise ? (
-          <a
-            href={`/users/${exercise.createdBy.username}`}
-            style={{ color: "#8B5CF6", textDecoration: "none", fontWeight: "bold" }}
-          >
-            {exercise.createdBy.username}
-          </a>
-            ) : (
-          "Carregando..."
-            )}
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "flex-start",
+            justifyContent: "space-between",
+            gap: 1,
+          }}
+        >
+          <Typography variant="h5" fontWeight="bold" sx={{ pb: 1 }}>
+            {exercise ? exercise.title : "Carregando..."}
           </Typography>
+          <ExercicioItem
+            exercicio={exercise}
+            onUpvote={() => {}}
+            onDownvote={() => {}}
+            onlyVotes={true}
+          />
+        </Box>
+
+        <Typography variant="body2" color="gray" mb={0.5} sx={{ mt: -0.5 }}>
+          Criado por{" "}
+          {exercise ? (
+            <a
+              href={`/users/${exercise.createdBy.username}`}
+              style={{
+                color: "#8B5CF6",
+                textDecoration: "none",
+                fontWeight: "bold",
+              }}
+            >
+              {exercise.createdBy.username}
+            </a>
+          ) : (
+            "Carregando..."
+          )}
+        </Typography>
 
         <Box sx={{ display: "flex", gap: 1, mb: 3 }}>
           <Chip
