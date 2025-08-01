@@ -100,10 +100,11 @@ public class ExerciseService {
             int page,
             int size) {
 
-        Sort.Direction sortDirection = "desc".equalsIgnoreCase(order) ? Sort.Direction.DESC : Sort.Direction.ASC;
-        Sort sort = Sort.by(sortDirection, "createdAt");
+        // Sort.Direction sortDirection = "desc".equalsIgnoreCase(order) ?
+        // Sort.Direction.DESC : Sort.Direction.ASC;
+        // Sort sort = Sort.by(sortDirection, "createdAt");
 
-        PageRequest pageable = PageRequest.of(page, size, sort);
+        // PageRequest pageable = PageRequest.of(page, size, sort);
 
         Specification<Exercise> spec = Specification
                 .allOf(Optional.ofNullable(language)
@@ -115,22 +116,32 @@ public class ExerciseService {
                         .map(ExerciseSpecifications::hasDifficulty)
                         .orElse(null));
 
-        Page<Exercise> page0 = exerciseRepository.findAll(spec, pageable);
-        Page<ExerciseResponseDto> dtos0 = page0.map(this::convertToDto);
-
-        if ("votes".equalsIgnoreCase(sortBy)) {
-            Comparator<ExerciseResponseDto> cmp = Comparator
-                    .comparingInt(ExerciseResponseDto::voteCount);
-            if (sortDirection == Sort.Direction.DESC) {
-                cmp = cmp.reversed();
-            }
-            List<ExerciseResponseDto> sorted = dtos0.getContent().stream()
-                    .sorted(cmp)
-                    .toList();
-            return new PageImpl<>(sorted, pageable, dtos0.getTotalElements());
+        boolean isGlobal = "votes".equalsIgnoreCase(sortBy);
+        if (!isGlobal) {
+            Sort.Direction dir = "desc".equalsIgnoreCase(order) ? Sort.Direction.DESC : Sort.Direction.ASC;
+            Sort sort = Sort.by(dir, sortBy != null ? sortBy : "createdAt");
+            PageRequest pr = PageRequest.of(page, size, sort);
+            return exerciseRepository.findAll(spec, pr)
+                    .map(this::convertToDto);
         }
 
-        return dtos0;
+        List<ExerciseResponseDto> all = exerciseRepository.findAll(spec)
+                .stream()
+                .map(this::convertToDto)
+                .toList();
+
+        Comparator<ExerciseResponseDto> cmp = Comparator.comparingInt(ExerciseResponseDto::voteCount)
+                .reversed();
+        if ("asc".equalsIgnoreCase(order)) {
+            cmp = cmp.reversed();
+        }
+        all.sort(cmp);
+
+        int start = page * size;
+        int end = Math.min(start + size, all.size());
+        List<ExerciseResponseDto> slice = (start < end) ? all.subList(start, end) : List.of();
+
+        return new PageImpl<>(slice, PageRequest.of(page, size), all.size());
     }
 
     private Exercise getExerciseByIdUtil(UUID id) {
@@ -255,11 +266,11 @@ public class ExerciseService {
             String q, String language, String difficulty,
             String sortBy, String order, int page, int size) {
 
-        Sort.Direction dir = "desc".equalsIgnoreCase(order)
-                ? Sort.Direction.DESC
-                : Sort.Direction.ASC;
-        Sort baseSort = Sort.by(dir, "createdAt");
-        PageRequest pr = PageRequest.of(page, size, baseSort);
+        // Sort.Direction dir = "desc".equalsIgnoreCase(order)
+        // ? Sort.Direction.DESC
+        // : Sort.Direction.ASC;
+        // Sort baseSort = Sort.by(dir, "createdAt");
+        // PageRequest pr = PageRequest.of(page, size, baseSort);
 
         Specification<Exercise> spec = Specification
                 .allOf(ExerciseSpecifications.containsTerm(q))
@@ -272,22 +283,35 @@ public class ExerciseService {
                         .map(ExerciseSpecifications::hasDifficulty)
                         .orElse(null));
 
-        Page<Exercise> page0 = exerciseRepository.findAll(spec, pr);
-        Page<ExerciseResponseDto> dtos0 = page0.map(this::convertToDto);
+        // Page<Exercise> page0 = exerciseRepository.findAll(spec, pr);
+        // Page<ExerciseResponseDto> dtos0 = page0.map(this::convertToDto);
 
-        if ("votes".equalsIgnoreCase(sortBy)) {
-            Comparator<ExerciseResponseDto> cmp = Comparator
-                    .comparingInt(ExerciseResponseDto::voteCount);
-            if (dir == Sort.Direction.DESC) {
-                cmp = cmp.reversed();
-            }
-            List<ExerciseResponseDto> sorted = dtos0.getContent().stream()
-                    .sorted(cmp)
-                    .toList();
-            return new PageImpl<>(sorted, pr, dtos0.getTotalElements());
+        boolean isGlobal = "votes".equalsIgnoreCase(sortBy);
+        if (!isGlobal) {
+            Sort.Direction dir = "desc".equalsIgnoreCase(order) ? Sort.Direction.DESC : Sort.Direction.ASC;
+            Sort sort = Sort.by(dir, sortBy != null ? sortBy : "createdAt");
+            PageRequest pr = PageRequest.of(page, size, sort);
+            return exerciseRepository.findAll(spec, pr)
+                    .map(this::convertToDto);
         }
 
-        return dtos0;
+        List<ExerciseResponseDto> all = exerciseRepository.findAll(spec)
+                .stream()
+                .map(this::convertToDto)
+                .toList();
+
+        Comparator<ExerciseResponseDto> cmp = Comparator.comparingInt(ExerciseResponseDto::voteCount)
+                .reversed();
+        if ("asc".equalsIgnoreCase(order)) {
+            cmp = cmp.reversed();
+        }
+        all.sort(cmp);
+
+        int start = page * size;
+        int end = Math.min(start + size, all.size());
+        List<ExerciseResponseDto> slice = (start < end) ? all.subList(start, end) : List.of();
+
+        return new PageImpl<>(slice, PageRequest.of(page, size), all.size());
     }
 
 }
