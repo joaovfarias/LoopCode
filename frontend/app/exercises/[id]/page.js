@@ -8,6 +8,7 @@ import CodeIcon from "@mui/icons-material/Code";
 import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
 import ExercicioItem from "@/components/ExercicioItem";
+import { VerifiedUserRounded, GppBadRounded } from "@mui/icons-material";
 
 export default function ExercisePage({ params }) {
   const actualParams = React.use(params);
@@ -265,10 +266,39 @@ export default function ExercisePage({ params }) {
             overflow: "hidden",
           }}
         >
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
-            <CodeIcon />
-            <Typography variant="h6" fontWeight="bold">
-              Code
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: 1,
+              mb: 1,
+            }}
+          >
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              <CodeIcon />
+              <Typography variant="h6" fontWeight="bold">
+                Code
+              </Typography>
+            </Box>
+            <Typography variant="body2" color="gray">
+              {exercise && exercise.verified ? (
+                <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                  <VerifiedUserRounded
+                    sx={{ color: "#4caf50", mr: 0.5 }}
+                    titleAccess="Verificado"
+                  />
+                  Verificado
+                </span>
+              ) : (
+                <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                  <GppBadRounded
+                    sx={{ color: "#f44336", mr: 0.5, fontSize: 27 }}
+                    titleAccess="Não verificado"
+                  />
+                  Não Verificado
+                </span>
+              )}
             </Typography>
           </Box>
           <Editor
