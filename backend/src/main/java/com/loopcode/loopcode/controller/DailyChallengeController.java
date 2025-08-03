@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/daily-challenge")
+@RequestMapping("/daily-challenge")
 @Tag(name = "Daily-Challenge", description = "Endpoints do Desafio Diário")
 public class DailyChallengeController {
 

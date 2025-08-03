@@ -65,7 +65,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/auth/me").authenticated()
                         .requestMatchers(HttpMethod.GET, "/exercises/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/daily-challenge").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/daily-challenge").permitAll()
+                        // .requestMatchers(HttpMethod.GET, "/api/daily-challenge").permitAll()
                         .requestMatchers(HttpMethod.GET, "/users/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/search").permitAll()
                         .requestMatchers(HttpMethod.PATCH, "/users/*/ban", "/users/*/timeout")
