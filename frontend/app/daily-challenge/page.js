@@ -16,6 +16,9 @@ export default function DailyChallengePage() {
     try {
       const response = await fetch(`${baseUrl}/daily-challenge`, {
         method: "GET",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
       });
 
       if (!response.ok) {
@@ -34,7 +37,7 @@ export default function DailyChallengePage() {
       if (data) {
         setDailyChallenge(data);
       } else {
-        setDailyChallenge(null);
+        router.replace("/not-found");
       }
     };
     fetchData();

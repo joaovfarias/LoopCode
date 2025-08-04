@@ -140,6 +140,39 @@ export default function ExercisePage({ params }) {
         });
         return newStates;
       });
+
+      const allPassed = data.output.every((result) => result.passed);
+      const dailyChallenge = await fetch(`${baseUrl}/daily-challenge`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const dailyChallengeData = await dailyChallenge.json();
+
+      if (dailyChallenge.ok && allPassed) {
+        if (dailyChallengeData.id === exercise.id) {
+          try {
+            const response = await fetch(`${baseUrl}/daily-challenge/resolve`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+            });
+            if (!response.ok) {
+              if (response.status === 500) {
+                console.log("Desafio diário já resolvido anteriormente.");
+              } else {
+                throw new Error("Erro ao resolver o desafio diário");
+              }
+            }
+          } catch (err) {
+            console.error("Erro ao resolver o desafio diário:", err);
+          }
+        }
+      }
     } catch (err) {
       setResultado(`Erro: ${err.message}`);
     }
