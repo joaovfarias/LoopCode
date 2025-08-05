@@ -14,6 +14,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.channels.Pipe.SourceChannel;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -42,8 +43,25 @@ public class DailyChallengeService {
     @Transactional
     public void scheduleDaily() {
         LocalDate today = LocalDate.now();
+        System.out.println("Scheduling daily challenge for date: " + today);
         if (dailyChallengeRepository.findByChallengeDate(today).isEmpty()) {
             selectNewDailyChallenge(today);
+        }
+    }
+
+    @Scheduled(cron = "0 0 0 * * *")
+    public void resetDailyChallenges() {
+        LocalDate yesterday = LocalDate.now().minusDays(1);
+        List<User> allUsers = userRepository.findAll();
+        System.out.println("Resetting daily challenges for users...");
+
+        for (User user : allUsers) {
+            boolean solvedYesterday = resolutionRepository.existsByUserAndDailyChallengeChallengeDate(user, yesterday);
+            if (!solvedYesterday) {
+                System.out.println("Resetting daily streak for user: " + user.getUsername());
+                user.setDailyStreak(0);
+                userRepository.save(user);
+            }
         }
     }
 

@@ -316,24 +316,38 @@ export default function ExercisePage({ params }) {
             </Box>
             <Typography variant="body2" color="gray">
               {exercise && exercise.verified ? (
-                <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                <span
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 4,
+                    color: "lightgreen",
+                    fontSize: "0.875rem",
+                    fontWeight: 400,
+                  }}
+                >
                   <VerifiedUserRounded
                     sx={{ color: "#4caf50", mr: 0.5 }}
                     titleAccess="Verificado"
                   />
-                  <Typography variant="body2" color="lightgreen">
-                    Verificado
-                  </Typography>
+                  Verificado
                 </span>
               ) : (
-                <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                <span
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 4,
+                    color: "lightcoral",
+                    fontSize: "0.875rem",
+                    fontWeight: 400,
+                  }}
+                >
                   <GppBadRounded
                     sx={{ color: "#f44336", mr: 0.5, fontSize: 27 }}
                     titleAccess="Não verificado"
                   />
-                  <Typography variant="body2" color="lightcoral">
-                    Não Verificado
-                  </Typography>
+                  Não Verificado
                 </span>
               )}
             </Typography>
