@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   CardContent,
@@ -12,23 +12,27 @@ import {
   FormControl,
   Typography,
   Snackbar,
-  Alert
-} from '@mui/material';
-import { useState } from 'react';
+  Alert,
+} from "@mui/material";
+import { useState } from "react";
 import Image from "next/image";
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
-import { useRouter } from 'next/navigation';
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState('');
-  const [senha, setSenha] = useState('');
+  const [email, setEmail] = useState("");
+  const [senha, setSenha] = useState("");
   const [mostrarSenha, setMostrarSenha] = useState(false);
   const [open, setOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState(
+    "Credenciais inválidas. Por favor, tente novamente."
+  );
+  const [errorSeverity, setErrorSeverity] = useState("error");
 
   const handleClose = (event, reason) => {
-    if (reason === 'clickaway') {
+    if (reason === "clickaway") {
       return;
     }
     setOpen(false);
@@ -39,27 +43,43 @@ export default function LoginPage() {
     const baseUrl = process.env.NEXT_PUBLIC_API_URL;
     try {
       const response = await fetch(`${baseUrl}/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: email, password: senha }),
       });
 
       if (!response.ok) {
+        if (response.status === 403) {
+          // Handle banned user
+          const errorData = await response.json();
+          if (errorData.error === "BANNED_USER") {
+            setErrorMessage(
+              `Você foi banido permanentemente. Motivo: ${errorData.reason}`
+            );
+            setErrorSeverity("error");
+          }
+        } else {
+          setErrorMessage("Credenciais inválidas. Por favor, tente novamente.");
+          setErrorSeverity("error");
+        }
         setOpen(true);
         return;
       }
 
       const data = await response.json();
 
-      localStorage.setItem('token', data.token); // salva token
-      router.push('/'); // redireciona
+      localStorage.setItem("token", data.token); // salva token
+      router.push("/"); // redireciona
     } catch (err) {
       console.log(err.message);
+      setErrorMessage("Erro de conexão. Tente novamente.");
+      setErrorSeverity("error");
+      setOpen(true);
     }
   };
 
   const registrar = () => {
-    router.push('/register');
+    router.push("/register");
   };
 
   const handleMouseDownPassword = (event) => event.preventDefault();
@@ -67,14 +87,19 @@ export default function LoginPage() {
 
   return (
     <div className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      <Snackbar open={open} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }} autoHideDuration={6000} onClose={handleClose}>
+      <Snackbar
+        open={open}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+        autoHideDuration={6000}
+        onClose={handleClose}
+      >
         <Alert
-          severity="error"
+          severity={errorSeverity}
           onClose={handleClose}
           variant="filled"
-          sx={{ width: '100%' }}
+          sx={{ width: "100%" }}
         >
-          Credenciais inválidas. Por favor, tente novamente.
+          {errorMessage}
         </Alert>
       </Snackbar>
 
@@ -87,13 +112,12 @@ export default function LoginPage() {
               width={0}
               height={0}
               sizes="100vw"
-              style={{ width: '100px', height: 'auto' }}
+              style={{ width: "100px", height: "auto" }}
               className="mx-auto mb-6"
               priority
             />
 
             <form onSubmit={handleLogin} className="flex flex-col gap-4">
-
               <TextField
                 label="email"
                 type="email"
@@ -108,7 +132,7 @@ export default function LoginPage() {
                 <InputLabel htmlFor="senha">senha</InputLabel>
                 <OutlinedInput
                   id="senha"
-                  type={mostrarSenha ? 'text' : 'password'}
+                  type={mostrarSenha ? "text" : "password"}
                   value={senha}
                   onChange={(e) => setSenha(e.target.value)}
                   label="Senha"
@@ -121,28 +145,42 @@ export default function LoginPage() {
                         edge="end"
                         aria-label="toggle password visibility"
                       >
-                        {mostrarSenha ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                        {mostrarSenha ? (
+                          <VisibilityOffIcon />
+                        ) : (
+                          <VisibilityIcon />
+                        )}
                       </IconButton>
                     </InputAdornment>
                   }
                 />
               </FormControl>
 
-              <Button type="submit" variant="contained" color="primary" fullWidth>
+              <Button
+                type="submit"
+                variant="contained"
+                color="primary"
+                fullWidth
+              >
                 Entrar
               </Button>
 
-              <Typography variant="body2" color="textSecondary" align="center" style={{ marginTop: '16px' }}>
-                Não tem uma conta? <Link
+              <Typography
+                variant="body2"
+                color="textSecondary"
+                align="center"
+                style={{ marginTop: "16px" }}
+              >
+                Não tem uma conta?{" "}
+                <Link
                   color="secondary"
                   underline="none"
                   onClick={registrar}
-                  style={{ cursor: 'pointer', textAlign: 'center' }}
+                  style={{ cursor: "pointer", textAlign: "center" }}
                 >
                   Registre-se
                 </Link>
               </Typography>
-
             </form>
           </CardContent>
         </div>

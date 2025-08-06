@@ -19,6 +19,15 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.CONFLICT);
     }
 
+    @ExceptionHandler(UserBannedException.class)
+    public ResponseEntity<Map<String, String>> handleUserBannedException(UserBannedException ex) {
+        Map<String, String> response = new HashMap<>();
+        response.put("error", "BANNED_USER");
+        response.put("message", "Usuário banido permanentemente");
+        response.put("reason", ex.getBanReason());
+        return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Map<String, String> handleValidationExceptions(MethodArgumentNotValidException ex){

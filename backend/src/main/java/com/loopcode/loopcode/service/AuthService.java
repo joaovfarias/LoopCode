@@ -1,11 +1,14 @@
 package com.loopcode.loopcode.service;
 
+import com.loopcode.loopcode.domain.ban.BanRecord;
 import com.loopcode.loopcode.domain.user.User;
 import com.loopcode.loopcode.dtos.AuthResponseDto;
 import com.loopcode.loopcode.dtos.LoginRequestDto;
 import com.loopcode.loopcode.dtos.RegisterRequestDto;
 import com.loopcode.loopcode.dtos.UserResponseDto;
 import com.loopcode.loopcode.exceptions.UserAlreadyExistsException;
+import com.loopcode.loopcode.exceptions.UserBannedException;
+import com.loopcode.loopcode.repositories.BanRecordRepository;
 import com.loopcode.loopcode.repositories.UserRepository;
 import com.loopcode.loopcode.security.Role;
 import com.loopcode.loopcode.security.JwtService;
@@ -17,6 +20,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 @Service
 public class AuthService {
 
@@ -24,13 +29,15 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+    private final BanRecordRepository banRecordRepository;
 
     public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtService jwtService,
-            AuthenticationManager authenticationManager) {
+            AuthenticationManager authenticationManager, BanRecordRepository banRecordRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
         this.authenticationManager = authenticationManager;
+        this.banRecordRepository = banRecordRepository;
     }
 
     @Transactional
@@ -57,6 +64,14 @@ public class AuthService {
                 new UsernamePasswordAuthenticationToken(
                         requestDto.email(),
                         requestDto.password()));
+
+        // Check if user is banned after successful authentication
+        User user = (User) authentication.getPrincipal();
+        Optional<BanRecord> activeBan = banRecordRepository.findByBannedUserAndActiveTrue(user);
+        
+        if (activeBan.isPresent()) {
+            throw new UserBannedException(activeBan.get().getBanReason());
+        }
 
         String jwtToken = jwtService.generateToken(authentication);
 
