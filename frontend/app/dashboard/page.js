@@ -1,7 +1,21 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
-import { Box, Typography, Card, CardContent, Button } from "@mui/material";
+import {
+  Box,
+  Typography,
+  Card,
+  CardContent,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+} from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import VerifiedUserRounded from "@mui/icons-material/VerifiedUserRounded";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
@@ -32,6 +46,9 @@ function Dashboard() {
     last: true,
   });
   const [page, setPage] = useState(1);
+  const [roleDialogOpen, setRoleDialogOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [selectedRole, setSelectedRole] = useState("");
 
   const verifyExercise = async (id) => {
     const baseUrl = process.env.NEXT_PUBLIC_API_URL;
@@ -232,7 +249,6 @@ function Dashboard() {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      // Handle text response instead of JSON
       const message = await response.text();
       alert(message);
       return message;
@@ -257,7 +273,6 @@ function Dashboard() {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      // Handle text response instead of JSON
       const message = await response.text();
       alert(message);
       return message;
@@ -265,6 +280,72 @@ function Dashboard() {
       console.error(err);
       return null;
     }
+  };
+
+  const changeUserRole = async (username, newRole) => {
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+
+    try {
+      const response = await fetch(
+        `${baseUrl}/users/${username}/role?role=${newRole}`,
+        {
+          method: "PATCH",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      alert(`Role changed successfully for ${username} to ${newRole}`);
+      return true;
+    } catch (err) {
+      console.error(err);
+      alert(`Failed to change role: ${err.message}`);
+      return false;
+    }
+  };
+
+  const handleRoleChange = (user) => {
+    setSelectedUser(user);
+    setSelectedRole("");
+    setRoleDialogOpen(true);
+  };
+
+  const handleRoleConfirm = async () => {
+    if (selectedUser && selectedRole) {
+      const result = await changeUserRole(selectedUser.username, selectedRole);
+      if (result) {
+        // Refresh the current section's data
+        if (selectedSection === "usuarios") {
+          const data = await getUsers("USER");
+          if (data) setUsers(data);
+        } else if (selectedSection === "moderadores") {
+          const data = await getUsers("MOD");
+          if (data) setUsers(data);
+        } else if (selectedSection === "administradores") {
+          const data = await getUsers("ADMIN");
+          if (data) setUsers(data);
+        }
+      }
+    }
+    setRoleDialogOpen(false);
+    setSelectedUser(null);
+    setSelectedRole("");
+  };
+
+  const getRoleOptions = () => {
+    if (selectedSection === "usuarios") {
+      return ["MOD", "ADMIN"];
+    } else if (selectedSection === "moderadores") {
+      return ["USER", "ADMIN"];
+    } else if (selectedSection === "administradores") {
+      return ["USER", "MOD"];
+    }
+    return [];
   };
 
   const handleNextPage = () => {
@@ -374,13 +455,11 @@ function Dashboard() {
                         <Box sx={{ mt: 2, display: "flex", gap: 1 }}>
                           <Button
                             variant="contained"
-                            color="warning"
                             size="small"
                             onClick={() => {
                               banUser(user.username)
                                 .then((result) => {
                                   if (result) {
-                                    // Refresh the users list after successful ban
                                     return getUsers("USER");
                                   }
                                 })
@@ -393,7 +472,6 @@ function Dashboard() {
                           </Button>
                           <Button
                             variant="contained"
-                            color="info"
                             size="small"
                             onClick={() =>
                               alert(`Timeout user ${user.username}`)
@@ -403,11 +481,8 @@ function Dashboard() {
                           </Button>
                           <Button
                             variant="contained"
-                            color="secondary"
                             size="small"
-                            onClick={() =>
-                              alert(`Change role for ${user.username}`)
-                            }
+                            onClick={() => handleRoleChange(user)}
                           >
                             Change Role
                           </Button>
@@ -417,11 +492,8 @@ function Dashboard() {
                         <Box sx={{ mt: 2, display: "flex", gap: 1 }}>
                           <Button
                             variant="contained"
-                            color="secondary"
                             size="small"
-                            onClick={() =>
-                              alert(`Change role for ${user.username}`)
-                            }
+                            onClick={() => handleRoleChange(user)}
                           >
                             Change Role
                           </Button>
@@ -431,11 +503,8 @@ function Dashboard() {
                         <Box sx={{ mt: 2, display: "flex", gap: 1 }}>
                           <Button
                             variant="contained"
-                            color="secondary"
                             size="small"
-                            onClick={() =>
-                              alert(`Change role for ${user.username}`)
-                            }
+                            onClick={() => handleRoleChange(user)}
                           >
                             Change Role
                           </Button>
@@ -875,6 +944,37 @@ function Dashboard() {
 
       {/* Content */}
       <Box sx={{ flex: 1, pl: 20, fontSize: "1rem" }}>{renderContent()}</Box>
+
+      {/* Role Change Dialog */}
+      <Dialog open={roleDialogOpen} onClose={() => setRoleDialogOpen(false)}>
+        <DialogTitle>Change Role for {selectedUser?.username}</DialogTitle>
+        <DialogContent>
+          <FormControl fullWidth sx={{ mt: 2 }}>
+            <InputLabel>Select New Role</InputLabel>
+            <Select
+              value={selectedRole}
+              label="Select New Role"
+              onChange={(e) => setSelectedRole(e.target.value)}
+            >
+              {getRoleOptions().map((role) => (
+                <MenuItem key={role} value={role}>
+                  {role}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setRoleDialogOpen(false)}>Cancel</Button>
+          <Button
+            onClick={handleRoleConfirm}
+            variant="contained"
+            disabled={!selectedRole}
+          >
+            Change Role
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }

@@ -228,22 +228,16 @@ public class UserService {
                 
                 if (role == null || role.trim().isEmpty()) {
                         // Return all users if no role filter is specified, excluding banned users
-                        Page<User> users = userRepository.findAll(pr);
-                        List<UserResponseDto> filteredUsers = users.getContent().stream()
-                                .filter(u -> !isUserBanned(u.getUsername()))
-                                .map(u -> new UserResponseDto(u.getUsername(), u.getEmail(), u.getRole().name(), u.getDailyStreak()))
-                                .collect(Collectors.toList());
-                        return new PageImpl<>(filteredUsers, pr, users.getTotalElements());
+                        return userRepository.findAllExcludingBanned(pr)
+                                        .map(u -> new UserResponseDto(
+                                                        u.getUsername(), u.getEmail(), u.getRole().name(), u.getDailyStreak()));
                 }
                 
                 try {
                         Role roleEnum = Role.valueOf(role.toUpperCase());
-                        Page<User> users = userRepository.findByRole(roleEnum, pr);
-                        List<UserResponseDto> filteredUsers = users.getContent().stream()
-                                .filter(u -> !isUserBanned(u.getUsername()))
-                                .map(u -> new UserResponseDto(u.getUsername(), u.getEmail(), u.getRole().name(), u.getDailyStreak()))
-                                .collect(Collectors.toList());
-                        return new PageImpl<>(filteredUsers, pr, users.getTotalElements());
+                        return userRepository.findByRoleExcludingBanned(roleEnum, pr)
+                                        .map(u -> new UserResponseDto(
+                                                        u.getUsername(), u.getEmail(), u.getRole().name(), u.getDailyStreak()));
                 } catch (IllegalArgumentException e) {
                         throw new IllegalArgumentException("Invalid role: " + role + ". Valid roles are: USER, MOD, ADMIN");
                 }
