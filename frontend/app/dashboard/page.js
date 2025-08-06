@@ -15,6 +15,14 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Chip,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import VerifiedUserRounded from "@mui/icons-material/VerifiedUserRounded";
@@ -23,7 +31,7 @@ import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import AuthGuard from "../auth-guard";
 
 function Dashboard() {
-  const [selectedSection, setSelectedSection] = useState("exercicios");
+  const [selectedSection, setSelectedSection] = useState("usuarios");
   const [exercises, setExercises] = useState({
     content: [],
     totalPages: 1,
@@ -76,7 +84,7 @@ function Dashboard() {
       const baseUrl = process.env.NEXT_PUBLIC_API_URL;
       try {
         const response = await fetch(
-          `${baseUrl}/users?page=${page - 1}&size=5&role=${role}`,
+          `${baseUrl}/users?page=${page - 1}&size=10&role=${role}`,
           {
             method: "GET",
             headers: {
@@ -103,7 +111,7 @@ function Dashboard() {
     const baseUrl = process.env.NEXT_PUBLIC_API_URL;
     try {
       const response = await fetch(
-        `${baseUrl}/exercises?page=${page - 1}&size=5`,
+        `${baseUrl}/exercises?page=${page - 1}&size=10`,
         {
           method: "GET",
           headers: {
@@ -128,7 +136,7 @@ function Dashboard() {
     const baseUrl = process.env.NEXT_PUBLIC_API_URL;
     try {
       const response = await fetch(
-        `${baseUrl}/users/bans?page=${page - 1}&size=5&active=true`,
+        `${baseUrl}/users/bans?page=${page - 1}&size=10&active=true`,
         {
           method: "GET",
           headers: {
@@ -319,7 +327,6 @@ function Dashboard() {
     if (selectedUser && selectedRole) {
       const result = await changeUserRole(selectedUser.username, selectedRole);
       if (result) {
-        // Refresh the current section's data
         if (selectedSection === "usuarios") {
           const data = await getUsers("USER");
           if (data) setUsers(data);
@@ -389,130 +396,115 @@ function Dashboard() {
       case "moderadores":
       case "administradores":
         return (
-          <Box
-            sx={{
-              height: "80vh",
-              overflow: "auto",
-              scrollbarGutter: "stable",
-              "&::-webkit-scrollbar": {
-                width: "8px",
-                backgroundColor: "#232136",
-                borderRadius: "8px",
-              },
-              "&::-webkit-scrollbar-thumb": {
-                backgroundColor: "#5b46d6",
-                borderRadius: "8px",
-              },
-              "&::-webkit-scrollbar-thumb:hover": {
-                backgroundColor: "#7c5fff",
-              },
-              scrollbarWidth: "thin",
-              scrollbarColor: "#5b46d6 #232136",
-            }}
-          >
-            <Typography variant="h5" sx={{ color: "white", mb: 3 }}>
-              Lista de{" "}
-              {selectedSection === "usuarios"
-                ? "Usuários"
-                : selectedSection === "moderadores"
-                ? "Moderadores"
-                : "Administradores"}
-            </Typography>
+          <Box sx={{}}>
             {Array.isArray(users.content) && users.content.length > 0 ? (
               <>
-                {users.content.map((user) => (
-                  <Card
-                    key={user.username}
-                    sx={{ mb: 2, bgcolor: "#1e1e2e", color: "white" }}
-                  >
-                    <CardContent>
-                      <Box
-                        sx={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          alignItems: "flex-start",
-                        }}
-                      >
-                        <Typography variant="h6">{user.username}</Typography>
-                        <Typography
-                          variant="body2"
+                <TableContainer
+                  component={Paper}
+                  sx={{ bgcolor: "#1e1e2e", mb: 3 }}
+                >
+                  <Table>
+                    <TableHead>
+                      <TableRow sx={{ bgcolor: "primary.secondary" }}>
+                        <TableCell sx={{ color: "white", fontWeight: "bold" }}>
+                          Username
+                        </TableCell>
+                        <TableCell sx={{ color: "white", fontWeight: "bold" }}>
+                          Email
+                        </TableCell>
+                        <TableCell sx={{ color: "white", fontWeight: "bold" }}>
+                          Role
+                        </TableCell>
+                        <TableCell sx={{ color: "white", fontWeight: "bold" }}>
+                          Daily Streak
+                        </TableCell>
+                        <TableCell sx={{ color: "white", fontWeight: "bold" }}>
+                          Actions
+                        </TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {users.content.map((user) => (
+                        <TableRow
+                          key={user.username}
                           sx={{
-                            color:
-                              user.role === "ADMIN"
-                                ? "lightcoral"
-                                : user.role === "MOD"
-                                ? "lightgreen"
-                                : "lightblue",
+                            "&:hover": { bgcolor: "#2a2a3e" },
+                            bgcolor: "card.primary",
                           }}
                         >
-                          {user.role}
-                        </Typography>
-                      </Box>
-                      <Typography variant="body2" sx={{ mt: 1, color: "gray" }}>
-                        {user.email}
-                      </Typography>
-                      {selectedSection === "usuarios" && (
-                        <Box sx={{ mt: 2, display: "flex", gap: 1 }}>
-                          <Button
-                            variant="contained"
-                            size="small"
-                            onClick={() => {
-                              banUser(user.username)
-                                .then((result) => {
-                                  if (result) {
-                                    return getUsers("USER");
-                                  }
-                                })
-                                .then((data) => {
-                                  if (data) setUsers(data);
-                                });
-                            }}
-                          >
-                            Ban
-                          </Button>
-                          <Button
-                            variant="contained"
-                            size="small"
-                            onClick={() =>
-                              alert(`Timeout user ${user.username}`)
-                            }
-                          >
-                            Timeout
-                          </Button>
-                          <Button
-                            variant="contained"
-                            size="small"
-                            onClick={() => handleRoleChange(user)}
-                          >
-                            Change Role
-                          </Button>
-                        </Box>
-                      )}
-                      {selectedSection === "moderadores" && (
-                        <Box sx={{ mt: 2, display: "flex", gap: 1 }}>
-                          <Button
-                            variant="contained"
-                            size="small"
-                            onClick={() => handleRoleChange(user)}
-                          >
-                            Change Role
-                          </Button>
-                        </Box>
-                      )}
-                      {selectedSection === "administradores" && (
-                        <Box sx={{ mt: 2, display: "flex", gap: 1 }}>
-                          <Button
-                            variant="contained"
-                            size="small"
-                            onClick={() => handleRoleChange(user)}
-                          >
-                            Change Role
-                          </Button>
-                        </Box>
-                      )}
-                    </CardContent>
-                  </Card>
-                ))}
+                          <TableCell sx={{ color: "white" }}>
+                            {user.username}
+                          </TableCell>
+                          <TableCell sx={{ color: "white" }}>
+                            {user.email}
+                          </TableCell>
+                          <TableCell>
+                            <Chip
+                              label={user.role}
+                              size="small"
+                              sx={{
+                                bgcolor:
+                                  user.role === "ADMIN"
+                                    ? "#ff7043"
+                                    : user.role === "MOD"
+                                    ? "#66bb6a"
+                                    : "#42a5f5",
+                                color: "white",
+                                fontWeight: "bold",
+                              }}
+                            />
+                          </TableCell>
+                          <TableCell sx={{ color: "white" }}>
+                            {user.dailyStreak}
+                          </TableCell>
+                          <TableCell>
+                            <Box
+                              sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}
+                            >
+                              {selectedSection === "usuarios" && (
+                                <>
+                                  <Button
+                                    variant="contained"
+                                    size="small"
+                                    onClick={() => {
+                                      banUser(user.username)
+                                        .then((result) => {
+                                          if (result) {
+                                            return getUsers("USER");
+                                          }
+                                        })
+                                        .then((data) => {
+                                          if (data) setUsers(data);
+                                        });
+                                    }}
+                                  >
+                                    Ban
+                                  </Button>
+                                  <Button
+                                    variant="contained"
+                                    size="small"
+                                    onClick={() =>
+                                      alert(`Timeout user ${user.username}`)
+                                    }
+                                  >
+                                    Timeout
+                                  </Button>
+                                </>
+                              )}
+                              <Button
+                                variant="contained"
+                                size="small"
+                                onClick={() => handleRoleChange(user)}
+                              >
+                                Change Role
+                              </Button>
+                            </Box>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
 
                 {/* Pagination Controls */}
                 <Box
@@ -531,7 +523,7 @@ function Dashboard() {
                   >
                     <ArrowBackIosNewIcon />
                   </Button>
-                  <Typography>
+                  <Typography sx={{ color: "white" }}>
                     Página {users.number + 1} de {users.totalPages}
                   </Typography>
                   <Button
@@ -544,7 +536,7 @@ function Dashboard() {
                 </Box>
               </>
             ) : (
-              <Typography variant="body2">
+              <Typography variant="body2" sx={{ color: "white" }}>
                 Nenhum{" "}
                 {selectedSection === "usuarios"
                   ? "usuário"
@@ -558,89 +550,80 @@ function Dashboard() {
         );
       case "bans":
         return (
-          <Box
-            sx={{
-              height: "80vh",
-              overflow: "auto",
-              scrollbarGutter: "stable",
-              "&::-webkit-scrollbar": {
-                width: "8px",
-                backgroundColor: "#232136",
-                borderRadius: "8px",
-              },
-              "&::-webkit-scrollbar-thumb": {
-                backgroundColor: "#5b46d6",
-                borderRadius: "8px",
-              },
-              "&::-webkit-scrollbar-thumb:hover": {
-                backgroundColor: "#7c5fff",
-              },
-              scrollbarWidth: "thin",
-              scrollbarColor: "#5b46d6 #232136",
-            }}
-          >
-            <Typography variant="h5" sx={{ color: "white", mb: 3 }}>
-              Lista de Bans Ativos
-            </Typography>
+          <Box sx={{}}>
             {Array.isArray(bans.content) && bans.content.length > 0 ? (
               <>
-                {bans.content.map((ban) => (
-                  <Card
-                    key={ban.id}
-                    sx={{ mb: 2, bgcolor: "#1e1e2e", color: "white" }}
-                  >
-                    <CardContent>
-                      <Box
-                        sx={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          alignItems: "flex-start",
-                        }}
-                      >
-                        <Typography variant="h6">
-                          {ban.bannedUsername}
-                        </Typography>
-                        <Typography
-                          variant="body2"
+                <TableContainer
+                  component={Paper}
+                  sx={{ bgcolor: "#1e1e2e", mb: 3 }}
+                >
+                  <Table>
+                    <TableHead>
+                      <TableRow sx={{ bgcolor: "primary.secondary" }}>
+                        <TableCell sx={{ color: "white", fontWeight: "bold" }}>
+                          Username
+                        </TableCell>
+                        <TableCell sx={{ color: "white", fontWeight: "bold" }}>
+                          Email
+                        </TableCell>
+                        <TableCell sx={{ color: "white", fontWeight: "bold" }}>
+                          Reason
+                        </TableCell>
+                        <TableCell sx={{ color: "white", fontWeight: "bold" }}>
+                          Admin
+                        </TableCell>
+                        <TableCell sx={{ color: "white", fontWeight: "bold" }}>
+                          Date
+                        </TableCell>
+                        <TableCell sx={{ color: "white", fontWeight: "bold" }}>
+                          Actions
+                        </TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {bans.content.map((ban) => (
+                        <TableRow
+                          key={ban.id}
                           sx={{
-                            color: "lightcoral",
+                            "&:hover": { bgcolor: "#2a2a3e" },
+                            bgcolor: "card.primary",
                           }}
                         >
-                          BANIDO
-                        </Typography>
-                      </Box>
-                      <Typography variant="body2" sx={{ mt: 1, color: "gray" }}>
-                        {ban.bannedUserEmail}
-                      </Typography>
-                      <Typography variant="body2" sx={{ mt: 1 }}>
-                        <strong>Razão:</strong> {ban.banReason}
-                      </Typography>
-                      <Typography variant="body2" sx={{ mt: 1 }}>
-                        <strong>Banido por:</strong> {ban.adminUsername}
-                      </Typography>
-                      <Typography variant="body2" sx={{ mt: 1 }}>
-                        <strong>Data do Ban:</strong>{" "}
-                        {new Date(ban.banDate).toLocaleString()}
-                      </Typography>
-                      <Box sx={{ mt: 2, display: "flex", gap: 1 }}>
-                        <Button
-                          variant="contained"
-                          color="success"
-                          size="small"
-                          onClick={() => {
-                            unbanUser(ban.bannedUsername)
-                              .then(() => getBans())
-                              .then((data) => {
-                                if (data) setBans(data);
-                              });
-                          }}
-                        >
-                          Desbanir
-                        </Button>
-                      </Box>
-                    </CardContent>
-                  </Card>
-                ))}
+                          <TableCell sx={{ color: "white" }}>
+                            {ban.bannedUsername}
+                          </TableCell>
+                          <TableCell sx={{ color: "white" }}>
+                            {ban.bannedUserEmail}
+                          </TableCell>
+                          <TableCell sx={{ color: "white" }}>
+                            {ban.banReason}
+                          </TableCell>
+                          <TableCell sx={{ color: "white" }}>
+                            {ban.adminUsername}
+                          </TableCell>
+                          <TableCell sx={{ color: "white" }}>
+                            {new Date(ban.banDate).toLocaleString()}
+                          </TableCell>
+                          <TableCell>
+                            <Button
+                              variant="contained"
+                              size="small"
+                              onClick={() => {
+                                unbanUser(ban.bannedUsername)
+                                  .then(() => getBans())
+                                  .then((data) => {
+                                    if (data) setBans(data);
+                                  });
+                              }}
+                            >
+                              Desbanir
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
 
                 {/* Pagination Controls */}
                 <Box
@@ -659,7 +642,7 @@ function Dashboard() {
                   >
                     <ArrowBackIosNewIcon />
                   </Button>
-                  <Typography>
+                  <Typography sx={{ color: "white" }}>
                     Página {bans.number + 1} de {bans.totalPages}
                   </Typography>
                   <Button
@@ -672,7 +655,7 @@ function Dashboard() {
                 </Box>
               </>
             ) : (
-              <Typography variant="body2">
+              <Typography variant="body2" sx={{ color: "white" }}>
                 Nenhum ban ativo encontrado.
               </Typography>
             )}
@@ -686,93 +669,103 @@ function Dashboard() {
         );
       case "exercicios":
         return (
-          <Box
-            sx={{
-              height: "80vh",
-              overflow: "auto",
-              scrollbarGutter: "stable",
-              "&::-webkit-scrollbar": {
-                width: "8px",
-                backgroundColor: "#232136",
-                borderRadius: "8px",
-              },
-              "&::-webkit-scrollbar-thumb": {
-                backgroundColor: "#5b46d6",
-                borderRadius: "8px",
-              },
-              "&::-webkit-scrollbar-thumb:hover": {
-                backgroundColor: "#7c5fff",
-              },
-              scrollbarWidth: "thin",
-              scrollbarColor: "#5b46d6 #232136",
-            }}
-          >
+          <Box sx={{}}>
             {Array.isArray(exercises.content) &&
             exercises.content.length > 0 ? (
               <>
-                {exercises.content.map((exercise) => (
-                  <Card
-                    key={exercise.id}
-                    sx={{ mb: 2, bgcolor: "#1e1e2e", color: "white" }}
-                  >
-                    <CardContent>
-                      <Box
-                        sx={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          alignItems: "flex-start",
-                        }}
-                      >
-                        <Typography variant="body2" color="text.secondary">
-                          ID: {exercise.id}
-                        </Typography>
-                        <Typography
-                          variant="body2"
+                <TableContainer
+                  component={Paper}
+                  sx={{ bgcolor: "#1e1e2e", mb: 3 }}
+                >
+                  <Table>
+                    <TableHead>
+                      <TableRow sx={{ bgcolor: "primary.secondary" }}>
+                        <TableCell sx={{ color: "white", fontWeight: "bold" }}>
+                          ID
+                        </TableCell>
+                        <TableCell sx={{ color: "white", fontWeight: "bold" }}>
+                          Title
+                        </TableCell>
+                        <TableCell sx={{ color: "white", fontWeight: "bold" }}>
+                          Description
+                        </TableCell>
+                        <TableCell sx={{ color: "white", fontWeight: "bold" }}>
+                          Status
+                        </TableCell>
+                        <TableCell sx={{ color: "white", fontWeight: "bold" }}>
+                          Actions
+                        </TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {exercises.content.map((exercise) => (
+                        <TableRow
+                          key={exercise.id}
                           sx={{
-                            color: exercise.verified
-                              ? "lightgreen"
-                              : "lightcoral",
+                            "&:hover": { bgcolor: "#2a2a3e" },
+                            bgcolor: "card.primary",
                           }}
                         >
-                          {exercise.verified ? "Verificado" : "Não verificado"}
-                        </Typography>
-                      </Box>
-                      <Typography variant="h6" sx={{ mt: 1 }}>
-                        {exercise.title}
-                      </Typography>
-                      <Typography variant="body2">
-                        {exercise.description}
-                      </Typography>
-                      <Box sx={{ mt: 2, display: "flex", gap: 1 }}>
-                        <Button
-                          variant="contained"
-                          color="error"
-                          size="small"
-                          onClick={() =>
-                            alert(`Delete exercise ${exercise.id}`)
-                          }
-                        >
-                          <DeleteIcon />
-                        </Button>
-                        <Button
-                          variant="contained"
-                          color="success"
-                          size="small"
-                          disabled={exercise.verified}
-                          onClick={() => {
-                            verifyExercise(exercise.id)
-                              .then(() => getExercises())
-                              .then((data) => {
-                                if (data) setExercises(data);
-                              });
-                          }}
-                        >
-                          <VerifiedUserRounded />
-                        </Button>
-                      </Box>
-                    </CardContent>
-                  </Card>
-                ))}
+                          <TableCell sx={{ color: "white" }}>
+                            {exercise.id}
+                          </TableCell>
+                          <TableCell sx={{ color: "white" }}>
+                            {exercise.title}
+                          </TableCell>
+                          <TableCell sx={{ color: "white", maxWidth: "300px" }}>
+                            {exercise.description.length > 100
+                              ? `${exercise.description.substring(0, 100)}...`
+                              : exercise.description}
+                          </TableCell>
+                          <TableCell>
+                            <Chip
+                              label={
+                                exercise.verified
+                                  ? "Verificado"
+                                  : "Não verificado"
+                              }
+                              size="small"
+                              sx={{
+                                bgcolor: exercise.verified
+                                  ? "#66bb6a"
+                                  : "#ff7043",
+                                color: "white",
+                                fontWeight: "bold",
+                              }}
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <Box sx={{ display: "flex", gap: 1 }}>
+                              <Button
+                                variant="contained"
+                                size="small"
+                                onClick={() =>
+                                  alert(`Delete exercise ${exercise.id}`)
+                                }
+                              >
+                                <DeleteIcon />
+                              </Button>
+                              <Button
+                                variant="contained"
+                                size="small"
+                                disabled={exercise.verified}
+                                onClick={() => {
+                                  verifyExercise(exercise.id)
+                                    .then(() => getExercises())
+                                    .then((data) => {
+                                      if (data) setExercises(data);
+                                    });
+                                }}
+                              >
+                                <VerifiedUserRounded />
+                              </Button>
+                            </Box>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
 
                 {/* Pagination Controls */}
                 <Box
@@ -791,7 +784,7 @@ function Dashboard() {
                   >
                     <ArrowBackIosNewIcon />
                   </Button>
-                  <Typography>
+                  <Typography sx={{ color: "white" }}>
                     Página {exercises.number + 1} de {exercises.totalPages}
                   </Typography>
                   <Button
@@ -804,7 +797,7 @@ function Dashboard() {
                 </Box>
               </>
             ) : (
-              <Typography variant="body2">
+              <Typography variant="body2" sx={{ color: "white" }}>
                 Nenhum exercício encontrado.
               </Typography>
             )}
@@ -828,14 +821,14 @@ function Dashboard() {
       <Box
         sx={{ width: 400, display: "flex", flexDirection: "column", gap: 4 }}
       >
-        <Box sx={{ bgcolor: "#5b46d6", borderRadius: 2 }}>
-          <Typography variant="h6" sx={{ p: 2 }}>
+        <Box sx={{ bgcolor: "primary.secondary", borderRadius: 2 }}>
+          <Typography variant="h6" sx={{ p: 1.5 }}>
             Usuários
           </Typography>
           <Box
             sx={{
               bgcolor: "card.primary",
-              p: 2,
+              p: 1,
               borderBottomLeftRadius: 8,
               borderBottomRightRadius: 8,
             }}
@@ -879,14 +872,14 @@ function Dashboard() {
           </Box>
         </Box>
 
-        <Box sx={{ bgcolor: "#5b46d6", borderRadius: 2 }}>
-          <Typography variant="h6" sx={{ p: 2 }}>
+        <Box sx={{ bgcolor: "primary.secondary", borderRadius: 2 }}>
+          <Typography variant="h6" sx={{ p: 1.5 }}>
             Moderação
           </Typography>
           <Box
             sx={{
-              bgcolor: "#1e1e2e",
-              p: 2,
+              bgcolor: "card.primary",
+              p: 1,
               borderBottomLeftRadius: 8,
               borderBottomRightRadius: 8,
               gap: 1,
@@ -915,14 +908,14 @@ function Dashboard() {
           </Box>
         </Box>
 
-        <Box sx={{ bgcolor: "#5b46d6", borderRadius: 2 }}>
-          <Typography variant="h6" sx={{ p: 2 }}>
+        <Box sx={{ bgcolor: "primary.secondary", borderRadius: 2 }}>
+          <Typography variant="h6" sx={{ p: 1.5 }}>
             Exercícios
           </Typography>
           <Box
             sx={{
-              bgcolor: "#1e1e2e",
-              p: 2,
+              bgcolor: "card.primary",
+              p: 1,
               borderBottomLeftRadius: 8,
               borderBottomRightRadius: 8,
             }}

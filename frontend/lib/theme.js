@@ -6,6 +6,7 @@ const theme = createTheme({
     mode: "dark",
     primary: {
       main: "#673AB7", // Destaque (roxo)
+      secondary: "#5E35B1", // Secundária (roxo mais escuro)
     },
     background: {
       default: "#121212", // Background
