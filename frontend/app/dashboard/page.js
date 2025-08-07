@@ -57,6 +57,13 @@ function Dashboard() {
     first: true,
     last: true,
   });
+  const [timeouts, setTimeouts] = useState({
+    content: [],
+    totalPages: 1,
+    number: 0,
+    first: true,
+    last: true,
+  });
   const [page, setPage] = useState(1);
   const [roleDialogOpen, setRoleDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
@@ -203,6 +210,36 @@ function Dashboard() {
     [page]
   );
 
+  const searchTimeouts = useCallback(
+    async (query) => {
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+      try {
+        const response = await fetch(
+          `${baseUrl}/users/timeouts/search?q=${encodeURIComponent(
+            query
+          )}&page=${page - 1}&size=9`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        console.log("Timeout search results:", data);
+        return data;
+      } catch (err) {
+        console.error(err);
+        return null;
+      }
+    },
+    [page]
+  );
+
   const getExercises = useCallback(async () => {
     const baseUrl = process.env.NEXT_PUBLIC_API_URL;
     try {
@@ -246,6 +283,31 @@ function Dashboard() {
       }
       const data = await response.json();
       console.log("Fetched bans:", data);
+      return data;
+    } catch (err) {
+      console.error(err);
+      return null;
+    }
+  }, [page]);
+
+  const getTimeouts = useCallback(async () => {
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+    try {
+      const response = await fetch(
+        `${baseUrl}/users/timeouts?page=${page - 1}&size=9&active=true`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      console.log("Fetched timeouts:", data);
       return data;
     } catch (err) {
       console.error(err);
@@ -350,6 +412,25 @@ function Dashboard() {
           });
           console.error("Failed to fetch bans");
         }
+      } else if (selectedSection === "timeouts") {
+        let data;
+        if (isSearching && searchQuery.trim()) {
+          data = await searchTimeouts(searchQuery);
+        } else {
+          data = await getTimeouts();
+        }
+        if (data) {
+          setTimeouts(data);
+        } else {
+          setTimeouts({
+            content: [],
+            totalPages: 1,
+            number: 0,
+            first: true,
+            last: true,
+          });
+          console.error("Failed to fetch timeouts");
+        }
       }
     };
     fetchData();
@@ -359,8 +440,10 @@ function Dashboard() {
     getExercises,
     getUsers,
     getBans,
+    getTimeouts,
     searchUsers,
     searchBans,
+    searchTimeouts,
     searchExercises,
     searchQuery,
     isSearching,
@@ -403,6 +486,79 @@ function Dashboard() {
 
     try {
       const response = await fetch(`${baseUrl}/users/${username}/unban`, {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const message = await response.text();
+      alert(message);
+      return message;
+    } catch (err) {
+      console.error(err);
+      return null;
+    }
+  };
+
+  const timeoutUser = async (username) => {
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+
+    const reason = prompt("Please enter the timeout reason:");
+    if (!reason) {
+      console.error("Timeout reason is required");
+      return;
+    }
+
+    const durationInput = prompt(
+      "Please enter the timeout duration in minutes:"
+    );
+    if (!durationInput) {
+      console.error("Timeout duration is required");
+      return;
+    }
+
+    const durationMinutes = parseInt(durationInput);
+    if (isNaN(durationMinutes) || durationMinutes <= 0) {
+      alert("Please enter a valid positive number for duration");
+      return;
+    }
+
+    try {
+      const response = await fetch(`${baseUrl}/users/${username}/timeout`, {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          reason: reason,
+          durationMinutes: durationMinutes,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const message = await response.text();
+      alert(message);
+      return message;
+    } catch (err) {
+      console.error(err);
+      return null;
+    }
+  };
+
+  const untimeoutUser = async (username) => {
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+
+    try {
+      const response = await fetch(`${baseUrl}/users/${username}/untimeout`, {
         method: "PATCH",
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -493,6 +649,8 @@ function Dashboard() {
       currentData = exercises;
     } else if (selectedSection === "bans") {
       currentData = bans;
+    } else if (selectedSection === "timeouts") {
+      currentData = timeouts;
     } else {
       currentData = users;
     }
@@ -508,6 +666,8 @@ function Dashboard() {
       currentData = exercises;
     } else if (selectedSection === "bans") {
       currentData = bans;
+    } else if (selectedSection === "timeouts") {
+      currentData = timeouts;
     } else {
       currentData = users;
     }
@@ -696,9 +856,35 @@ function Dashboard() {
                                   <Button
                                     variant="contained"
                                     size="small"
-                                    onClick={() =>
-                                      alert(`Timeout user ${user.username}`)
-                                    }
+                                    onClick={() => {
+                                      timeoutUser(user.username)
+                                        .then((result) => {
+                                          if (result) {
+                                            if (
+                                              isSearching &&
+                                              searchQuery.trim()
+                                            ) {
+                                              return searchUsers(searchQuery);
+                                            } else if (
+                                              selectedSection === "usuarios"
+                                            ) {
+                                              return getUsers("USER");
+                                            } else if (
+                                              selectedSection === "moderadores"
+                                            ) {
+                                              return getUsers("MOD");
+                                            } else if (
+                                              selectedSection ===
+                                              "administradores"
+                                            ) {
+                                              return getUsers("ADMIN");
+                                            }
+                                          }
+                                        })
+                                        .then((data) => {
+                                          if (data) setUsers(data);
+                                        });
+                                    }}
                                   >
                                     Timeout
                                   </Button>
@@ -930,9 +1116,186 @@ function Dashboard() {
         );
       case "timeouts":
         return (
-          <Typography variant="h5" sx={{ color: "white" }}>
-            Lista de Timeouts
-          </Typography>
+          <Box sx={{}}>
+            {/* Search Input */}
+            <Box sx={{ mb: 3 }}>
+              <TextField
+                fullWidth
+                placeholder={`Buscar usuários com timeout por nome de usuário ou email...`}
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  if (e.target.value.trim()) {
+                    setIsSearching(true);
+                    setPage(1);
+                  } else {
+                    setIsSearching(false);
+                    setPage(1);
+                  }
+                }}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon sx={{ color: "rgba(255, 255, 255, 0.7)" }} />
+                    </InputAdornment>
+                  ),
+                  endAdornment: searchQuery && (
+                    <InputAdornment position="end">
+                      <Button
+                        onClick={handleClearSearch}
+                        sx={{ minWidth: "auto", p: 1 }}
+                      >
+                        <ClearIcon sx={{ color: "rgba(255, 255, 255, 0.7)" }} />
+                      </Button>
+                    </InputAdornment>
+                  ),
+                  sx: {
+                    color: "white",
+                    "& .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "rgba(255, 255, 255, 0.3)",
+                    },
+                    "&:hover .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "rgba(255, 255, 255, 0.5)",
+                    },
+                    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "primary.main",
+                    },
+                  },
+                }}
+                sx={{
+                  "& .MuiInputBase-input::placeholder": {
+                    color: "rgba(255, 255, 255, 0.5)",
+                    opacity: 1,
+                  },
+                }}
+              />
+            </Box>
+
+            {Array.isArray(timeouts.content) && timeouts.content.length > 0 ? (
+              <>
+                <TableContainer
+                  component={Paper}
+                  sx={{ bgcolor: "#1e1e2e", mb: 3 }}
+                >
+                  <Table>
+                    <TableHead>
+                      <TableRow sx={{ bgcolor: "primary.secondary" }}>
+                        <TableCell sx={{ color: "white", fontWeight: "bold" }}>
+                          Username
+                        </TableCell>
+                        <TableCell sx={{ color: "white", fontWeight: "bold" }}>
+                          Email
+                        </TableCell>
+                        <TableCell sx={{ color: "white", fontWeight: "bold" }}>
+                          Reason
+                        </TableCell>
+                        <TableCell sx={{ color: "white", fontWeight: "bold" }}>
+                          Admin
+                        </TableCell>
+                        <TableCell sx={{ color: "white", fontWeight: "bold" }}>
+                          Duration (min)
+                        </TableCell>
+                        <TableCell sx={{ color: "white", fontWeight: "bold" }}>
+                          Start Date
+                        </TableCell>
+                        <TableCell sx={{ color: "white", fontWeight: "bold" }}>
+                          End Date
+                        </TableCell>
+                        <TableCell sx={{ color: "white", fontWeight: "bold" }}>
+                          Actions
+                        </TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {timeouts.content.map((timeout) => (
+                        <TableRow
+                          key={timeout.id}
+                          sx={{
+                            "&:hover": { bgcolor: "#2a2a3e" },
+                            bgcolor: "card.primary",
+                          }}
+                        >
+                          <TableCell sx={{ color: "white" }}>
+                            {timeout.timedOutUsername}
+                          </TableCell>
+                          <TableCell sx={{ color: "white" }}>
+                            {timeout.timedOutUserEmail}
+                          </TableCell>
+                          <TableCell sx={{ color: "white" }}>
+                            {timeout.reason}
+                          </TableCell>
+                          <TableCell sx={{ color: "white" }}>
+                            {timeout.adminUsername}
+                          </TableCell>
+                          <TableCell sx={{ color: "white" }}>
+                            {timeout.durationMinutes}
+                          </TableCell>
+                          <TableCell sx={{ color: "white" }}>
+                            {new Date(timeout.timeoutDate).toLocaleString()}
+                          </TableCell>
+                          <TableCell sx={{ color: "white" }}>
+                            {timeout.timeoutEndDate
+                              ? new Date(
+                                  timeout.timeoutEndDate
+                                ).toLocaleString()
+                              : "N/A"}
+                          </TableCell>
+                          <TableCell>
+                            <Button
+                              variant="contained"
+                              size="small"
+                              onClick={() => {
+                                untimeoutUser(timeout.timedOutUsername)
+                                  .then(() => getTimeouts())
+                                  .then((data) => {
+                                    if (data) setTimeouts(data);
+                                  });
+                              }}
+                            >
+                              Remover Timeout
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+
+                {/* Pagination Controls */}
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    mt: 4,
+                    gap: 2,
+                  }}
+                >
+                  <Button
+                    variant="contained"
+                    onClick={handlePreviousPage}
+                    disabled={timeouts.first}
+                  >
+                    <ArrowBackIosNewIcon />
+                  </Button>
+                  <Typography sx={{ color: "white" }}>
+                    Página {timeouts.number + 1} de {timeouts.totalPages}
+                  </Typography>
+                  <Button
+                    variant="contained"
+                    onClick={handleNextPage}
+                    disabled={timeouts.last}
+                  >
+                    <ArrowForwardIosIcon />
+                  </Button>
+                </Box>
+              </>
+            ) : (
+              <Typography variant="body2" sx={{ color: "white" }}>
+                Nenhum timeout ativo encontrado.
+              </Typography>
+            )}
+          </Box>
         );
       case "exercicios":
         return (

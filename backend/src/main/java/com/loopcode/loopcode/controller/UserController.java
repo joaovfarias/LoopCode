@@ -155,4 +155,16 @@ public class UserController {
         return ResponseEntity.ok(result);
     }
 
+    @GetMapping("/timeouts/search")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('MOD')")
+    @Operation(summary = "Buscar registros de timeout por nome de usuário ou email", description = "Retorna registros de timeout que correspondem ao termo de busca com suporte a paginação.")
+    public ResponseEntity<Page<TimeoutRecordResponseDto>> searchTimeoutRecords(
+            @RequestParam("q") String query,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size) {
+
+        Page<TimeoutRecordResponseDto> result = userService.searchTimeoutRecords(query, page, size);
+        return ResponseEntity.ok(result);
+    }
+
 }

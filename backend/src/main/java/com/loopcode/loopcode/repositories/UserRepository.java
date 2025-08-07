@@ -26,16 +26,22 @@ public interface UserRepository extends JpaRepository<User, String>, JpaSpecific
     Page<User> findByRole(Role role, Pageable pageable);
     
     @Query("SELECT u FROM User u WHERE u NOT IN " +
-           "(SELECT b.bannedUser FROM BanRecord b WHERE b.active = true)")
-    Page<User> findAllExcludingBanned(Pageable pageable);
+           "(SELECT b.bannedUser FROM BanRecord b WHERE b.active = true) " +
+           "AND u NOT IN " +
+           "(SELECT t.timedOutUser FROM TimeoutRecord t WHERE t.active = true)")
+    Page<User> findAllExcludingBannedAndTimedOut(Pageable pageable);
     
     @Query("SELECT u FROM User u WHERE u.role = :role AND u NOT IN " +
-           "(SELECT b.bannedUser FROM BanRecord b WHERE b.active = true)")
-    Page<User> findByRoleExcludingBanned(@Param("role") Role role, Pageable pageable);
+           "(SELECT b.bannedUser FROM BanRecord b WHERE b.active = true) " +
+           "AND u NOT IN " +
+           "(SELECT t.timedOutUser FROM TimeoutRecord t WHERE t.active = true)")
+    Page<User> findByRoleExcludingBannedAndTimedOut(@Param("role") Role role, Pageable pageable);
     
     @Query("SELECT u FROM User u WHERE u NOT IN " +
            "(SELECT b.bannedUser FROM BanRecord b WHERE b.active = true) " +
+           "AND u NOT IN " +
+           "(SELECT t.timedOutUser FROM TimeoutRecord t WHERE t.active = true) " +
            "AND (LOWER(u.username) LIKE LOWER(CONCAT('%', :query, '%')) " +
            "OR LOWER(u.email) LIKE LOWER(CONCAT('%', :query, '%')))")
-    Page<User> searchUsersExcludingBanned(@Param("query") String query, Pageable pageable);
+    Page<User> searchUsersExcludingBannedAndTimedOut(@Param("query") String query, Pageable pageable);
 }

@@ -227,15 +227,15 @@ public class UserService {
                 PageRequest pr = PageRequest.of(page, size);
                 
                 if (role == null || role.trim().isEmpty()) {
-                        // Return all users if no role filter is specified, excluding banned users
-                        return userRepository.findAllExcludingBanned(pr)
+                        // Return all users if no role filter is specified, excluding banned and timed-out users
+                        return userRepository.findAllExcludingBannedAndTimedOut(pr)
                                         .map(u -> new UserResponseDto(
                                                         u.getUsername(), u.getEmail(), u.getRole().name(), u.getDailyStreak()));
                 }
                 
                 try {
                         Role roleEnum = Role.valueOf(role.toUpperCase());
-                        return userRepository.findByRoleExcludingBanned(roleEnum, pr)
+                        return userRepository.findByRoleExcludingBannedAndTimedOut(roleEnum, pr)
                                         .map(u -> new UserResponseDto(
                                                         u.getUsername(), u.getEmail(), u.getRole().name(), u.getDailyStreak()));
                 } catch (IllegalArgumentException e) {
@@ -254,7 +254,7 @@ public class UserService {
                         String q, int page, int size) {
 
                 PageRequest pr = PageRequest.of(page, size);
-                return userRepository.searchUsersExcludingBanned(q, pr)
+                return userRepository.searchUsersExcludingBannedAndTimedOut(q, pr)
                                 .map(u -> new UserResponseDto(
                                                 u.getUsername(), u.getEmail(), u.getRole().name(), u.getDailyStreak()));
         }
@@ -338,6 +338,32 @@ public class UserService {
                                 ban.getBanDate(),
                                 ban.getUnbanDate(),
                                 ban.isActive()
+                        ));
+        }
+
+        @Transactional(readOnly = true)
+        public Page<TimeoutRecordResponseDto> searchTimeoutRecords(String query, int page, int size) {
+                PageRequest pr = PageRequest.of(page, size);
+                
+                Specification<TimeoutRecord> spec = (root, criteriaQuery, cb) -> {
+                        String like = "%" + query.toLowerCase() + "%";
+                        return cb.or(
+                                cb.like(cb.lower(root.get("timedOutUser").get("username")), like),
+                                cb.like(cb.lower(root.get("timedOutUser").get("email")), like)
+                        );
+                };
+                
+                return timeoutRecordRepository.findAll(spec, pr)
+                        .map(timeout -> new TimeoutRecordResponseDto(
+                                timeout.getId(),
+                                timeout.getTimedOutUser().getUsername(),
+                                timeout.getTimedOutUser().getEmail(),
+                                timeout.getAdminUser().getUsername(),
+                                timeout.getReason(),
+                                timeout.getTimeoutDate(),
+                                timeout.getDurationMinutes(),
+                                timeout.getTimeoutEndDate(),
+                                timeout.isActive()
                         ));
         }
 
