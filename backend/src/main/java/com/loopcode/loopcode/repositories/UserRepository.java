@@ -32,4 +32,10 @@ public interface UserRepository extends JpaRepository<User, String>, JpaSpecific
     @Query("SELECT u FROM User u WHERE u.role = :role AND u NOT IN " +
            "(SELECT b.bannedUser FROM BanRecord b WHERE b.active = true)")
     Page<User> findByRoleExcludingBanned(@Param("role") Role role, Pageable pageable);
+    
+    @Query("SELECT u FROM User u WHERE u NOT IN " +
+           "(SELECT b.bannedUser FROM BanRecord b WHERE b.active = true) " +
+           "AND (LOWER(u.username) LIKE LOWER(CONCAT('%', :query, '%')) " +
+           "OR LOWER(u.email) LIKE LOWER(CONCAT('%', :query, '%')))")
+    Page<User> searchUsersExcludingBanned(@Param("query") String query, Pageable pageable);
 }

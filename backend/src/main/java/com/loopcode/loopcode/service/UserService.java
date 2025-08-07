@@ -253,14 +253,8 @@ public class UserService {
         public Page<UserResponseDto> searchUsers(
                         String q, int page, int size) {
 
-                Specification<User> spec = (root, query, cb) -> {
-                        String like = "%" + q.toLowerCase() + "%";
-                        return cb.or(
-                                        cb.like(cb.lower(root.get("username")), like),
-                                        cb.like(cb.lower(root.get("email")), like));
-                };
                 PageRequest pr = PageRequest.of(page, size);
-                return userRepository.findAll(spec, pr)
+                return userRepository.searchUsersExcludingBanned(q, pr)
                                 .map(u -> new UserResponseDto(
                                                 u.getUsername(), u.getEmail(), u.getRole().name(), u.getDailyStreak()));
         }
