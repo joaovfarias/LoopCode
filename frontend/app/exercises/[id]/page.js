@@ -155,6 +155,11 @@ export default function ExercisePage({ params }) {
         },
       });
 
+      if (dailyChallenge.status === 404) {
+        console.log("Desafio diário não encontrado.");
+        return;
+      }
+
       const dailyChallengeData = await dailyChallenge.json();
 
       if (dailyChallenge.ok && allPassed) {
