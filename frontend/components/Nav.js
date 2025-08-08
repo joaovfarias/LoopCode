@@ -19,6 +19,8 @@ import Link from "next/link";
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../app/auth-guard';
 
+
+
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
   display: 'flex',           // Adicionado
@@ -57,10 +59,23 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 
 
 export default function Nav() {
+  
+
   const [anchorEl, setAnchorEl] = React.useState(null);
   const isMenuOpen = Boolean(anchorEl);
   const router = useRouter();
   const { username } = useAuth();
+
+  const [searchTerm, setSearchTerm] = React.useState('');
+
+  const handleKeyDown = (e) => {
+  if (e.key === 'Enter' && searchTerm.trim() !== '') {
+    router.push(`/?q=${encodeURIComponent(searchTerm.trim())}`, { shallow: true });
+  }
+};
+
+
+  
 
   const handleProfileMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
@@ -138,6 +153,9 @@ export default function Nav() {
               <StyledInputBase
                 placeholder="Buscar…"
                 inputProps={{ 'aria-label': 'search' }}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                onKeyDown={handleKeyDown}
               />
             </Search>
           </Box>
