@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -125,5 +126,13 @@ public class ExerciseController {
         Page<ExerciseResponseDto> result = exerciseService.searchExercises(
             q, language, difficulty, sortBy, order, page, size);
         return ResponseEntity.ok(result);
+    }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Deletar um exercício", description = "Remove um exercício e suas dependências do banco de dados. Apenas administradores podem deletar exercícios.")
+    public ResponseEntity<Void> deleteExercise(@PathVariable UUID id) {
+        exerciseService.deleteExercise(id);
+        return ResponseEntity.noContent().build();
     }
 }

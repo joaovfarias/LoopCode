@@ -301,6 +301,30 @@ function Dashboard() {
     }
   }, [page]);
 
+  const deleteExercise = useCallback(async (id) => {
+    const sure = confirm("Tem certeza que deseja deletar este exercício?");
+    if (!sure) return;
+
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+    try {
+      const response = await fetch(`${baseUrl}/exercises/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      console.log("Exercise deleted successfully");
+      return true;
+    } catch (err) {
+      console.error(err);
+      return false;
+    }
+  }, []);
+
   const getBans = useCallback(async () => {
     const baseUrl = process.env.NEXT_PUBLIC_API_URL;
     try {
@@ -1476,7 +1500,18 @@ function Dashboard() {
                                   variant="contained"
                                   size="small"
                                   onClick={() =>
-                                    alert(`Delete exercise ${exercise.id}`)
+                                    deleteExercise(exercise.id).then(
+                                      (success) => {
+                                        if (success) {
+                                          setExercises((prev) => ({
+                                            ...prev,
+                                            content: prev.content.filter(
+                                              (ex) => ex.id !== exercise.id
+                                            ),
+                                          }));
+                                        }
+                                      }
+                                    )
                                   }
                                 >
                                   <DeleteIcon />

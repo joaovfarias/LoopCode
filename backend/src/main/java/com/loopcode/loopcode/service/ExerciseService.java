@@ -16,7 +16,11 @@ import com.loopcode.loopcode.dtos.TestCaseResultDto;
 import com.loopcode.loopcode.exceptions.ResourceNotFoundException;
 import com.loopcode.loopcode.repositories.ExerciseRepository;
 import com.loopcode.loopcode.repositories.ProgrammingLanguageRepository;
+import com.loopcode.loopcode.repositories.DailyChallengeRepository;
+import com.loopcode.loopcode.repositories.ChallengeResolutionRepository;
+import com.loopcode.loopcode.repositories.UserListRepository;
 import com.loopcode.loopcode.domain.user.User;
+import com.loopcode.loopcode.domain.user.UserList;
 import com.loopcode.loopcode.repositories.UserRepository;
 import com.loopcode.loopcode.repositories.VoteRepository;
 import com.loopcode.loopcode.service.specifications.ExerciseSpecifications;
@@ -49,16 +53,23 @@ public class ExerciseService {
     private final UserRepository userRepository;
     private final CodeExecutionService codeExecutionService;
     private final VoteRepository voteRepository;
+    private final DailyChallengeRepository dailyChallengeRepository;
+    private final ChallengeResolutionRepository challengeResolutionRepository;
+    private final UserListRepository userListRepository;
 
     // Aparentemente certo
     public ExerciseService(ExerciseRepository exerciseRepository, UserRepository userRepository,
             ProgrammingLanguageRepository programmingLanguageRepository, CodeExecutionService codeExecutionService,
-            VoteRepository voteRepository) {
+            VoteRepository voteRepository, DailyChallengeRepository dailyChallengeRepository,
+            ChallengeResolutionRepository challengeResolutionRepository, UserListRepository userListRepository) {
         this.exerciseRepository = exerciseRepository;
         this.userRepository = userRepository;
         this.programmingLanguageRepository = programmingLanguageRepository;
         this.codeExecutionService = codeExecutionService;
         this.voteRepository = voteRepository;
+        this.dailyChallengeRepository = dailyChallengeRepository;
+        this.challengeResolutionRepository = challengeResolutionRepository;
+        this.userListRepository = userListRepository;
     }
 
     @Transactional
@@ -153,7 +164,7 @@ public class ExerciseService {
         return new PageImpl<>(slice, pr, sorted.size());
     }
 
-    private Exercise getExerciseByIdUtil(UUID id) {
+    public Exercise getExerciseByIdUtil(UUID id) {
         Exercise exercise = exerciseRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Exercício não encontrado com o ID: " + id));
 
@@ -293,6 +304,34 @@ public class ExerciseService {
                 .orElseThrow(() -> new ResourceNotFoundException("Exercício não encontrado"));
         ex.setVerified(true);
         exerciseRepository.save(ex);
+    }
+
+    @Transactional
+    public void deleteExercise(UUID id) {
+        Exercise exercise = exerciseRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Exercício não encontrado com o ID: " + id));
+        
+        // First, handle DailyChallenge dependencies (ChallengeResolution references DailyChallenge)
+        dailyChallengeRepository.findByExercise(exercise).ifPresent(dailyChallenge -> {
+            // Delete all challenge resolutions for this daily challenge
+            challengeResolutionRepository.deleteAllByDailyChallenge(dailyChallenge);
+            // Delete the daily challenge
+            dailyChallengeRepository.delete(dailyChallenge);
+        });
+        
+        // Remove exercise from all UserLists that contain it
+        List<UserList> userListsWithExercise = userListRepository.findByExercisesContaining(exercise);
+        userListsWithExercise.forEach(userList -> {
+            userList.getExercises().remove(exercise);
+            userListRepository.save(userList);
+        });
+        
+        // Delete all votes for this exercise
+        voteRepository.deleteAll(voteRepository.findAllByExercise(exercise));
+        
+        // TestCases will be deleted automatically due to CascadeType.ALL
+        
+        exerciseRepository.delete(exercise);
     }
 
     @Transactional(readOnly = true)
