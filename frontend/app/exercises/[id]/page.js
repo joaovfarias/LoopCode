@@ -8,6 +8,7 @@ import CodeIcon from "@mui/icons-material/Code";
 import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
 import ExercicioItem from "@/components/ExercicioItem";
+import CalculateIcon from "@mui/icons-material/Calculate";
 import { VerifiedUserRounded, GppBadRounded } from "@mui/icons-material";
 
 export default function ExercisePage({ params }) {
@@ -218,62 +219,83 @@ export default function ExercisePage({ params }) {
             display: "flex",
             alignItems: "flex-start",
             justifyContent: "space-between",
-            gap: 1,
+            gap: 2,
+            mb: 1,
           }}
         >
-          <Typography variant="h5" fontWeight="bold" sx={{ pb: 1 }}>
-            {exercise ? exercise.title : "Carregando..."}
-          </Typography>
-          <ExercicioItem
-            exercicio={exercise}
-            onUpvote={() => {}}
-            onDownvote={() => {}}
-            onlyVotes={true}
-          />
+          <Box sx={{ flex: 1, minWidth: 0 }}>
+            <Typography
+              variant="h5"
+              fontWeight="bold"
+              sx={{ mb: 1, wordBreak: "break-word" }}
+            >
+              {exercise ? exercise.title : "Carregando..."}
+            </Typography>
+            <Typography variant="body2" color="gray">
+              Criado por{" "}
+              {exercise ? (
+                <a
+                  href={`/users/${exercise.createdBy.username}`}
+                  style={{
+                    color: "#8B5CF6",
+                    textDecoration: "none",
+                    fontWeight: "bold",
+                  }}
+                >
+                  {exercise.createdBy.username}
+                </a>
+              ) : (
+                "Carregando..."
+              )}
+            </Typography>
+          </Box>
+          <Box sx={{ flexShrink: 0 }}>
+            <ExercicioItem
+              exercicio={exercise}
+              onUpvote={() => {}}
+              onDownvote={() => {}}
+              onlyVotes={true}
+            />
+          </Box>
         </Box>
 
-        <Typography variant="body2" color="gray" mb={0.5} sx={{ mt: -0.5 }}>
-          Criado por{" "}
-          {exercise ? (
-            <a
-              href={`/users/${exercise.createdBy.username}`}
-              style={{
-                color: "#8B5CF6",
-                textDecoration: "none",
-                fontWeight: "bold",
-              }}
-            >
-              {exercise.createdBy.username}
-            </a>
-          ) : (
-            "Carregando..."
-          )}
-        </Typography>
-
-        <Box sx={{ display: "flex", gap: 1, mb: 3 }}>
+        <Box sx={{ display: "flex", gap: 1, mb: 2, mt: 1 }}>
           <Chip
-            label={exercise ? exercise.difficulty : "Carregando..."}
+            size="small"
+            icon={<CalculateIcon />}
+            label={
+              exercise
+                ? exercise.difficulty.charAt(0) +
+                  exercise.difficulty.slice(1).toLowerCase()
+                : "Carregando..."
+            }
             sx={{
-              bgcolor: `difficulty.${
-                exercise ? exercise.difficulty?.toLowerCase() : "Carregando..."
-              }`,
+              bgcolor: "primary.main",
               color: "white",
+              fontSize: "0.75rem",
+              paddingLeft: 0.3,
+              paddingRight: 0.3,
             }}
           />
           <Chip
+            size="small"
+            icon={<CodeIcon />}
             label={exercise ? exercise.language.name : "Carregando..."}
-            sx={{ bgcolor: "#8B5CF6", color: "white" }}
+            sx={{
+              bgcolor: "primary.main",
+              color: "white",
+              fontSize: "0.75rem",
+              paddingLeft: 0.3,
+              paddingRight: 0.3,
+            }}
           />
         </Box>
-
         <Typography variant="body2" paragraph>
           {exercise ? exercise.description : "Carregando descrição..."}
         </Typography>
-
         <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
           Exemplos
         </Typography>
-
         <Box
           component="pre"
           sx={{
@@ -325,43 +347,20 @@ export default function ExercisePage({ params }) {
                 Code
               </Typography>
             </Box>
-            <Typography variant="body2" color="gray">
-              {exercise && exercise.verified ? (
-                <span
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 4,
-                    color: "lightgreen",
-                    fontSize: "0.875rem",
-                    fontWeight: 400,
-                  }}
-                >
-                  <VerifiedUserRounded
-                    sx={{ color: "#4caf50", mr: 0.5 }}
-                    titleAccess="Verificado"
-                  />
-                  Verificado
-                </span>
-              ) : (
-                <span
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 4,
-                    color: "lightcoral",
-                    fontSize: "0.875rem",
-                    fontWeight: 400,
-                  }}
-                >
-                  <GppBadRounded
-                    sx={{ color: "#f44336", mr: 0.5, fontSize: 27 }}
-                    titleAccess="Não verificado"
-                  />
-                  Não Verificado
-                </span>
-              )}
-            </Typography>
+            <Chip
+              size="small"
+              icon={
+                exercise?.verified ? <VerifiedUserRounded /> : <GppBadRounded />
+              }
+              label={exercise?.verified ? "Verificado" : "Não verificado"}
+              sx={{
+                bgcolor: exercise?.verified ? "success.main" : "error.main",
+                fontSize: "0.75rem",
+                paddingLeft: 0.3,
+                paddingRight: 0.3,
+                marginRight: 0,
+              }}
+            />
           </Box>
           <Editor
             height="100%"

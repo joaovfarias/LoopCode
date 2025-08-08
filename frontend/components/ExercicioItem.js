@@ -21,7 +21,10 @@ export default function ExercicioItem({
   if (onlyVotes) {
     return (
       <Box
-        className="flex items-center gap-2"
+        sx={{
+          display: "flex",
+          alignItems: "center",
+        }}
         onClick={(e) => e.stopPropagation()}
       >
         <Box
@@ -35,7 +38,7 @@ export default function ExercicioItem({
             px: 0.4,
             py: 0.2,
             gap: 0.5,
-            width: "90px",
+            width: "95px",
             justifyContent: "space-between",
           }}
         >
@@ -43,7 +46,9 @@ export default function ExercicioItem({
             <ArrowDropUpIcon />
           </IconButton>
 
-          <Typography variant="body2">{exercicio?.voteCount}</Typography>
+          <Typography variant="body2" sx={{ fontWeight: "bold" }}>
+            {exercicio?.voteCount}
+          </Typography>
 
           <IconButton size="small" onClick={onDownvote} disabled={true}>
             <ArrowDropDownIcon />
@@ -55,8 +60,15 @@ export default function ExercicioItem({
 
   return (
     <Box
-      className="flex justify-between items-center py-2 border-b-1 border-neutral-700"
-      sx={{ cursor: "pointer" }}
+      sx={{
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        py: 2,
+        borderBottom: "1px solid",
+        borderColor: "grey.700",
+        cursor: "pointer",
+      }}
       onClick={handleBoxClick}
     >
       <Box>
@@ -77,7 +89,11 @@ export default function ExercicioItem({
       </Box>
 
       <Box
-        className="flex items-center gap-2"
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          gap: 2,
+        }}
         onClick={(e) => e.stopPropagation()}
       >
         <Box
