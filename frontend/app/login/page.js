@@ -111,7 +111,7 @@ export default function LoginPage() {
   const handleMouseUpPassword = (event) => event.preventDefault();
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <div className="relative min-h-[calc(100vh-32px)] flex items-center justify-center overflow-hidden">
       <Snackbar
         open={open}
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}

@@ -25,7 +25,6 @@ export default function ExercisePage({ params }) {
   const [exercise, setExercise] = useState(null);
   const [showSuccessSnackbar, setShowSuccessSnackbar] = useState(false);
 
-
   const baseUrl = process.env.NEXT_PUBLIC_API_URL;
   const token = localStorage.getItem("token");
   const handleVote = async (exerciseId, type) => {
@@ -93,9 +92,6 @@ export default function ExercisePage({ params }) {
     });
   };
 
-
-
-
   const getExercise = async (id) => {
     const baseUrl = process.env.NEXT_PUBLIC_API_URL;
     try {
@@ -111,6 +107,17 @@ export default function ExercisePage({ params }) {
       console.error(err);
       return null;
     }
+  };
+
+  const getErrorLine = (errorLog) => {
+    if (!errorLog) return "";
+
+    const lines = errorLog.trim().split("\n");
+
+    if (lines.length === 0) return "";
+    if (lines.length - 1 < 0) return "";
+
+    return lines[lines.length - 1];
   };
 
   useEffect(() => {
@@ -156,7 +163,7 @@ export default function ExercisePage({ params }) {
   const handleTestCaseSelect = (index) => {
     setSelectedCase(index);
     setInput(testCases[index].input);
-    setResultado(caseResults[index]?.output || "");
+    setResultado(getErrorLine(caseResults[index]?.output || ""));
   };
 
   const handleRun = async (e) => {
@@ -206,7 +213,7 @@ export default function ExercisePage({ params }) {
           passed: result.passed,
         }))
       );
-      setResultado(data.output[selectedCase]?.output || "");
+      setResultado(getErrorLine(data.output[selectedCase]?.output || ""));
 
       setCaseStates((prev) => {
         const newStates = Array(data.output.length).fill(null);
@@ -267,7 +274,7 @@ export default function ExercisePage({ params }) {
     <Box
       sx={{
         display: "flex",
-        height: "calc(100vh - 64px)",
+        height: "calc(100vh - 72px)",
         width: "100%",
         overflow: "hidden",
         color: "white",
@@ -339,7 +346,7 @@ export default function ExercisePage({ params }) {
             label={
               exercise
                 ? exercise.difficulty.charAt(0) +
-                exercise.difficulty.slice(1).toLowerCase()
+                  exercise.difficulty.slice(1).toLowerCase()
                 : "Carregando..."
             }
             sx={{

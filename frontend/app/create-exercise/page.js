@@ -268,7 +268,7 @@ export default function CreateExercisePage() {
                 description.trim() === "" ||
                 difficulty.trim() === ""
               }
-              sx={{ bgcolor: "primary", ":hover": { bgcolor: "#5755d9" } }}
+              sx={{ bgcolor: "primary", ":hover": { bgcolor: "primary" } }}
             >
               Próximo
             </Button>
