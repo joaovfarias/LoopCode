@@ -133,8 +133,6 @@ export default function CreateList() {
     }
 
     try {
-      setLoading(true);
-
       const body = {
         name: listaTitulo,
         description: listaDescricao,
@@ -155,8 +153,6 @@ export default function CreateList() {
       }
 
       alert('Lista criada com sucesso!');
-
-      router.push(`/users/${username}`);
 
     } catch (error) {
       console.error('Error creating list:', error);

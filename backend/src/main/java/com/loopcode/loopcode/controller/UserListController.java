@@ -66,9 +66,9 @@ public class UserListController {
     @GetMapping("/lists/search")
     public ResponseEntity<Page<UserListDto>> search(
             @RequestParam String q,
-            @PageableDefault(size = 10) Pageable pageable) {
+            int listPage, int listSize) {
 
-        Page<UserListDto> result = listService.searchLists(q, pageable);
+        Page<UserListDto> result = listService.searchLists(q, listPage, listSize);
         return ResponseEntity.ok(result);
     }
 

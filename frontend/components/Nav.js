@@ -69,7 +69,7 @@ export default function Nav() {
 
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' && searchTerm.trim() !== '') {
-      router.push(`/?q=${encodeURIComponent(searchTerm.trim())}`, { shallow: true });
+      router.push(`/search/?q=${encodeURIComponent(searchTerm.trim())}`, { shallow: true });
     }
   };
 

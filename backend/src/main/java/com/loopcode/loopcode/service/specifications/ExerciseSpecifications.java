@@ -47,7 +47,8 @@ public class ExerciseSpecifications {
             String like = "%" + term.toLowerCase() + "%";
             return cb.or(
                     cb.like(cb.lower(root.get("title")), like),
-                    cb.like(cb.lower(root.get("description")), like));
+                    cb.like(cb.lower(root.get("description")), like),
+                    cb.like(cb.lower(root.get("createdBy")), like));
         };
     }
 

@@ -12,6 +12,7 @@ import com.loopcode.loopcode.repositories.UserListRepository;
 import com.loopcode.loopcode.repositories.UserRepository;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -119,11 +120,18 @@ public class UserListService {
 
         @Transactional(readOnly = true)
         public Page<UserListDto> searchLists(
-                        String q, Pageable pageable) {
+                        String q, 
+                        int listPage, int listSize) {
 
-                Specification<UserList> spec = (root, query, cb) -> cb.like(cb.lower(root.get("name")),
-                                "%" + q.toLowerCase() + "%");
+                Specification<UserList> spec = (root, query, cb) -> {
+                        String like = "%" + q.toLowerCase() + "%";
+                        return cb.or(
+                                cb.like(cb.lower(root.get("name")), like),
+                                cb.like(cb.lower(root.get("owner")), like)
+                        );
+                };
 
+                Pageable pageable = PageRequest.of(listPage, listSize);
                 return userListRepository.findAll(spec, pageable)
                                 .map(this::toDto);
         }

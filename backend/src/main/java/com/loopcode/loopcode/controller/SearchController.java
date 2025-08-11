@@ -40,24 +40,27 @@ public class SearchController {
             @RequestParam("q") String q,
             @RequestParam(value = "exPage", defaultValue = "0") int exPage,
             @RequestParam(value = "exSize", defaultValue = "10") int exSize,
+
+            @RequestParam(value = "listPage", defaultValue = "0") int listPage,
+            @RequestParam(value = "listSize", defaultValue = "10") int listSize,
+
             @RequestParam(value = "userPage", defaultValue = "0") int userPage,
-            @RequestParam(value = "userSize", defaultValue = "5") int userSize,
-            @RequestParam(value = "userRole", required = false) String userRole,
-            Pageable listPageable) {
-        Page<ExerciseResponseDto> exResults = exerciseService.searchExercises(q, null, null, "votes", "desc", exPage,
-                exSize);
+            @RequestParam(value = "userSize", defaultValue = "10") int userSize,
+            @RequestParam(value = "userRole", required = false) String userRole
+                ) {
+        Page<ExerciseResponseDto> exResults = exerciseService.searchExercises(q, null, null, "votes", "desc", exPage, exSize);
         Page<UserResponseDto> userResults = userService.searchUsers(q, userRole, userPage, userSize);
-        Page<UserListDto> listResults = listService.searchLists(q, listPageable);
+        Page<UserListDto> listResults = listService.searchLists(q, listPage, listSize);
 
         SearchResultDto dto = new SearchResultDto(
-                exResults.getContent(),
+                exResults,
                 userResults,
                 listResults);
         return ResponseEntity.ok(dto);
     }
 
     public static record SearchResultDto(
-            List<ExerciseResponseDto> exercises,
+            Page<ExerciseResponseDto> exercises,
             Page<UserResponseDto> users,
             Page<UserListDto> lists) {
     }

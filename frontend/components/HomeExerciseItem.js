@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { Box, Typography, IconButton, Chip, Stack } from "@mui/material";
 import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
@@ -11,15 +11,72 @@ import CodeIcon from "@mui/icons-material/Code";
 import CalculateIcon from "@mui/icons-material/Calculate";
 import { useRouter } from "next/navigation";
 
-export default function HomeExerciseItem({ exercise, voteStatus, onVote }) {
+export default function HomeExerciseItem({ exercise }) {
   const router = useRouter();
 
-  const showFireIcon = exercise.voteCount >= 1;
+  const [voteCount, setVoteCount] = useState(exercise.voteCount);
+  const [userVote, setUserVote] = useState(exercise.userVote);
+
+  const showFireIcon = voteCount >= 1;
 
   const truncateDescription = (desc, limit = 100) => {
     if (!desc) return "";
     return desc.length > limit ? desc.slice(0, limit).trim() + "..." : desc;
   };
+
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+  const token = localStorage.getItem("token");
+  const handleVote = async (type) => {
+    try {
+      const response = await fetch(
+        `${baseUrl}/exercises/${exercise.id}/${type}`,
+        {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      if (!response.ok) {
+        console.error("Erro ao votar");
+        return;
+      }
+      updateVoteLocalmente(type);
+    } catch (error) {
+      console.error("Erro na requisição de voto:", error);
+    }
+  };
+
+  const updateVoteLocalmente = (type) => {
+    let delta = 0;
+    let newStatus = userVote;
+
+    if (type === "upvote") {
+      if (newStatus === 1) {
+        delta = -1;
+        newStatus = null;
+      } else if (newStatus === -1) {
+        delta = 2;
+        newStatus = 1;
+      } else {
+        delta = 1;
+        newStatus = 1;
+      }
+    } else if (type === "downvote") {
+      if (newStatus === -1) {
+        delta = 1;
+        newStatus = null;
+      } else if (newStatus === 1) {
+        delta = -2;
+        newStatus = -1;
+      } else {
+        delta = -1;
+        newStatus = -1;
+      }
+    }
+
+    setUserVote(newStatus);
+    setVoteCount((prev) => prev + delta);
+  };
+
 
   return (
     <Box
@@ -73,7 +130,7 @@ export default function HomeExerciseItem({ exercise, voteStatus, onVote }) {
             label={
               exercise
                 ? exercise.difficulty.charAt(0) +
-                  exercise.difficulty.slice(1).toLowerCase()
+                exercise.difficulty.slice(1).toLowerCase()
                 : "Carregando..."
             }
             sx={{
@@ -170,29 +227,29 @@ export default function HomeExerciseItem({ exercise, voteStatus, onVote }) {
             size="small"
             onClick={(e) => {
               e.stopPropagation();
-              onVote(exercise.id, "upvote");
+              handleVote("upvote");
             }}
           >
             <ArrowDropUpIcon
-              sx={{ color: voteStatus === "up" ? "primary.main" : "gray" }}
+              sx={{ color: userVote === 1 ? "primary.main" : "gray" }}
             />
           </IconButton>
 
           <Typography
             sx={{ color: "white", fontWeight: "bold", fontSize: "0.875rem" }}
           >
-            {exercise.voteCount}
+            {voteCount}
           </Typography>
 
           <IconButton
             size="small"
             onClick={(e) => {
               e.stopPropagation();
-              onVote(exercise.id, "downvote");
+              handleVote("downvote");
             }}
           >
             <ArrowDropDownIcon
-              sx={{ color: voteStatus === "down" ? "primary.main" : "gray" }}
+              sx={{ color: userVote === -1 ? "primary.main" : "gray" }}
             />
           </IconButton>
         </Box>

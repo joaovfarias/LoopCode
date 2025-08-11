@@ -327,12 +327,6 @@ public class ExerciseService {
             String q, String language, String difficulty,
             String sortBy, String order, int page, int size) {
 
-        // Sort.Direction dir = "desc".equalsIgnoreCase(order)
-        // ? Sort.Direction.DESC
-        // : Sort.Direction.ASC;
-        // Sort baseSort = Sort.by(dir, "createdAt");
-        // PageRequest pr = PageRequest.of(page, size, baseSort);
-
         Specification<Exercise> spec = Specification
                 .where(ExerciseSpecifications.containsTerm(q))
                 .and(Optional.ofNullable(language)
@@ -343,9 +337,6 @@ public class ExerciseService {
                         .filter(d -> !d.isBlank())
                         .map(ExerciseSpecifications::hasDifficulty)
                         .orElse(null));
-
-        // Page<Exercise> page0 = exerciseRepository.findAll(spec, pr);
-        // Page<ExerciseResponseDto> dtos0 = page0.map(this::convertToDto);
 
         if (!"votes".equalsIgnoreCase(sortBy)) {
             Sort.Direction dir = "desc".equalsIgnoreCase(order) ? Sort.Direction.DESC : Sort.Direction.ASC;
