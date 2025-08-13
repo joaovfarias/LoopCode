@@ -20,7 +20,8 @@ public record ExerciseResponseDto(
                 int voteCount,
                 int upvotes,
                 int downvotes,
-                int userVote
+                int userVote,
+                boolean solved
 
 ) {
 }

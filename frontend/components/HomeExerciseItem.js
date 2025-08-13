@@ -1,7 +1,14 @@
 "use client";
 
 import React, { useState } from "react";
-import { Box, Typography, IconButton, Chip, Stack } from "@mui/material";
+import {
+  Box,
+  Typography,
+  IconButton,
+  Chip,
+  Stack,
+  Tooltip,
+} from "@mui/material";
 import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import LocalFireDepartmentIcon from "@mui/icons-material/LocalFireDepartment";
@@ -10,6 +17,8 @@ import GppBadRounded from "@mui/icons-material/GppBadRounded";
 import CodeIcon from "@mui/icons-material/Code";
 import CalculateIcon from "@mui/icons-material/Calculate";
 import { useRouter } from "next/navigation";
+import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
+import CancelRoundedIcon from "@mui/icons-material/CancelRounded";
 
 export default function HomeExerciseItem({ exercise }) {
   const router = useRouter();
@@ -77,7 +86,6 @@ export default function HomeExerciseItem({ exercise }) {
     setVoteCount((prev) => prev + delta);
   };
 
-
   return (
     <Box
       onClick={() => router.push(`/exercises/${exercise.id}`)}
@@ -121,6 +129,35 @@ export default function HomeExerciseItem({ exercise }) {
           }}
         >
           {exercise.title}
+
+          <Tooltip
+            title={
+              exercise.verified
+                ? "Exercício verificado"
+                : "Exercício não verificado"
+            }
+            placement="right"
+          >
+            <Chip
+              size="small"
+              icon={
+                exercise.verified ? (
+                  <VerifiedUserRounded />
+                ) : (
+                  <Box
+                    sx={{ fontSize: 28, display: "flex", alignItems: "center" }}
+                  >
+                    <GppBadRounded sx={{ fontSize: 21 }} />
+                  </Box>
+                )
+              }
+              sx={{
+                backgroundColor: "transparent",
+                paddingLeft: 0,
+                paddingRight: 0,
+              }}
+            />
+          </Tooltip>
         </Typography>
 
         <Stack direction="row" spacing={1} sx={{ flexShrink: 0 }}>
@@ -130,7 +167,7 @@ export default function HomeExerciseItem({ exercise }) {
             label={
               exercise
                 ? exercise.difficulty.charAt(0) +
-                exercise.difficulty.slice(1).toLowerCase()
+                  exercise.difficulty.slice(1).toLowerCase()
                 : "Carregando..."
             }
             sx={{
@@ -153,19 +190,22 @@ export default function HomeExerciseItem({ exercise }) {
               paddingRight: 0.3,
             }}
           />
-
           <Chip
             size="small"
             icon={
-              exercise.verified ? <VerifiedUserRounded /> : <GppBadRounded />
+              exercise?.solved ? (
+                <CheckCircleRoundedIcon />
+              ) : (
+                <CancelRoundedIcon />
+              )
             }
-            label={exercise.verified ? "Verificado" : "Não verificado"}
+            label={exercise.solved ? "Resolvido" : "Não resolvido"}
             sx={{
-              bgcolor: exercise.verified ? "success.main" : "error.main",
+              bgcolor: exercise.solved ? "#205737" : "#912C2C",
+              color: "white",
               fontSize: "0.75rem",
               paddingLeft: 0.3,
               paddingRight: 0.3,
-              marginRight: 0,
             }}
           />
         </Stack>

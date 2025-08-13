@@ -23,6 +23,7 @@ import com.loopcode.loopcode.repositories.UserRepository;
 import com.loopcode.loopcode.repositories.UserListRepository;
 import com.loopcode.loopcode.repositories.ExerciseRepository;
 import com.loopcode.loopcode.repositories.VoteRepository;
+import com.loopcode.loopcode.repositories.SolvedExerciseRepository;
 import com.loopcode.loopcode.security.Role;
 
 import java.time.LocalDateTime;
@@ -62,15 +63,20 @@ public class UserService {
         @Autowired
         private VoteRepository voteRepository;
 
+        @Autowired
+        private SolvedExerciseRepository solvedExerciseRepository;
+
         public UserService(UserRepository userRepository,
                         UserListRepository userListRepository,
                         BanRecordRepository banRecordRepository, TimeoutRecordRepository timeoutRecordRepository,
-                        ExerciseRepository exerciseRepository, VoteRepository voteRepository) {
+                        ExerciseRepository exerciseRepository, VoteRepository voteRepository,
+                        SolvedExerciseRepository solvedExerciseRepository) {
                 this.userRepository = userRepository;
                 this.userListRepository = userListRepository;
                 this.banRecordRepository = banRecordRepository;
                 this.timeoutRecordRepository = timeoutRecordRepository;
                 this.voteRepository = voteRepository;
+                this.solvedExerciseRepository = solvedExerciseRepository;
 
         }
 
@@ -195,6 +201,13 @@ public class UserService {
                                         .map(Vote::getValue)
                                         .orElse(0);
 
+                        // Check if the current authenticated user has solved this exercise
+                        boolean solved = false;
+                        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+                        if (auth != null && auth.getName() != null) {
+                                solved = solvedExerciseRepository.existsByUserUsernameAndExerciseId(auth.getName(), exercise.getId());
+                        }
+
                         return new ExerciseResponseDto(
                                         exercise.getId(),
                                         exercise.getTitle(),
@@ -211,7 +224,8 @@ public class UserService {
                                         voteCount,
                                         ups,
                                         downs,
-                                        userVote);
+                                        userVote,
+                                        solved);
                 });
         }
 

@@ -11,6 +11,7 @@ import com.loopcode.loopcode.domain.exercise.Exercise;
 import com.loopcode.loopcode.domain.user.User;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -18,4 +19,6 @@ public interface ExerciseRepository extends JpaRepository<Exercise, UUID>, JpaSp
     List<Exercise> findByVerifiedTrue();
 
     Page<Exercise> findByCreatedBy(User user, Pageable pageable);
+
+    Optional<Exercise> findById(UUID id);
 }

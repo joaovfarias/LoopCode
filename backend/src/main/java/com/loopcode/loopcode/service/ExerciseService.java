@@ -19,6 +19,7 @@ import com.loopcode.loopcode.repositories.ProgrammingLanguageRepository;
 import com.loopcode.loopcode.repositories.DailyChallengeRepository;
 import com.loopcode.loopcode.repositories.ChallengeResolutionRepository;
 import com.loopcode.loopcode.repositories.UserListRepository;
+import com.loopcode.loopcode.repositories.SolvedExerciseRepository;
 import com.loopcode.loopcode.domain.user.User;
 import com.loopcode.loopcode.domain.user.UserList;
 import com.loopcode.loopcode.repositories.UserRepository;
@@ -56,12 +57,14 @@ public class ExerciseService {
     private final DailyChallengeRepository dailyChallengeRepository;
     private final ChallengeResolutionRepository challengeResolutionRepository;
     private final UserListRepository userListRepository;
+    private final SolvedExerciseRepository solvedExerciseRepository;
 
     // Aparentemente certo
     public ExerciseService(ExerciseRepository exerciseRepository, UserRepository userRepository,
             ProgrammingLanguageRepository programmingLanguageRepository, CodeExecutionService codeExecutionService,
             VoteRepository voteRepository, DailyChallengeRepository dailyChallengeRepository,
-            ChallengeResolutionRepository challengeResolutionRepository, UserListRepository userListRepository) {
+            ChallengeResolutionRepository challengeResolutionRepository, UserListRepository userListRepository,
+            SolvedExerciseRepository solvedExerciseRepository) {
         this.exerciseRepository = exerciseRepository;
         this.userRepository = userRepository;
         this.programmingLanguageRepository = programmingLanguageRepository;
@@ -70,6 +73,7 @@ public class ExerciseService {
         this.dailyChallengeRepository = dailyChallengeRepository;
         this.challengeResolutionRepository = challengeResolutionRepository;
         this.userListRepository = userListRepository;
+        this.solvedExerciseRepository = solvedExerciseRepository;
     }
 
     @Transactional
@@ -108,6 +112,7 @@ public class ExerciseService {
     public Page<ExerciseResponseDto> getExercises(
             String language,
             String difficulty,
+            String onlySolved, // 'true' ou 'false'
             String sortBy, // 'createdAt', 'votescount', etc.
             String order, // 'asc' ou 'desc'
             int page,
@@ -119,6 +124,18 @@ public class ExerciseService {
         }
         if (difficulty != null && !difficulty.isBlank()) {
             spec = spec.and(ExerciseSpecifications.hasDifficulty(difficulty));
+        }
+        
+        // Handle onlySolved filter
+        if ("true".equalsIgnoreCase(onlySolved)) {
+            var auth = SecurityContextHolder.getContext().getAuthentication();
+            if (auth != null && auth instanceof UsernamePasswordAuthenticationToken) {
+                String username = auth.getName();
+                spec = spec.and(ExerciseSpecifications.solvedByUser(username));
+            } else {
+                // If no authenticated user, return empty results for solved filter
+                return Page.empty();
+            }
         }
         
         if (!"votes".equalsIgnoreCase(sortBy)) {
@@ -233,12 +250,17 @@ public class ExerciseService {
         int voteCount = ups - downs;
         var auth = SecurityContextHolder.getContext().getAuthentication();
         int userVote = 0;
+        boolean solved = false;
+        
         if (auth != null && auth instanceof UsernamePasswordAuthenticationToken) {
-            User u = userRepository.findByUsername(auth.getName())
+            String username = auth.getName();
+            User u = userRepository.findByUsername(username)
                     .orElseThrow(() -> new ResourceNotFoundException("User not found"));
             userVote = voteRepository.findByExerciseAndUser(exercise, u)
                     .map(Vote::getValue).orElse(0);
+            solved = solvedExerciseRepository.existsByUserUsernameAndExerciseId(username, exercise.getId());
         }
+        
         return new ExerciseResponseDto(
                 exercise.getId(),
                 exercise.getTitle(),
@@ -253,7 +275,8 @@ public class ExerciseService {
                 voteCount,
                 ups,
                 downs,
-                userVote);
+                userVote,
+                solved);
 
     }
 

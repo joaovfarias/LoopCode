@@ -10,6 +10,8 @@ import CloseIcon from "@mui/icons-material/Close";
 import ExercicioItem from "@/components/ExercicioItem";
 import CalculateIcon from "@mui/icons-material/Calculate";
 import { VerifiedUserRounded, GppBadRounded } from "@mui/icons-material";
+import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
+import CancelRoundedIcon from "@mui/icons-material/CancelRounded";
 
 export default function ExercisePage({ params }) {
   const actualParams = React.use(params);
@@ -121,38 +123,34 @@ export default function ExercisePage({ params }) {
   };
 
   useEffect(() => {
-    const fetchData = async () => {
-      const data = await getExercise(id);
-      if (data) {
-        setExercise(data);
-        console.log(data);
-      } else {
-        setExercise(null);
-      }
-    };
     fetchData();
   }, [id]);
 
-  useEffect(() => {
-    if (exercise?.mainCode) {
+  const fetchData = async () => {
+    const data = await getExercise(id);
+    if (data) {
+      setExercise(data);
+      console.log(data);
+    } else {
+      setExercise(null);
+    }
+    if (data?.mainCode) {
       const pattern = /def\s+[a-zA-Z_]\w*\s*\(.*?\):\n\t/;
-      const match = exercise.mainCode.match(pattern);
+      const match = data.mainCode.match(pattern);
       if (match) {
         setCode(match[0]);
       } else {
         console.warn("No match found in mainCode");
       }
     }
-    if (exercise?.testCode?.length > 0) {
-      setCaseStates(Array(exercise.testCode.length).fill(null));
+    if (data?.testCode?.length > 0) {
+      setCaseStates(Array(data.testCode.length).fill(null));
     }
-  }, [exercise]);
 
-  useEffect(() => {
-    if (exercise?.testCode?.length > 0) {
-      setInput(exercise.testCode[0].input);
+    if (data?.testCode?.length > 0) {
+      setInput(data.testCode[0].input);
     }
-  }, [exercise]);
+  };
 
   const testCases =
     exercise?.testCode?.map((test) => ({
@@ -227,6 +225,10 @@ export default function ExercisePage({ params }) {
 
       if (allPassed) {
         setShowSuccessSnackbar(true);
+        setExercise((prev) => ({
+          ...prev,
+          solved: true,
+        }));
       }
 
       const dailyChallenge = await fetch(`${baseUrl}/daily-challenge`, {
@@ -363,6 +365,24 @@ export default function ExercisePage({ params }) {
             label={exercise ? exercise.language.name : "Carregando..."}
             sx={{
               bgcolor: "primary.main",
+              color: "white",
+              fontSize: "0.75rem",
+              paddingLeft: 0.3,
+              paddingRight: 0.3,
+            }}
+          />
+          <Chip
+            size="small"
+            icon={
+              exercise?.solved ? (
+                <CheckCircleRoundedIcon />
+              ) : (
+                <CancelRoundedIcon />
+              )
+            }
+            label={exercise?.solved ? "Resolvido" : "Não resolvido"}
+            sx={{
+              bgcolor: exercise?.solved ? "#205737" : "#912C2C",
               color: "white",
               fontSize: "0.75rem",
               paddingLeft: 0.3,

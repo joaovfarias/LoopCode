@@ -1,11 +1,13 @@
 package com.loopcode.loopcode.controller;
 
 import com.loopcode.loopcode.domain.exercise.Exercise;
+import com.loopcode.loopcode.domain.solved_exercise.SolvedExercise;
 import com.loopcode.loopcode.dtos.ExerciseRequestDto;
 import com.loopcode.loopcode.dtos.ExerciseResponseDto;
 import com.loopcode.loopcode.dtos.SolveRequestDto;
 import com.loopcode.loopcode.dtos.SolveResponseDto;
 import com.loopcode.loopcode.service.ExerciseService;
+import com.loopcode.loopcode.service.SolvedExerciseService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -35,9 +37,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class ExerciseController {
 
     private final ExerciseService exerciseService;
+    private final SolvedExerciseService solvedExerciseService;
 
-    public ExerciseController(ExerciseService exerciseService) {
+    public ExerciseController(ExerciseService exerciseService, SolvedExerciseService solvedExerciseService) {
         this.exerciseService = exerciseService;
+        this.solvedExerciseService = solvedExerciseService;
     }
 
     @PostMapping
@@ -56,13 +60,14 @@ public class ExerciseController {
     public ResponseEntity<Page<ExerciseResponseDto>> getExercises(
             @RequestParam(required = false) String language,
             @RequestParam(required = false) String difficulty,
+            @RequestParam(required = false, defaultValue = "false") String onlySolved,
             @RequestParam(required = false, defaultValue = "createdAt") String sortBy,
             @RequestParam(required = false, defaultValue = "desc") String order,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 
         Page<ExerciseResponseDto> exercisesDtoPage = exerciseService.getExercises(
-                language, difficulty, sortBy, order, page, size);
+                language, difficulty, onlySolved, sortBy, order, page, size);
         return ResponseEntity.ok(exercisesDtoPage);
     }
 
@@ -74,7 +79,7 @@ public class ExerciseController {
     }
 
     @PostMapping("/{id}/solve")
-    @Operation(summary = "Submete uma solução para um exercício", description = "Executa o código do usuário contra os casos de teste e retorna o resultado.")
+    @Operation(summary = "Submete uma solução para um exercício e marca como resolvido.", description = "Executa o código do usuário contra os casos de teste e retorna o resultado.")
     public ResponseEntity<SolveResponseDto> solveExercise(
             @PathVariable UUID id,
             @RequestBody @Valid SolveRequestDto solveDto,
@@ -83,6 +88,9 @@ public class ExerciseController {
 
         SolveResponseDto response = exerciseService.solveExercise(id, solveDto, username);
 
+        if (response.passed()) {
+            solvedExerciseService.markAsSolved(username, id);
+        }
         return ResponseEntity.ok(response);
     }
 

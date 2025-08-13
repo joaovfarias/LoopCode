@@ -2,7 +2,10 @@ package com.loopcode.loopcode.service.specifications;
 
 import com.loopcode.loopcode.domain.exercise.Difficulty;
 import com.loopcode.loopcode.domain.exercise.Exercise;
+import com.loopcode.loopcode.domain.solved_exercise.SolvedExercise;
 import org.springframework.data.jpa.domain.Specification;
+
+import jakarta.persistence.criteria.Subquery;
 
 /**
  * Classe utilitária (helper) que contém os métodos para criar
@@ -49,6 +52,30 @@ public class ExerciseSpecifications {
                     cb.like(cb.lower(root.get("title")), like),
                     cb.like(cb.lower(root.get("description")), like),
                     cb.like(cb.lower(root.get("createdBy")), like));
+        };
+    }
+
+    /**
+     * Retorna uma Specification que filtra exercícios que foram resolvidos por um usuário específico.
+     *
+     * @param username O nome do usuário para filtrar exercícios resolvidos.
+     * @return um objeto Specification para o filtro.
+     */
+    public static Specification<Exercise> solvedByUser(String username) {
+        return (root, query, criteriaBuilder) -> {
+            // Criar uma subquery para verificar se existe um SolvedExercise
+            Subquery<Long> subquery = query.subquery(Long.class);
+            var solvedExerciseRoot = subquery.from(SolvedExercise.class);
+            
+            subquery.select(criteriaBuilder.literal(1L))
+                   .where(
+                       criteriaBuilder.and(
+                           criteriaBuilder.equal(solvedExerciseRoot.get("exercise").get("id"), root.get("id")),
+                           criteriaBuilder.equal(solvedExerciseRoot.get("user").get("username"), username)
+                       )
+                   );
+            
+            return criteriaBuilder.exists(subquery);
         };
     }
 

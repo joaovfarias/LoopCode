@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
@@ -20,6 +20,7 @@ const filtros = ["Exercícios", "Listas"];
 export default function HomePage() {
   const [filtro, setFiltro] = useState("Exercícios");
   const [difficulty, setDifficulty] = useState(null);
+  const [onlySolved, setOnlySolved] = useState(false);
   const [orderBy, setOrderBy] = useState("votes");
 
   const [exercises, setExercises] = useState([]);
@@ -36,7 +37,8 @@ export default function HomePage() {
   const sentinelRefLists = useRef(null);
 
   const baseUrl = process.env.NEXT_PUBLIC_API_URL;
-  const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+  const token =
+    typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
   const getExercises = async (page = 0) => {
     try {
@@ -46,6 +48,9 @@ export default function HomePage() {
       url.searchParams.append("order", "desc");
       if (difficulty) {
         url.searchParams.append("difficulty", difficulty.toUpperCase());
+      }
+      if (onlySolved) {
+        url.searchParams.append("onlySolved", "true");
       }
 
       const response = await fetch(url.toString(), {
@@ -101,7 +106,8 @@ export default function HomePage() {
 
   // Scroll infinito
   useEffect(() => {
-    const sentinel = filtro === "Exercícios" ? sentinelRef.current : sentinelRefLists.current;
+    const sentinel =
+      filtro === "Exercícios" ? sentinelRef.current : sentinelRefLists.current;
     if (!sentinel) return;
 
     const observer = new IntersectionObserver(
@@ -113,7 +119,11 @@ export default function HomePage() {
           loadMoreExercises();
         }
 
-        if (filtro === "Listas" && !loadingLists && currentListPage < totalListPages) {
+        if (
+          filtro === "Listas" &&
+          !loadingLists &&
+          currentListPage < totalListPages
+        ) {
           loadMoreLists();
         }
       },
@@ -124,7 +134,17 @@ export default function HomePage() {
     return () => {
       if (sentinel) observer.unobserve(sentinel);
     };
-  }, [filtro, loading, loadingLists, currentPage, totalPages, currentListPage, totalListPages, loadMoreExercises, loadMoreLists]);
+  }, [
+    filtro,
+    loading,
+    loadingLists,
+    currentPage,
+    totalPages,
+    currentListPage,
+    totalListPages,
+    loadMoreExercises,
+    loadMoreLists,
+  ]);
 
   // Resetar paginação ao mudar filtros
   useEffect(() => {
@@ -169,49 +189,72 @@ export default function HomePage() {
 
       {filtro === "Exercícios" && (
         <>
-          <Stack
-            direction="row"
-            justifyContent="space-between"
-            alignItems="center"
-            mb={2}
-          >
-            <Stack direction="row" spacing={1}>
+          <Stack direction="row" spacing={1}>
+            <Chip
+              label="Todos"
+              clickable
+              color={difficulty === null ? "primary" : "default"}
+              onClick={() => {
+                setDifficulty(null);
+                setExercises([]);
+                setCurrentPage(0);
+                setTotalPages(1);
+              }}
+              sx={{
+                bgcolor: difficulty === null ? "primary.main" : "card.primary",
+                color: "white",
+              }}
+            />
+            {["Easy", "Medium", "Hard"].map((level) => (
               <Chip
-                label="Todos"
+                key={level}
+                label={level}
                 clickable
-                color={difficulty === null ? "primary" : "default"}
+                color={difficulty === level ? "primary" : "default"}
                 onClick={() => {
-                  setDifficulty(null);
+                  setDifficulty(level);
                   setExercises([]);
                   setCurrentPage(0);
                   setTotalPages(1);
                 }}
                 sx={{
-                  bgcolor: difficulty === null ? "primary.main" : "card.primary",
+                  bgcolor:
+                    difficulty === level ? "primary.main" : "card.primary",
                   color: "white",
                 }}
               />
-              {["Easy", "Medium", "Hard"].map((level) => (
-                <Chip
-                  key={level}
-                  label={level}
-                  clickable
-                  color={difficulty === level ? "primary" : "default"}
-                  onClick={() => {
-                    setDifficulty(level);
-                    setExercises([]);
-                    setCurrentPage(0);
-                    setTotalPages(1);
-                  }}
-                  sx={{
-                    bgcolor: difficulty === level ? "primary.main" : "card.primary",
-                    color: "white",
-                  }}
-                />
-              ))}
-            </Stack>
+            ))}
+          </Stack>
 
-            <FormControl variant="standard" size="small" sx={{ minWidth: 160 }}>
+          <Stack
+            direction="row"
+            justifyContent="space-between"
+            alignItems="center"
+            mb={1}
+            mt={1}
+          >
+            <Chip
+              label="Resolvidos"
+              clickable
+              color={onlySolved ? "primary" : "default"}
+              onClick={() => {
+                setOnlySolved((prev) => !prev);
+                setExercises([]);
+                setCurrentPage(0);
+                setTotalPages(1);
+              }}
+              sx={{
+                bgcolor: onlySolved ? "primary.main" : "card.primary",
+                color: "white",
+                mb: 2,
+              }}
+            />
+
+            <FormControl
+              variant="standard"
+              size="small"
+              sx={{ minWidth: 180, marginTop: -4 }}
+            >
               <InputLabel id="orderBy-label" sx={{ color: "gray" }}>
                 Ordenar por
               </InputLabel>
@@ -242,6 +285,7 @@ export default function HomePage() {
               </Select>
             </FormControl>
           </Stack>
+
           <Stack spacing={1}>
             {exercises.length === 0 && !loading && (
               <Typography color="gray">Nenhum exercício encontrado.</Typography>
