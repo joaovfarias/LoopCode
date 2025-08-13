@@ -12,6 +12,7 @@ import {
   FormControlLabel,
   Alert,
   Divider,
+  Snackbar,
 } from "@mui/material";
 
 export default function CreateExercisePage() {
@@ -28,6 +29,7 @@ export default function CreateExercisePage() {
     { name: "", type: "Int" },
   ]);
   const [errorMessage, setErrorMessage] = useState("");
+  const [openSnackbar, setOpenSnackbar] = useState(false);
 
   function ModifyMainCode(code) {
     console.log("Modifying main code:", code);
@@ -109,10 +111,12 @@ export default function CreateExercisePage() {
 
     if (args.length === 0 || !regex.test(funHeader)) {
       setErrorMessage("Função inválida ou não definida.");
+      setOpenSnackbar(true);
       return;
     }
 
     setErrorMessage("");
+    setOpenSnackbar(false);
     setArgNames(args);
 
     const updatedCases = testCases.map((test) => {
@@ -197,6 +201,7 @@ export default function CreateExercisePage() {
               placeholder="Digite o título do exercício"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
+              inputProps={{ maxLength: 50 }}
               sx={{
                 mb: 3,
                 input: { color: "white" },
@@ -251,6 +256,7 @@ export default function CreateExercisePage() {
               fullWidth
               placeholder="Digite a descrição do exercício"
               value={description}
+              inputProps={{ maxLength: 500 }}
               onChange={(e) => setDescription(e.target.value)}
               sx={{
                 mb: 4,
@@ -299,6 +305,14 @@ export default function CreateExercisePage() {
               <TextField
                 label="Nome"
                 value={functionName}
+                inputProps={{
+                  maxLength: 20,
+                  onInput: (e) => {
+                    e.target.value = e.target.value
+                      .replace(/[^a-zA-Z0-9_]/g, "")
+                      .replace(/^\d/, "");
+                  },
+                }}
                 onChange={(e) => setFunctionName(e.target.value)}
                 sx={{ mb: 2 }}
               />
@@ -308,6 +322,14 @@ export default function CreateExercisePage() {
                   <TextField
                     label={`Parâmetro`}
                     value={arg.name}
+                    inputProps={{
+                      maxLength: 20,
+                      onInput: (e) => {
+                        e.target.value = e.target.value
+                          .replace(/[^a-zA-Z0-9_]/g, "")
+                          .replace(/^\d/, "");
+                      },
+                    }}
                     onChange={(e) => updateArgumentName(index, e.target.value)}
                   />
                   <TextField
@@ -347,11 +369,21 @@ export default function CreateExercisePage() {
                 + Adicionar Caso de Teste
               </Button>
             </Box>
-            {errorMessage && (
-              <Alert severity="error" sx={{ mt: 1, mb: 3, width: "100%" }}>
+
+            <Snackbar
+              open={openSnackbar}
+              autoHideDuration={4000}
+              onClose={() => setOpenSnackbar(false)}
+              anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+            >
+              <Alert
+                onClose={() => setOpenSnackbar(false)}
+                severity="error"
+                sx={{ width: "100%" }}
+              >
                 {errorMessage}
               </Alert>
-            )}
+            </Snackbar>
 
             {testCases.map((test, index) => (
               <Box

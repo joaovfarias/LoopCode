@@ -465,7 +465,7 @@ export default function ExercisePage({ params }) {
                   backgroundColor: "transparent",
                   paddingLeft: 0,
                   paddingRight: 0,
-                  mt: -1,
+                  mt: 0,
                   mr: -3,
                   ".MuiChip-icon": { fontSize: 22 },
                   minHeight: 0,
