@@ -18,6 +18,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../app/auth-guard';
+import PersonRoundedIcon from '@mui/icons-material/PersonRounded';
+import DashboardRoundedIcon from '@mui/icons-material/DashboardRounded';
+import LogoutRoundedIcon from '@mui/icons-material/LogoutRounded';
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -94,29 +97,38 @@ export default function Nav() {
       keepMounted
       open={isMenuOpen}
       onClose={handleMenuClose}
+      transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
     >
       <MenuItem
+         sx={{ fontSize: 15 }}
         onClick={() => {
           handleMenuClose();
           router.push(`/users/${username}`);
         }}
       >
+        <PersonRoundedIcon sx={{ marginRight: 2 }} />
         Meu Perfil
       </MenuItem>
 
 
         { (isPrivileged && (
-          <MenuItem
+          <MenuItem  sx={{ fontSize: 15 }}
             onClick={() => {
               handleMenuClose();
               router.push(`/dashboard`);
             }}
           >
-            Painel de Administração
+            <DashboardRoundedIcon sx={{ marginRight: 2 }} />
+            Dashboard
           </MenuItem>
         ))}
 
-      <MenuItem onClick={handleLogout}>Sair</MenuItem>
+      <MenuItem 
+      onClick={handleLogout} sx={{ fontSize: 15 }}>
+        
+        <LogoutRoundedIcon sx={{ marginRight: 2 }} /> 
+        Sair</MenuItem>
     </Menu>
   );
 
