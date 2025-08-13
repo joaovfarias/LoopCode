@@ -20,7 +20,7 @@ const filtros = ["Exercícios", "Listas"];
 export default function HomePage() {
   const [filtro, setFiltro] = useState("Exercícios");
   const [difficulty, setDifficulty] = useState(null);
-  const [onlySolved, setOnlySolved] = useState(false);
+  const [solved, setSolved] = useState(null); // null = todos, true = resolvidos, false = não resolvidos
   const [orderBy, setOrderBy] = useState("votes");
 
   const [exercises, setExercises] = useState([]);
@@ -49,8 +49,8 @@ export default function HomePage() {
       if (difficulty) {
         url.searchParams.append("difficulty", difficulty.toUpperCase());
       }
-      if (onlySolved) {
-        url.searchParams.append("onlySolved", "true");
+      if (solved !== null) {
+        url.searchParams.append("solved", solved);
       }
 
       const response = await fetch(url.toString(), {
@@ -226,34 +226,69 @@ export default function HomePage() {
             ))}
           </Stack>
 
-          <Stack
+            <Stack 
             direction="row"
             justifyContent="space-between"
             alignItems="center"
+            >
+          <Stack
+            direction="row"
             mb={1}
             mt={1}
+            spacing={1}
           >
             <Chip
-              label="Resolvidos"
+              label="Todos"
               clickable
-              color={onlySolved ? "primary" : "default"}
+              color={solved === null ? "primary" : "default"}
               onClick={() => {
-                setOnlySolved((prev) => !prev);
+                setSolved(null);
                 setExercises([]);
                 setCurrentPage(0);
                 setTotalPages(1);
               }}
               sx={{
-                bgcolor: onlySolved ? "primary.main" : "card.primary",
+                bgcolor: solved === null ? "primary.main" : "card.primary",
+                color: "white",
+              }}
+            />
+            <Chip
+              label="Resolvidos"
+              clickable
+              color={solved === true ? "primary" : "default"}
+              onClick={() => {
+                setSolved(true);
+                setExercises([]);
+                setCurrentPage(0);
+                setTotalPages(1);
+              }}
+              sx={{
+                bgcolor: solved === true ? "primary.main" : "card.primary",
                 color: "white",
                 mb: 2,
               }}
             />
+            <Chip
+              label="Não resolvidos"
+              clickable
+              color={solved === false ? "primary" : "default"}
+              onClick={() => {
+                setSolved(false);
+                setExercises([]);
+                setCurrentPage(0);
+                setTotalPages(1);
+              }}
+              sx={{
+                bgcolor: solved === false ? "primary.main" : "card.primary",
+                color: "white",
+              }}
+            />
+          </Stack>
 
             <FormControl
               variant="standard"
               size="small"
-              sx={{ minWidth: 180, marginTop: -4 }}
+              sx={{ minWidth: 180, marginTop: -1 }}
             >
               <InputLabel id="orderBy-label" sx={{ color: "gray" }}>
                 Ordenar por
@@ -284,9 +319,10 @@ export default function HomePage() {
                 <MenuItem value="createdAt">Mais recentes</MenuItem>
               </Select>
             </FormControl>
-          </Stack>
+            </Stack>
+      
 
-          <Stack spacing={1}>
+          <Stack spacing={1} mt={2}>
             {exercises.length === 0 && !loading && (
               <Typography color="gray">Nenhum exercício encontrado.</Typography>
             )}

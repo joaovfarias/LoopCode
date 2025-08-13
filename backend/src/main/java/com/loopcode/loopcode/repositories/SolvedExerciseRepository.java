@@ -12,4 +12,6 @@ public interface SolvedExerciseRepository extends JpaRepository<SolvedExercise, 
     boolean existsByUserUsernameAndExerciseId(String username, UUID exerciseId);
 
     <Optional>SolvedExercise findByUserUsernameAndExerciseId(String username, UUID exerciseId);
+
+    int countByUserUsername(String username);
 }

@@ -86,11 +86,14 @@ public class UserService {
                                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                                                 "Usuário não encontrado."));
 
+                int completedExercisesCount = solvedExerciseRepository == null ? 0 : solvedExerciseRepository.countByUserUsername(username);
+
                 return new UserResponseDto(
                                 user.getUsername(),
                                 user.getEmail(),
                                 user.getRole().name(),
-                                user.getDailyStreak());
+                                user.getDailyStreak(),
+                                completedExercisesCount);
         }
 
         @Transactional
@@ -245,14 +248,14 @@ public class UserService {
                         // Return all users if no role filter is specified, excluding banned and timed-out users
                         return userRepository.findAllExcludingBannedAndTimedOut(pr)
                                         .map(u -> new UserResponseDto(
-                                                        u.getUsername(), u.getEmail(), u.getRole().name(), u.getDailyStreak()));
+                                                        u.getUsername(), u.getEmail(), u.getRole().name(), u.getDailyStreak(), 0));
                 }
                 
                 try {
                         Role roleEnum = Role.valueOf(role.toUpperCase());
                         return userRepository.findByRoleExcludingBannedAndTimedOut(roleEnum, pr)
                                         .map(u -> new UserResponseDto(
-                                                        u.getUsername(), u.getEmail(), u.getRole().name(), u.getDailyStreak()));
+                                                        u.getUsername(), u.getEmail(), u.getRole().name(), u.getDailyStreak(), 0));
                 } catch (IllegalArgumentException e) {
                         throw new IllegalArgumentException("Invalid role: " + role + ". Valid roles are: USER, MOD, ADMIN");
                 }
@@ -275,14 +278,14 @@ public class UserService {
                                 Role.valueOf(role.toUpperCase());
                                 return userRepository.searchUsersExcludingBannedAndTimedOutByRole(q, role.toUpperCase(), pr)
                                                 .map(u -> new UserResponseDto(
-                                                                u.getUsername(), u.getEmail(), u.getRole().name(), u.getDailyStreak()));
+                                                                u.getUsername(), u.getEmail(), u.getRole().name(), u.getDailyStreak(), 0));
                         } catch (IllegalArgumentException e) {
                                 return Page.empty(pr);
                         }
                 } else {
                         return userRepository.searchUsersExcludingBannedAndTimedOut(q, pr)
                                         .map(u -> new UserResponseDto(
-                                                        u.getUsername(), u.getEmail(), u.getRole().name(), u.getDailyStreak()));
+                                                        u.getUsername(), u.getEmail(), u.getRole().name(), u.getDailyStreak(), 0));
                 }
         }
 

@@ -60,14 +60,14 @@ public class ExerciseController {
     public ResponseEntity<Page<ExerciseResponseDto>> getExercises(
             @RequestParam(required = false) String language,
             @RequestParam(required = false) String difficulty,
-            @RequestParam(required = false, defaultValue = "false") String onlySolved,
+            @RequestParam(required = false, defaultValue = "null") String solved,
             @RequestParam(required = false, defaultValue = "createdAt") String sortBy,
             @RequestParam(required = false, defaultValue = "desc") String order,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 
         Page<ExerciseResponseDto> exercisesDtoPage = exerciseService.getExercises(
-                language, difficulty, onlySolved, sortBy, order, page, size);
+                language, difficulty, solved, sortBy, order, page, size);
         return ResponseEntity.ok(exercisesDtoPage);
     }
 

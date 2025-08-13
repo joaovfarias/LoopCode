@@ -1,6 +1,6 @@
 'use client';
 
-import { Avatar, Box, Typography, Card, CardContent, Stack } from '@mui/material';
+import { Avatar, Box, Typography, Card, Tooltip, Stack } from '@mui/material';
 import CodeIcon from '@mui/icons-material/Code';
 import ListIcon from '@mui/icons-material/List';
 import { use, useEffect } from 'react';
@@ -17,14 +17,12 @@ export default function PerfilUsuario({ params }) {
     const router = useRouter();
 
     const [exercises, setExercises] = useState([]);
-    const [numExercises, setNumExercises] = useState(0);
     const [page, setPage] = useState(0);
     const [totalPages, setTotalPages] = useState(1);
     
     const [lists, setLists] = useState([]);
     const [listPage, setListPage] = useState(0);
     const [totalListPages, setTotalListPages] = useState(1);
-    const [totalLists, setTotalLists] = useState(0);
 
     const baseUrl = process.env.NEXT_PUBLIC_API_URL;
 
@@ -72,7 +70,6 @@ export default function PerfilUsuario({ params }) {
             const data = await response.json();
             setExercises(data.content);
             setTotalPages(data.totalPages);
-            setNumExercises(data.totalElements);
         } catch (error) {
             console.error('Error fetching exercises:', error);
         }
@@ -88,7 +85,6 @@ export default function PerfilUsuario({ params }) {
             const data = await response.json();
             setLists(data.content);
             setTotalListPages(data.totalPages);
-            setTotalLists(data.totalElements);
         } catch (error) {
             console.error('Error fetching lists:', error);
         }
@@ -127,6 +123,7 @@ export default function PerfilUsuario({ params }) {
 
                     <Stack direction="row" spacing={2} className="mt-5">
                         {/* Exercícios */}
+                        <Tooltip title="Exercícios Resolvidos">
                         <Card
                             sx={{
                                 display: 'flex',
@@ -140,27 +137,12 @@ export default function PerfilUsuario({ params }) {
                             }}
                         >
                             <CodeIcon />
-                            <Typography variant="body2">{numExercises}</Typography>
+                            <Typography variant="body2">{userData?.completedExercisesCount}</Typography>
                         </Card>
-
-                        {/* Listas */}
-                        <Card
-                            sx={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: 1.5,
-                                px: 2,
-                                py: 1,
-                                borderRadius: 4,
-                                color: 'white',
-                                boxShadow:0,
-                            }}
-                        >
-                            <ListIcon />
-                            <Typography variant="body2">{totalLists}</Typography>
-                        </Card>
+                        </Tooltip>
 
                         {/* Daily */}
+                        <Tooltip title="Streak Diário">
                         <Card
                             sx={{
                                 display: 'flex',
@@ -176,6 +158,7 @@ export default function PerfilUsuario({ params }) {
                             <LocalFireDepartmentIcon />
                             <Typography variant="body2">{userData ? userData.dailyStreak : 'Carregando...'}</Typography>
                         </Card>
+                        </Tooltip>
                     </Stack>
 
                 </Box>

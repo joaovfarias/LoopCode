@@ -14,6 +14,28 @@ import jakarta.persistence.criteria.Subquery;
 public class ExerciseSpecifications {
 
     /**
+     * Retorna uma Specification que filtra exercícios NÃO resolvidos por um usuário específico.
+     *
+     * @param username O nome do usuário para filtrar exercícios não resolvidos.
+     * @return um objeto Specification para o filtro.
+     */
+    public static Specification<Exercise> notSolvedByUser(String username) {
+        return (root, query, criteriaBuilder) -> {
+            // Subquery para verificar se NÃO existe um SolvedExercise
+            Subquery<Long> subquery = query.subquery(Long.class);
+            var solvedExerciseRoot = subquery.from(SolvedExercise.class);
+            subquery.select(criteriaBuilder.literal(1L))
+                   .where(
+                       criteriaBuilder.and(
+                           criteriaBuilder.equal(solvedExerciseRoot.get("exercise").get("id"), root.get("id")),
+                           criteriaBuilder.equal(solvedExerciseRoot.get("user").get("username"), username)
+                       )
+                   );
+            return criteriaBuilder.not(criteriaBuilder.exists(subquery));
+        };
+    }
+
+    /**
      * Retorna uma Specification que filtra exercícios pelo nome da linguagem.
      *
      * @param languageName O nome da linguagem a ser filtrada (ex: "Java").

@@ -112,7 +112,7 @@ public class ExerciseService {
     public Page<ExerciseResponseDto> getExercises(
             String language,
             String difficulty,
-            String onlySolved, // 'true' ou 'false'
+            String solved, // null = todos, "true" = resolvidos, "false" = não resolvidos
             String sortBy, // 'createdAt', 'votescount', etc.
             String order, // 'asc' ou 'desc'
             int page,
@@ -127,15 +127,19 @@ public class ExerciseService {
         }
         
         // Handle onlySolved filter
-        if ("true".equalsIgnoreCase(onlySolved)) {
+        if (solved != null) {
             var auth = SecurityContextHolder.getContext().getAuthentication();
-            if (auth != null && auth instanceof UsernamePasswordAuthenticationToken) {
-                String username = auth.getName();
-                spec = spec.and(ExerciseSpecifications.solvedByUser(username));
-            } else {
-                // If no authenticated user, return empty results for solved filter
+            if (!(auth != null && auth instanceof UsernamePasswordAuthenticationToken)) {
+                // Se não autenticado, retorna vazio para filtros resolvidos/não resolvidos
                 return Page.empty();
             }
+            String username = auth.getName();
+            if ("true".equalsIgnoreCase(solved)) {
+                spec = spec.and(ExerciseSpecifications.solvedByUser(username));
+            } else if ("false".equalsIgnoreCase(solved)) {
+                spec = spec.and(ExerciseSpecifications.notSolvedByUser(username));
+            }
+            // null: não filtra nada
         }
         
         if (!"votes".equalsIgnoreCase(sortBy)) {

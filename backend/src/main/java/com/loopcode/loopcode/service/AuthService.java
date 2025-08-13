@@ -110,7 +110,9 @@ public class AuthService {
                 user.getUsername(),
                 user.getEmail(),
                 user.getRole().name(),
-                user.getDailyStreak());
+                user.getDailyStreak(),
+                0
+                );
 
     }
 }
