@@ -14,6 +14,7 @@ import {
   Divider,
   Snackbar,
 } from "@mui/material";
+import { useRouter } from "next/navigation";
 
 export default function CreateExercisePage() {
   const [step, setStep] = useState(1);
@@ -28,8 +29,12 @@ export default function CreateExercisePage() {
   const [argumentsList, setArgumentsList] = useState([
     { name: "", type: "Int" },
   ]);
-  const [errorMessage, setErrorMessage] = useState("");
+
+  const [feedbackMessage, setFeedbackMessage] = useState("");
   const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackbarSeverity, setSnackbarSeverity] = useState("success");
+
+  const router = useRouter();
 
   function ModifyMainCode(code) {
     console.log("Modifying main code:", code);
@@ -105,17 +110,45 @@ export default function CreateExercisePage() {
   };
 
   const addTestCase = () => {
-    const funHeader = generateFunctionHeader();
-    const args = extractArguments(funHeader);
-    const regex = /def\s+([a-zA-Z_]\w*)\s*\((.*)\):/;
-
-    if (args.length === 0 || !regex.test(funHeader)) {
-      setErrorMessage("Função inválida ou não definida.");
+    if (testCases.length >= 7) {
+      setFeedbackMessage("O número máximo de casos de teste é 7.");
+      setSnackbarSeverity("error");
       setOpenSnackbar(true);
       return;
     }
 
-    setErrorMessage("");
+    const funHeader = generateFunctionHeader();
+    const args = extractArguments(funHeader);
+    const regex = /def\s+([a-zA-Z_]\w*)\s*\((.*)\):/;
+
+    // Check for duplicate parameter names
+    const paramNames = argumentsList
+      .map((arg) => arg.name.trim())
+      .filter(Boolean);
+    const hasDuplicateParams = new Set(paramNames).size !== paramNames.length;
+
+    if (
+      args.length === 0 ||
+      !regex.test(funHeader) ||
+      argumentsList.some((arg) => arg.name.trim() === "") ||
+      argumentsList.some((arg) => arg.name.trim() === functionName.trim()) ||
+      hasDuplicateParams
+    ) {
+      setFeedbackMessage(
+        argumentsList.some((arg) => arg.name.trim() === "")
+          ? "Preencha os parâmetros"
+          : argumentsList.some((arg) => arg.name.trim() === functionName.trim())
+          ? "O nome do parâmetro não pode ser igual ao nome da função."
+          : hasDuplicateParams
+          ? "Os nomes dos parâmetros devem ser distintos."
+          : "Função inválida ou não definida."
+      );
+      setSnackbarSeverity("error");
+      setOpenSnackbar(true);
+      return;
+    }
+
+    setFeedbackMessage("");
     setOpenSnackbar(false);
     setArgNames(args);
 
@@ -365,7 +398,12 @@ export default function CreateExercisePage() {
             <Divider sx={{ mb: 3, mt: 2 }}>Casos de Teste</Divider>
 
             <Box sx={{ mb: 2 }}>
-              <Button variant="contained" onClick={addTestCase} sx={{ mt: 1 }}>
+              <Button
+                variant="contained"
+                onClick={addTestCase}
+                sx={{ mt: 1 }}
+                disabled={testCases.length >= 7}
+              >
                 + Adicionar Caso de Teste
               </Button>
             </Box>
@@ -378,10 +416,10 @@ export default function CreateExercisePage() {
             >
               <Alert
                 onClose={() => setOpenSnackbar(false)}
-                severity="error"
+                severity={snackbarSeverity}
                 sx={{ width: "100%" }}
               >
-                {errorMessage}
+                {feedbackMessage}
               </Alert>
             </Snackbar>
 
@@ -414,6 +452,14 @@ export default function CreateExercisePage() {
                     key={arg}
                     label={arg}
                     value={test.inputs[arg] ?? ""}
+                    inputProps={{
+                      onInput: (e) => {
+                        e.target.value = e.target.value.replace(
+                          /[^a-zA-Z0-9_]/g,
+                          ""
+                        );
+                      },
+                    }}
                     onChange={(e) =>
                       handleInputChange(index, arg, e.target.value)
                     }
@@ -423,6 +469,14 @@ export default function CreateExercisePage() {
                 <TextField
                   label="Saída esperada"
                   value={test.expectedOutput}
+                  inputProps={{
+                    onInput: (e) => {
+                      e.target.value = e.target.value.replace(
+                        /[^a-zA-Z0-9_]/g,
+                        ""
+                      );
+                    },
+                  }}
                   onChange={(e) => handleOutputChange(index, e.target.value)}
                   sx={{ m: 1 }}
                 />
@@ -442,8 +496,26 @@ export default function CreateExercisePage() {
                 variant="contained"
                 sx={{ bgcolor: "primary" }}
                 onClick={async () => {
-                  if (testCases.length === 0) {
-                    alert("Adicione pelo menos um caso de teste.");
+                  if (
+                    testCases.length === 0 ||
+                    testCases.some(
+                      (test) =>
+                        !test.expectedOutput.trim() ||
+                        !test.argNames ||
+                        test.argNames.some(
+                          (arg) =>
+                            !test.inputs[arg] ||
+                            !test.inputs[arg].toString().trim()
+                        )
+                    )
+                  ) {
+                    setSnackbarSeverity("error");
+                    setOpenSnackbar(true);
+                    setFeedbackMessage(
+                      testCases.length === 0
+                        ? "Adicione pelo menos um caso de teste."
+                        : "Preencha todos os campos nos casos de teste."
+                    );
                     return;
                   }
 
@@ -465,6 +537,7 @@ export default function CreateExercisePage() {
 
                   console.log("Request body:", requestBody);
 
+                  let created;
                   try {
                     const response = await fetch(`${baseUrl}/exercises`, {
                       method: "POST",
@@ -480,12 +553,21 @@ export default function CreateExercisePage() {
                     if (!response.ok)
                       throw new Error("Error creating exercise");
 
-                    const created = await response.json();
-                    alert("Exercicio criado com sucesso!");
+                    created = await response.json();
+                    setSnackbarSeverity("success");
+                    setOpenSnackbar(true);
+                    setFeedbackMessage("Exercício criado com sucesso!");
                   } catch (err) {
                     console.error(err);
-                    alert("Falha ao criar exercício.");
+                    setSnackbarSeverity("error");
+                    setOpenSnackbar(true);
+                    setFeedbackMessage("Falha ao criar exercício.");
                   }
+
+                  // Redirect to the exercise page after 1 second
+                  setTimeout(() => {
+                    router.push(`/exercises/${created.id}`);
+                  }, 1000);
                 }}
               >
                 Criar

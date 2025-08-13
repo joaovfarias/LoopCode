@@ -302,6 +302,18 @@ export default function ExercisePage({ params }) {
           p: 3,
           borderRadius: 2,
           overflow: "auto",
+          "&::-webkit-scrollbar": {
+            width: "8px",
+          },
+          "&::-webkit-scrollbar-thumb": {
+            backgroundColor: "#444",
+            borderRadius: "8px",
+          },
+          "&::-webkit-scrollbar-track": {
+            backgroundColor: "transparent",
+          },
+          scrollbarColor: "#444 transparent",
+          scrollbarWidth: "thin",
         }}
       >
         <Box
