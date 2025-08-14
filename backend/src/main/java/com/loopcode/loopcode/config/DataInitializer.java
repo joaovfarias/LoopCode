@@ -177,14 +177,16 @@ CommandLineRunner initDatabase(ProgrammingLanguageRepository languagesRepository
         reverseString.setTitle("Inverter String");
         reverseString.setProgrammingLanguage(python);
         reverseString.setDifficulty(Difficulty.EASY);
-        reverseString.setDescription("Escreva uma função que inverta uma string. A string de entrada é fornecida como um array de caracteres s.");
-        reverseString.setMainCode("import sys\nimport ast\ns = ast.literal_eval(sys.argv[1])\ndef reverse_string(s):\n\t{user_code}\nprint(reverse_string(s))");
+        reverseString.setDescription("Escreva uma função que inverta uma string.");
+        reverseString.setMainCode("import sys\nimport ast\ns = (sys.argv[1])\ndef reverse_string(s):\n\t{user_code}\nprint(reverse_string(s))");
         reverseString.setCreatedBy(creator);
         reverseString.setVerified(false);
 
         List<TestCase> reverseStringTests = new ArrayList<>();
-        reverseStringTests.add(createTestCase(reverseString, "[\'h\',\'e\',\'l\',\'l\',\'o\']", "[\'o\',\'l\',\'l\',\'e\',\'h\']"));
-        reverseStringTests.add(createTestCase(reverseString, "[\'H\',\'a\',\'n\',\'n\',\'a\',\'h\']", "[\'h\',\'a\',\'n\',\'n\',\'a\',\'H\']"));
+        reverseStringTests.add(createTestCase(reverseString, "hello", "olleh"));
+        reverseStringTests.add(createTestCase(reverseString, "Hannah", "hannaH"));
+        reverseStringTests.add(createTestCase(reverseString, "kaiak", "kaiak"));
+        reverseStringTests.add(createTestCase(reverseString, "bottle", "elttob"));
         reverseString.setTestCode(reverseStringTests);
         exercises.add(reverseString);
         
