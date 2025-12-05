@@ -1,6 +1,7 @@
 package com.loopcode.loopcode.config;
 
-import java.util.Arrays;
+import static org.springframework.boot.autoconfigure.security.servlet.PathRequest.toH2Console;
+
 import java.util.List;
 
 import org.springframework.context.annotation.Bean;
@@ -37,12 +38,24 @@ public class SecurityConfig {
 
     @Bean
     @Order(1)
+    public SecurityFilterChain h2ConsoleSecurityFilterChain(HttpSecurity http) throws Exception {
+        http
+                .securityMatcher(toH2Console())
+                .csrf(csrf -> csrf.disable())
+                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
+                .headers(headers -> headers.frameOptions(frame -> frame.disable()));
+
+        return http.build();
+    }
+
+    @Bean
+    @Order(2)
     public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http,
             DaoAuthenticationProvider authenticationProvider) throws Exception {
         http
                 .authenticationProvider(authenticationProvider)
                 .csrf(csrf -> csrf.disable())
-                .cors(Customizer.withDefaults())
+                .cors(Customizer.withDefaults()) // ✅ CORS habilitado corretamente aqui
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/auth/login", "/auth/register").permitAll()
                         .requestMatchers(HttpMethod.POST, "/exercises").authenticated()
@@ -55,10 +68,10 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/users/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/search").permitAll()
                         .requestMatchers(HttpMethod.PATCH, "/users/*/ban", "/users/*/timeout")
-                        .hasAnyRole("MOD", "ADMIN")
+                        .hasAnyRole("MOD", "ADMIN")// nao lembro se eu moderator ou mod
                         .requestMatchers(HttpMethod.PATCH, "/users/*/role").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/").permitAll()
-                        .anyRequest().authenticated())
+                        .anyRequest().permitAll()) // lembrete: alterar isso depois
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
@@ -85,11 +98,8 @@ public class SecurityConfig {
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
-        String allowed = System.getenv().getOrDefault("CORS_ALLOWED_ORIGINS", "http://localhost:3000");
-        List<String> origins = Arrays.asList(allowed.split(","));
-
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(origins);
+        config.setAllowedOrigins(List.of("http://localhost:3000"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);

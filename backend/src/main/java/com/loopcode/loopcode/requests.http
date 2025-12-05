@@ -1,0 +1,147 @@
+###
+POST http://localhost:8084/auth/register
+Content-Type: application/json
+
+{
+  "username": "adesto",
+  "email": "adesto@example.com",
+  "password": "12346678",
+  "role": "ADMIN"
+}
+
+###
+POST http://localhost:8084/auth/login
+Content-Type: application/json
+
+{
+  "email": "adesto@example.com",
+  "password": "12346678"
+}
+
+###
+POST http://localhost:8084/auth/register
+Content-Type: application/json
+
+{
+  "username": "banTest",
+  "email": "banTest@example.com",
+  "password": "12346678",
+  "role": "USER"
+}
+
+###
+POST http://localhost:8084/auth/login
+Content-Type: application/json
+
+{
+  "email": "banTest@example.com",
+  "password": "12346678"
+}
+
+###
+PATCH http://localhost:8084/users/banTest/ban
+Content-Type: application/json
+Authorization: Bearer {{admin_token}}
+
+{
+  "banReason": "TESTE TESTE TESTE"
+}
+
+###
+PATCH http://localhost:8084/users/banTest/unban
+Content-Type: application/json
+Authorization: Bearer {{admin_token}}
+
+###
+PATCH http://localhost:8084/users/banTest/timeout
+Content-Type: application/json
+Authorization: Bearer {{admin_token}}
+
+{
+  "reason": "TESTE TIMEOUT",
+  "durationMinutes": 5
+}
+
+###
+PATCH http://localhost:8084/users/banTest/untimeout
+Content-Type: application/json
+Authorization: Bearer {{admin_token}}
+
+###
+POST http://localhost:8084/exercises
+Content-Type: application/json
+Authorization: Bearer [ITS ALRIGHT GITGUARDIAN]
+{
+  "title": "Soma de Dois Números",
+  "description": "Crie uma função que receba dois números e retorne a soma.",
+  "mainCode": "public class Solution {\n    public int somar(int a, int b) {\n        // Seu código\n        return {user_code};\n    }\n}",
+  "difficulty": "EASY",
+  "languageId": 1,
+  "testCases": [
+    { "input": "5 10", "expectedOutput": "15" },
+    { "input": "-1 1", "expectedOutput": "0" }
+  ]
+}
+
+###
+# 10. Listar exercícios filtrando por linguagem “Java”
+GET http://localhost:8084/exercises?language=java&page=0&size=5
+Content-Type: application/json
+
+###
+# 11. Buscar exercício por ID
+GET http://localhost:8084/exercises/a0c1263c-94b5-4322-9c59-4f1c33358123
+Content-Type: application/json
+
+###
+# 12. Submeter solução para exercício (solve)
+POST http://localhost:8084/exercises/a0c1263c-94b5-4322-9c59-4f1c33358123/solve
+Content-Type: application/json
+Authorization: Bearer [ITS ALRIGHT GITGUARDIAN]
+{
+  "code": "public int somar(int a, int b) { return a + b; }"
+}
+
+###
+# 13. Upvote no exercício
+POST http://localhost:8084/exercises/a0c1263c-94b5-4322-9c59-4f1c33358123/upvote
+Content-Type: application/json
+Authorization: Bearer [ITS ALRIGHT GITGUARDIAN]
+###
+# 14. Downvote no exercício
+POST http://localhost:8084/exercises/c9ca97df-93ae-4d99-ad85-b3ff976e46fe/downvote
+Content-Type: application/json
+Authorization: Bearer [ITS ALRIGHT GITGUARDIAN]
+###
+# 15. Criar lista de exercícios para o usuário banTest
+POST http://localhost:8084/users/banTest/lists
+Content-Type: application/json
+Authorization: Bearer [ITS ALRIGHT GITGUARDIAN]
+{
+  "name": "Minhas Listas 2 ",
+  "exerciseIds": ["a0c1263c-94b5-4322-9c59-4f1c33358123"]
+}
+
+###
+# 16. Listar todas as listas de banTest
+GET http://localhost:8084/users/banTest/lists
+Content-Type: application/json
+Authorization: Bearer [ITS ALRIGHT GITGUARDIAN]
+###
+# 17. Buscar lista específica por ID
+GET http://localhost:8084/users/banTest/lists/2
+Content-Type: application/json
+Authorization: Bearer [ITS ALRIGHT GITGUARDIAN]
+
+### 18. Busca genérica por termo (em exercício/lista/usuário)
+GET http://localhost:8084/search?q=soma
+Content-Type: application/json
+
+###
+GET http://localhost:8084/daily-challenge
+Content-Type: application/json
+
+### 19. Buscar registros de banimento por nome de usuário ou email
+GET http://localhost:8084/users/bans/search?q=banTest&page=0&size=10
+
+Authorization: Bearer [ITS ALRIGHT GITGUARDIAN]
