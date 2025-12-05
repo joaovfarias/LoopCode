@@ -1,8 +1,0 @@
-[build]
-builder = "paketobuildpacks/builder:base"
-
-[build.env]
-BP_JVM_VERSION = "17"
-
-[deploy]
-startCommand = "java -jar target/*.jar"
