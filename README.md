@@ -3,6 +3,8 @@
 Aplicação web para prática e resolução de exercícios de programação.  
 Permite rodar código Python diretamente no navegador, criar exercícios, montar listas de estudos e votar em exercícios da comunidade.
 
+Acesse aqui: https://loopcode-psi.vercel.app
+
 ---
 
 ## 🚀 Tecnologias Utilizadas
@@ -37,3 +39,4 @@ Permite rodar código Python diretamente no navegador, criar exercícios, montar
 ## 📄 Sobre o Projeto
 O LoopCode foi criado para ser uma plataforma simples e acessível para quem deseja praticar lógica de programação.
 A plataforma permite criar e resolver exercícios, executar código Python com retorno imediato, organizar listas de estudo e interagir com a comunidade através de votos.
+
