@@ -455,7 +455,7 @@ export default function CreateExercisePage() {
                     inputProps={{
                       onInput: (e) => {
                         e.target.value = e.target.value.replace(
-                          /[^a-zA-Z0-9_]/g,
+                          /[^a-zA-Z0-9\[\],"]/g,
                           ""
                         );
                       },
