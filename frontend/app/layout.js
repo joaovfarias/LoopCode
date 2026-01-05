@@ -6,6 +6,7 @@ import NavWrapper from "../components/NavWrapper";
 import { Container } from "@mui/material";
 import AuthGuard from "./auth-guard";
 import SpeedDial from "@/components/SpeedDial";
+import Warmup from "../components/Warmup";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -22,6 +23,7 @@ export default function RootLayout({ children }) {
     <html lang="pt-BR">
       <body className={`${inter.variable} antialiased`}>
         <MuiThemeProvider>
+          <Warmup />
           <AuthGuard>
             <NavWrapper />
             <SpeedDial />

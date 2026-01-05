@@ -14,12 +14,11 @@ import {
   Snackbar,
   Alert,
 } from "@mui/material";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import { useRouter } from "next/navigation";
-import Warmup from "@/components/Warmup";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -113,7 +112,6 @@ export default function LoginPage() {
 
   return (
     <div className="relative min-h-[calc(100vh-32px)] flex items-center justify-center overflow-hidden">
-      <Warmup />
       <Snackbar
         open={open}
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
