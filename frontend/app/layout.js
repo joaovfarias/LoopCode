@@ -1,6 +1,7 @@
 // app/layout.js
 import { Inter } from "next/font/google";
 import "./globals.css";
+import { AppRouterCacheProvider } from "@mui/material-nextjs/v15-appRouter";
 import MuiThemeProvider from "./theme-provider";
 import NavWrapper from "../components/NavWrapper";
 import { Container } from "@mui/material";
@@ -22,16 +23,18 @@ export default function RootLayout({ children }) {
   return (
     <html lang="pt-BR">
       <body className={`${inter.variable} antialiased`}>
-        <MuiThemeProvider>
-          <Warmup />
-          <AuthGuard>
-            <NavWrapper />
-            <SpeedDial />
-            <Container maxWidth="lg" sx={{ mt: 4 }}>
-              {children}
-            </Container>
-          </AuthGuard>
-        </MuiThemeProvider>
+        <AppRouterCacheProvider>
+          <MuiThemeProvider>
+            <Warmup />
+            <AuthGuard>
+              <NavWrapper />
+              <SpeedDial />
+              <Container maxWidth="lg" sx={{ mt: 4 }}>
+                {children}
+              </Container>
+            </AuthGuard>
+          </MuiThemeProvider>
+        </AppRouterCacheProvider>
       </body>
     </html>
   );

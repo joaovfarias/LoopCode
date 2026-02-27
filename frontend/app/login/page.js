@@ -27,7 +27,7 @@ export default function LoginPage() {
   const [mostrarSenha, setMostrarSenha] = useState(false);
   const [open, setOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState(
-    "Credenciais inválidas. Por favor, tente novamente."
+    "Credenciais inválidas. Por favor, tente novamente.",
   );
   const [errorSeverity, setErrorSeverity] = useState("error");
 
@@ -54,7 +54,7 @@ export default function LoginPage() {
             const errorData = await response.json();
             if (errorData.error === "BANNED_USER") {
               setErrorMessage(
-                `Você foi banido permanentemente. Motivo: ${errorData.reason}`
+                `Você foi banido permanentemente. Motivo: ${errorData.reason}`,
               );
             } else if (errorData.error === "TIMED_OUT_USER") {
               const timeoutEndDate = new Date(errorData.timeoutEndDate);
@@ -67,16 +67,16 @@ export default function LoginPage() {
                 second: "2-digit",
               });
               setErrorMessage(
-                `Você está temporariamente suspenso até ${formattedDate}. Motivo: ${errorData.reason}`
+                `Você está temporariamente suspenso até ${formattedDate}. Motivo: ${errorData.reason}`,
               );
             } else {
               setErrorMessage(
-                "Credenciais inválidas. Por favor, tente novamente."
+                "Credenciais inválidas. Por favor, tente novamente.",
               );
             }
           } catch {
             setErrorMessage(
-              "Credenciais inválidas. Por favor, tente novamente."
+              "Credenciais inválidas. Por favor, tente novamente.",
             );
           }
           setErrorSeverity("error");
@@ -105,6 +105,19 @@ export default function LoginPage() {
 
   const registrar = () => {
     router.push("/register");
+  };
+
+  const handleVisitor = () => {
+    // Fill the form with guest credentials and submit
+    setEmail("user@example.com");
+    setSenha("password");
+    setTimeout(() => {
+      document
+        .querySelector("form")
+        .dispatchEvent(
+          new Event("submit", { cancelable: true, bubbles: true }),
+        );
+    }, 10); // Delay to ensure state updates before form submission
   };
 
   const handleMouseDownPassword = (event) => event.preventDefault();
@@ -204,6 +217,18 @@ export default function LoginPage() {
                   style={{ cursor: "pointer", textAlign: "center" }}
                 >
                   Registre-se
+                </Link>
+              </Typography>
+
+              <Typography variant="body2" color="textSecondary" align="center">
+                ou{" "}
+                <Link
+                  color="secondary"
+                  underline="none"
+                  onClick={handleVisitor}
+                  style={{ cursor: "pointer", textAlign: "center" }}
+                >
+                  acesse como visitante
                 </Link>
               </Typography>
             </form>
