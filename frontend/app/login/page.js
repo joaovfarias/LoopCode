@@ -38,14 +38,16 @@ export default function LoginPage() {
     setOpen(false);
   };
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
+  const handleLogin = async (e, overrideEmail, overridePassword) => {
+    e?.preventDefault();
     const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+    const loginEmail = overrideEmail ?? email;
+    const loginSenha = overridePassword ?? senha;
     try {
       const response = await fetch(`${baseUrl}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: email, password: senha }),
+        body: JSON.stringify({ email: loginEmail, password: loginSenha }),
       });
 
       if (!response.ok) {
@@ -108,16 +110,7 @@ export default function LoginPage() {
   };
 
   const handleVisitor = () => {
-    // Fill the form with guest credentials and submit
-    setEmail("user@example.com");
-    setSenha("password");
-    setTimeout(() => {
-      document
-        .querySelector("form")
-        .dispatchEvent(
-          new Event("submit", { cancelable: true, bubbles: true }),
-        );
-    }, 10); // Delay to ensure state updates before form submission
+    handleLogin(null, "user@example.com", "password");
   };
 
   const handleMouseDownPassword = (event) => event.preventDefault();
